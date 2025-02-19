@@ -2840,54 +2840,38 @@ public function AddProduct(
                 
                 return $res;
             }
+
+            
             public function getPayments() {
                 $res = array();
-                $res['status'] = 0;
+                $res['result'] = 0; // Using 'result' to avoid confusion with status column
                 
                 $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
                 
                 $query = $con->prepare('SELECT 
-                    p.id,
-                    p.order_id,
-                    p.payment_id,
-                    p.payment_signature,
-                    p.amount,
-                    p.status,
-                    p.created_at,
-                    o.billing_fullname AS user_name,
-                    o.billing_email AS user_email,
-                    o.billing_mobile AS user_mobile
-                FROM payments p
-                LEFT JOIN orders o ON p.order_id = o.id
-                ORDER BY p.id DESC');
+                    id,
+                    order_id,
+                    payment_id,
+                    payment_signature,
+                    amount,
+                    status,
+                    created_at
+                FROM payments 
+                ORDER BY id DESC');
                 
                 if ($query->execute()) {
-                    $query->bind_result(
-                        $id, 
-                        $order_id, 
-                        $payment_id, 
-                        $payment_signature, 
-                        $amount, 
-                        $status, 
-                        $created_at,
-                        $user_name,
-                        $user_email,
-                        $user_mobile
-                    );
-                    
+                    $result = $query->get_result();
                     $i = 0;
-                    while ($query->fetch()) {
-                        $res['status'] = 1;
-                        $res['id'][$i] = $id;
-                        $res['order_id'][$i] = $order_id;
-                        $res['payment_id'][$i] = $payment_id;
-                        $res['payment_signature'][$i] = $payment_signature;
-                        $res['amount'][$i] = $amount;
-                        $res['status'][$i] = $status;
-                        $res['created_at'][$i] = $created_at;
-                        $res['user_name'][$i] = $user_name;
-                        $res['user_email'][$i] = $user_email;
-                        $res['user_mobile'][$i] = $user_mobile;
+                    
+                    while ($row = $result->fetch_assoc()) {
+                        $res['result'] = 1;
+                        $res['id'][$i] = $row['id'];
+                        $res['order_id'][$i] = $row['order_id'];
+                        $res['payment_id'][$i] = $row['payment_id'];
+                        $res['payment_signature'][$i] = $row['payment_signature'];
+                        $res['amount'][$i] = $row['amount'];
+                        $res['status'][$i] = $row['status'];
+                        $res['created_at'][$i] = $row['created_at'];
                         $i++;
                     }
                     $res['count'] = $i;

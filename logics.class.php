@@ -3463,7 +3463,7 @@ public function getProductBySubCatId($id) {
                 INNER JOIN 
                     users u ON r.user_id = u.id
                 WHERE 
-                    r.product_id = ? 
+                    r.product_id = ? and r.status = 1
                 ORDER BY 
                     r.id DESC
             ');

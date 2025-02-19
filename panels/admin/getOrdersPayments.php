@@ -13,7 +13,8 @@ if (!empty($_SESSION['role'])) {
     $getPayments = new logics();
     $verification = $getPayments->getPayments();
 
-    if (!empty($verification['status']) && $verification['status'] == 1) {
+    // Change this line from checking 'status' to checking 'result'
+    if (!empty($verification['result']) && $verification['result'] == 1) {
         ?>
 
         <!--  Content -->
@@ -48,37 +49,41 @@ if (!empty($_SESSION['role'])) {
                                             <tr>
                                                 <th>Payment ID</th>
                                                 <th>Order ID</th>
-                                                <th>User Details</th>
+                                                <th>Payment ID</th>
                                                 <th>Amount</th>
                                                 <th>Payment Status</th>
-                                                <th>Transaction ID</th>
+                                                <th>Payment Signature</th>
                                                 <th>Created At</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <?php
-                                        for ($i = 0; $i < $verification['count']; $i++) {
-                                            ?>
+                                        <?php if (!empty($verification['result']) && $verification['result'] == 1) { ?>
+                                            <?php if ($verification['count'] > 0) { ?>
+                                                <?php for ($i = 0; $i < $verification['count']; $i++) { ?>
+                                                    <tr>
+                                                        <td><?php echo $verification['id'][$i]; ?></td>
+                                                        <td><?php echo $verification['order_id'][$i]; ?></td>
+                                                        <td><?php echo $verification['payment_id'][$i]; ?></td>
+                                                        <td>₹<?php echo number_format($verification['amount'][$i], 2); ?></td>
+                                                        <td>
+                                                            <span class="badge bg-<?php echo ($verification['status'][$i] == 'success') ? 'success' : 'danger'; ?>">
+                                                                <?php echo ucfirst($verification['status'][$i]); ?>
+                                                            </span>
+                                                        </td>
+                                                        <td><?php echo $verification['payment_signature'][$i]; ?></td>
+                                                        <td><?php echo date('d M Y h:i A', strtotime($verification['created_at'][$i])); ?></td>
+                                                    </tr>
+                                                <?php } ?>
+                                            <?php } else { ?>
+                                                <tr>
+                                                    <td colspan="7" class="text-center">No payments found</td>
+                                                </tr>
+                                            <?php } ?>
+                                        <?php } else { ?>
                                             <tr>
-                                                <td><?php echo $verification['id'][$i]; ?></td>
-                                                <td><?php echo $verification['order_id'][$i]; ?></td>
-                                                <td>
-                                                    <span><?php echo $verification['user_name'][$i]; ?></span><br>
-                                                    <span><?php echo $verification['user_mobile'][$i]; ?></span><br>
-                                                    <span><?php echo $verification['user_email'][$i]; ?></span>
-                                                </td>
-                                                <td>₹<?php echo number_format($verification['amount'][$i], 2); ?></td>
-                                                <td>
-                                                    <span class="badge bg-<?php echo ($verification['status'][$i] == 'success') ? 'success' : 'danger'; ?>">
-                                                        <?php echo ucfirst($verification['status'][$i]); ?>
-                                                    </span>
-                                                </td>
-                                                <td><?php echo $verification['payment_id'][$i]; ?></td>
-                                                <td><?php echo date('d M Y h:i A', strtotime($verification['created_at'][$i])); ?></td>
+                                                <td colspan="7" class="text-center">Error loading payments data</td>
                                             </tr>
-                                            <?php
-                                        }
-                                        ?>
+                                        <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>
