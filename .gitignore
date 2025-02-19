@@ -1,0 +1,70 @@
+# Product Images and Media Files
+/uploads/*
+/images/*
+/assets/images/*
+/media/*
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.mp4
+*.mov
+*.pdf
+
+# Vendor and Dependencies
+/vendor/
+node_modules/
+composer.lock
+package-lock.json
+
+# Environment and Configuration
+.env
+config.php
+*.config
+.DS_Store
+
+# Cache and Temporary Files
+/cache/*
+/tmp/*
+*.cache
+*.log
+*.tmp
+
+# IDE and Editor Files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Backup Files
+*.bak
+*.backup
+*~
+*.swp
+
+# Database Files
+*.sql
+*.sqlite
+*.db
+
+# Compiled Files
+*.css.map
+*.min.css
+*.min.js
+
+# Large Generated Files
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
