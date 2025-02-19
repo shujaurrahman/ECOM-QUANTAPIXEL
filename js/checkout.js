@@ -1,8 +1,6 @@
 jQuery(document).ready(function($) {
     $('#PayNow').click(function(e) {
         e.preventDefault();
-        
-        console.log('PayNow clicked');
 
         // Validate form
         if (!$('#checkoutForm')[0].checkValidity()) {
@@ -25,7 +23,7 @@ jQuery(document).ready(function($) {
                 $('#PayNow').prop('disabled', true).html('Processing...');
             },
             success: function(response) {
-                console.log('Order response:', response);
+        
                 
                 if(response && response.status === 1) {
                     // Order saved successfully, now initiate payment
@@ -66,12 +64,6 @@ jQuery(document).ready(function($) {
                                     "order_id": data.userData.rpay_order_id,
                                     "handler": function (response) {
                                         console.log('Payment success response:', response);
-                                        
-                                        // Add these console logs before the save payment AJAX call
-                                        console.log('Order number:', data.order_number);
-                                        console.log('Payment ID:', response.razorpay_payment_id);
-                                        console.log('Signature:', response.razorpay_signature);
-                                        console.log('Amount:', data.userData.amount);
 
                                         // Save payment details first
                                         $.ajax({

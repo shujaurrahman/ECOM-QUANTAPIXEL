@@ -4,7 +4,6 @@ if (!empty($_SESSION['role'])) {
     $title = "orders";
     require_once('header.php');
     require_once('./logics.class.php');
-
     $getUsers = new logics();
     $verification = $getUsers->getOrders();
 
@@ -49,7 +48,7 @@ if (!empty($_SESSION['role'])) {
                                                 <td>Total Price</td>
                                                 <td>Created At</td>
                                                 <td>Details</td>
-                                                <td>Approval</td>
+                                                <td>Ship</td>
                                                 <td>Status</td>
                                             </tr>
                                         </thead>
@@ -72,12 +71,9 @@ if (!empty($_SESSION['role'])) {
                                                     <a href="order-details?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-outline-success rounded-pill">Detailed View</a>
                                                 </td>
                                                 <td>
-                                                    <form action="" method="post">
-                                                        <select name="approval" id="" class="form-select">
-                                                            <option value="pending">pending</option>
-                                                            <option value="approved">Approve</option>
-                                                            <option value="rejected">Reject</option>
-                                                        </select>
+                                                    <form action="ship_order.php" method="post">
+                                                        <input type="hidden" name="order_id" value="<?php echo $verification['id'][$i]; ?>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill">Ship Order</button>
                                                     </form>
                                                 </td>
                                                 <td>

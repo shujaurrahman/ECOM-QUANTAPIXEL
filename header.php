@@ -13,8 +13,6 @@ if(!empty($_SESSION['user_id'])){
     $wishlist = $Obj->getWishlistById($_SESSION['user_id']);
     $getOrders = $Obj->getOrders();
 }
-
-
 ?>
 
 
@@ -48,130 +46,135 @@ if(!empty($_SESSION['user_id'])){
 
     <!-- Add these styles to your existing CSS in header.php -->
     <style>
-        .modal.right .modal-dialog {
-            position: fixed;
-            margin: auto;
-            width: 100%;
-            height: 100%;
-            transform: translateX(100%);
-        }
+/* Modal Styles */
+.modal.right .modal-dialog {
+    position: fixed;
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    transform: translateX(100%);
+}
 
-        .modal.right .modal-content {
-            height: 100%;
-            overflow-y: auto;
-            background-color: #f8f9fa;
-        }
+.modal.right .modal-content {
+    height: 100%;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+}
 
-        .modal.right.fade .modal-dialog {
-            right: 0;
-            transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+.modal.right.fade .modal-dialog {
+    right: 0;
+    transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-        .modal.right.fade.show .modal-dialog {
-            transform: translateX(0);
-        }
+.modal.right.fade.show .modal-dialog {
+    transform: translateX(0);
+}
 
-        .search-input-wrapper {
-            position: relative;
-            margin: 10px 0;
-        }
+/* Search Input Styles */
+.search-input-wrapper {
+    position: relative;
+    margin: 10px 0;
+}
 
-        .search-input-wrapper input {
-            padding: 20px 60px 20px 25px;
-            font-size: 16px;
-            background-color: white;
-            transition: all 0.3s ease;
-        }
+.search-input-wrapper input {
+    padding: 20px 60px 20px 25px;
+    font-size: 16px;
+    background-color: white;
+    transition: all 0.3s ease;
+}
 
-        .search-input-wrapper input:focus {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: none;
-            outline: none;
-        }
+.search-input-wrapper input:focus {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: none;
+    outline: none;
+}
 
-        .search-btn {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 45px;
-            height: 45px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+/* Button Styles */
+.search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #666;
-            padding: 10px;
-            transition: all 0.3s ease;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    padding: 10px;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .close-btn:hover {
-            background-color: rgba(0,0,0,0.05);
-            color: #333;
-        }
+.close-btn:hover {
+    background-color: rgba(0,0,0,0.05);
+    color: #333;
+}
 
-        .product-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+/* Product Card Styles */
+.product-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
 
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
 
-        .product-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
 
-        .product-card .card-body {
-            padding: 15px;
-        }
+.product-card .card-body {
+    padding: 15px;
+}
 
-        .search-results-box {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 5px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
+/* Search Results Styles */
+.search-results-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
 
-        .search-item {
-            padding: 10px 15px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+.search-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-        .search-item:hover {
+.search-item:hover {
     background-color: #f8f9fa;
     text-decoration: none;
 }
@@ -198,33 +201,13 @@ if(!empty($_SESSION['user_id'])){
     color: #666;
     font-size: 12px;
 }
-/* Add to your existing styles */
-.modal.right .modal-dialog {
-    position: fixed;
-    margin: auto;
-    width: 100%;
-    height: 100%;
-    transform: translateX(100%);
-}
 
-.modal.right .modal-content {
-    height: 100%;
-    overflow-y: auto;
-}
-
-.modal.right.fade .modal-dialog {
-    right: 0;
-    transition: transform .3s ease-in-out;
-}
-
-.modal.right.fade.show .modal-dialog {
-    transform: translateX(0);
-}
-
+/* Search Modal Specific Styles */
 .search-result-card {
     border: 1px solid #eee;
     border-radius: 8px;
     transition: all 0.3s ease;
+    animation: fadeIn 0.3s ease forwards;
 }
 
 .search-result-card:hover {
@@ -243,16 +226,6 @@ if(!empty($_SESSION['user_id'])){
     transform: translateY(-50%);
 }
 
-.product-card {
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
 #searchModal .custom-position-search {
     position: absolute;
     right: 5px;
@@ -269,37 +242,34 @@ if(!empty($_SESSION['user_id'])){
     padding: 0;
     margin: 0;
 }
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .modal.right .modal-dialog {
-                width: 100%;
-                margin: 0;
-            }
 
-            .search-input-wrapper input {
-                padding: 15px 50px 15px 20px;
-                font-size: 14px;
-            }
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-            .search-btn {
-                width: 35px;
-                height: 35px;
-            }
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .modal.right .modal-dialog {
+        width: 100%;
+        margin: 0;
+    }
 
-            .product-card img {
-                height: 150px;
-            }
-        }
+    .search-input-wrapper input {
+        padding: 15px 50px 15px 20px;
+        font-size: 14px;
+    }
 
-        /* Animation for search results */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .search-btn {
+        width: 35px;
+        height: 35px;
+    }
 
-        .search-result-card {
-            animation: fadeIn 0.3s ease forwards;
-        }
+    .product-card img {
+        height: 150px;
+    }
+}
     </style>
 </head>
 
@@ -423,26 +393,6 @@ if(!empty($_SESSION['user_id'])){
                     <i class="fa fa-angle-down text-light"></i>
                 </a>
                 <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width: calc(100% - 30px); z-index: 999;">
-
-                
-                    <!-- <div class="navbar-nav w-100">
-                        <div class="nav-item dropdown dropright">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Gold Ornaments <i class="fa fa-angle-right float-right mt-1"></i></a>
-                            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                                <a href="" class="dropdown-item">Gold Necklaces</a>
-                                <a href="" class="dropdown-item">Gold Earrings</a>
-                                <a href="" class="dropdown-item">Gold Bracelets</a>
-                            </div>
-                        </div>
-                        <a href="" class="nav-item nav-link">Gold Rings</a>
-                        <a href="" class="nav-item nav-link">Gold Bangles</a>
-                        <a href="" class="nav-item nav-link">Gold Pendants</a>
-                        <a href="" class="nav-item nav-link">Gold Chains</a>
-                        <a href="" class="nav-item nav-link">Gold Anklets</a>
-                        <a href="" class="nav-item nav-link">Gold Nose Pins</a>
-                        <a href="" class="nav-item nav-link">Gold Toe Rings</a>
-                        <a href="" class="nav-item nav-link">Gold Sets</a>
-                    </div> -->
 
 
                     <div class="navbar-nav w-100">
@@ -623,7 +573,7 @@ if(!empty($_SESSION['user_id'])){
 
 
 <!-- Payment Details Popup -->   
-<div class="modal fade" id="PaymentDetailsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<!-- <div class="modal fade" id="PaymentDetailsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -683,7 +633,7 @@ if(!empty($_SESSION['user_id'])){
                 </tr>
             </thead>
             <tbody>
-                <!-- Dynamic rows will be appended here -->
+    
             </tbody>
             </table>
         </div>
@@ -693,7 +643,7 @@ if(!empty($_SESSION['user_id'])){
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 
 <!-- SignUp Popup -->   
@@ -955,6 +905,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Make showPopularProducts available globally
     window.showPopularProducts = showPopularProducts;
+
+    // Add this new event listener for the search input
+    document.getElementById('search-bar').addEventListener('click', function(e) {
+        e.preventDefault();
+        $('#searchModal').modal('show');
+        modalSearchInput.value = searchBar.value;
+        if (modalSearchInput.value.trim()) {
+            performSearch(modalSearchInput.value.trim());
+        } else {
+            loadPopularProducts();
+        }
+    });
+
+    // Make the search input readonly to prevent keyboard input
+    document.getElementById('search-bar').setAttribute('readonly', 'readonly');
 });
 </script>
 

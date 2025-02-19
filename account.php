@@ -37,7 +37,7 @@ require_once('./header.php');
                                 <th>Order Id</th>
                                 <th>Products Count</th>
                                 <th>Price</th>
-                                <th>Order Approval</th>
+                                <!-- <th>Order Approval</th> -->
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -55,7 +55,7 @@ require_once('./header.php');
                                     
                                     ><?php echo $getOrders['total_products'][$i]; ?> Products</a></td>
                                     <td><?php echo $getOrders['grandtotal'][$i]; ?></td>
-                                    <td><b style="color:<?php if($getOrders['approval'][$i]=='pending'){ echo "orange"; }elseif($getOrders['approval'][$i]=='approved'){ echo "green"; }elseif($getOrders['approval'][$i]=='rejected'){ echo "red"; } ?>"><?php echo $getOrders['approval'][$i]; ?></b></td>
+                                    <!-- <td><b style="color:<?php if($getOrders['approval'][$i]=='pending'){ echo "orange"; }elseif($getOrders['approval'][$i]=='approved'){ echo "green"; }elseif($getOrders['approval'][$i]=='rejected'){ echo "red"; } ?>"><?php echo $getOrders['approval'][$i]; ?></b></td> -->
                                     <td><b style="color:<?php if($getOrders['order_status'][$i]=='placed'){ echo "orange"; }elseif($getOrders['order_status'][$i]=='dispatched'){ echo "blue"; }elseif($getOrders['order_status'][$i]=='delivered'){ echo "green"; }elseif($getOrders['order_status'][$i]=='cancelled'){ echo "red"; } ?>"><?php echo $getOrders['order_status'][$i]; ?></b></td>
                                 </tr>
 
