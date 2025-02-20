@@ -11,6 +11,10 @@ if (!empty($_SESSION['role'])) {
     if (!empty($orderDetails['status']) && $orderDetails['status'] == 1) {
 ?>
     <style>
+        .float-end { 
+            float: none !important; 
+            margin-right: 0 !important;}
+
         .invoice-box {
             background: #fff;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -170,7 +174,7 @@ if (!empty($_SESSION['role'])) {
                             <td><?php echo $index + 1; ?></td>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="./product/<?php echo $product['product_image']; ?>" class="me-3" alt="">
+                                    <img src="./panels/admin/product/<?php echo $product['product_image']; ?>" class="me-3" alt="">
                                     <div>
                                         <a href="../../product-view?slug=<?php echo $product['product_slug']; ?>" 
                                            class="product-name"><?php echo $product['product_name']; ?></a>

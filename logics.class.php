@@ -3144,102 +3144,293 @@ public function getProductBySubCatId($id) {
         //     $con->close();
         
         //     return $res;
+        // 
+        
+        // public function PlaceOrder($orderData) {
+        //     $res = array();
+        //     $res['status'] = 0;
+        
+        //     // Log the incoming data
+        //     error_log("PlaceOrder function called with data: " . print_r($orderData, true));
+        
+        //     try {
+        //         // Database connection
+        //         $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+        //         error_log("Database connection attempt made");
+                
+        //         if ($con->connect_error) {
+        //             error_log("Database connection failed: " . $con->connect_error);
+        //             throw new Exception("Database connection failed: " . $con->connect_error);
+        //         }
+        //         error_log("Database connection successful");
+        
+        //         // Begin transaction
+        //         $con->begin_transaction();
+        //         error_log("Transaction started");
+        
+        //         // Generate unique order ID if not provided
+        //         if (empty($orderData['order_id'])) {
+        //             $orderData['order_id'] = 'ORD' . time() . rand(1000, 9999);
+        //             error_log("Generated order_id: " . $orderData['order_id']);
+        //         }
+        
+        //         // SQL Query
+        //         $sql = "INSERT INTO orders (
+        //             order_id, razorpay_order_id, user_id, 
+        //             billing_fullname, billing_email, billing_mobile,
+        //             billing_address1, billing_address2, billing_city,
+        //             billing_state, billing_pincode,
+        //             total_products, subtotal, gst, total, grandtotal,
+        //             payment_mode, payment_amount, payment_reference,
+        //             payment_proof, approval, remarks, status,
+        //             payment_id, payment_date, order_status, payment_status
+        //         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        //         error_log("Preparing SQL query: " . $sql);
+        //         $stmt = $con->prepare($sql);
+        
+        //         if (!$stmt) {
+        //             error_log("SQL Prepare Error: " . $con->error);
+        //             throw new Exception("Failed to prepare statement: " . $con->error);
+        //         }
+        
+        //         // Log all values being bound
+        //         error_log("Binding parameters with values: " . print_r([
+        //             'order_id' => $orderData['order_id'],
+        //             'razorpay_order_id' => $orderData['razorpay_order_id'],
+        //             'user_id' => $orderData['user_id'],
+        //             // ... log other values
+        //         ], true));
+        
+        //         $stmt->bind_param(
+        //             'sssssssssssssssssssssssssss',
+        //             $orderData['order_id'],
+        //             $orderData['razorpay_order_id'],
+        //             $orderData['user_id'],
+        //             $orderData['billing_fullname'],
+        //             $orderData['billing_email'],
+        //             $orderData['billing_mobile'],
+        //             $orderData['billing_address1'],
+        //             $orderData['billing_address2'],
+        //             $orderData['billing_city'],
+        //             $orderData['billing_state'],
+        //             $orderData['billing_pincode'],
+        //             $orderData['total_products'],
+        //             $orderData['subtotal'],
+        //             $orderData['gst'],
+        //             $orderData['total'],
+        //             $orderData['grandtotal'],
+        //             $orderData['payment_mode'],
+        //             $orderData['payment_amount'],
+        //             $orderData['payment_reference'],
+        //             $orderData['payment_proof'],
+        //             $orderData['approval'],
+        //             $orderData['remarks'],
+        //             $orderData['status'],
+        //             $orderData['payment_id'],
+        //             $orderData['payment_date'],
+        //             $orderData['order_status'],
+        //             $orderData['payment_status']
+        //         );
+        
+        //         error_log("Parameters bound successfully");
+        
+        //         if (!$stmt->execute()) {
+        //             error_log("Execute Error: " . $stmt->error);
+        //             throw new Exception("Failed to execute statement: " . $stmt->error);
+        //         }
+        
+        //         error_log("Order inserted successfully");
+        
+        //         // Clear cart
+        //         $clearCart = $con->prepare('DELETE FROM cart WHERE user_id = ?');
+        //         $clearCart->bind_param('s', $orderData['user_id']);
+                
+        //         if (!$clearCart->execute()) {
+        //             error_log("Failed to clear cart: " . $clearCart->error);
+        //             throw new Exception("Failed to clear cart");
+        //         }
+        
+        //         error_log("Cart cleared successfully");
+        
+        //         $con->commit();
+        //         error_log("Transaction committed successfully");
+        
+        //         $res['status'] = 1;
+        //         $res['order_id'] = $orderData['order_id'];
+        
+        //     } catch (Exception $e) {
+        //         error_log("Error in PlaceOrder: " . $e->getMessage());
+        //         error_log("Stack trace: " . $e->getTraceAsString());
+                
+        //         if (isset($con)) {
+        //             $con->rollback();
+        //             error_log("Transaction rolled back");
+        //         }
+                
+        //         $res['error'] = $e->getMessage();
+        //     } finally {
+        //         if (isset($stmt)) {
+        //             $stmt->close();
+        //         }
+        //         if (isset($clearCart)) {
+        //             $clearCart->close();
+        //         }
+        //         if (isset($con)) {
+        //             $con->close();
+        //             error_log("Database connection closed");
+        //         }
+        //     }
+        
+        //     error_log("PlaceOrder function returning: " . print_r($res, true));
+        //     return $res;
         // }
 
-        public function PlaceOrder($user_id, $billing_fullname, $billing_email, $billing_mobile, $billing_address1, $billing_address2, $billing_city, $billing_state, $billing_pincode, $shipping_fullname, $shipping_email, $shipping_mobile, $shipping_address1, $shipping_address2, $shipping_city, $shipping_state, $shipping_pincode, $total_products, $subtotal, $gst, $total, $grandtotal, $coupon, $discount, $coupon_type, $payment_mode, $payment_amount, $payment_reference, $payment_proof) {
-            $res = array();
-            $res['status'] = 0;
-        
-            // Database connection
-            $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-        
-            if ($con->connect_error) {
-                die("Connection failed: " . $con->connect_error);
-            }
-        
-            // Begin transaction
-            $con->begin_transaction();
-        
-            try {
-                // Insert into orders table
-                $query = $con->prepare('INSERT INTO orders (user_id, billing_fullname, billing_email, billing_mobile, billing_address1, billing_address2, billing_city, billing_state, billing_pincode, shipping_fullname, shipping_email, shipping_mobile, shipping_address1, shipping_address2, shipping_city, shipping_state, shipping_pincode, total_products, subtotal, gst, total, grandtotal, coupon, discount, coupon_type, payment_mode, payment_amount, payment_reference, payment_proof) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-                $query->bind_param('sssssssssssssssssssssssssssss', $user_id, $billing_fullname, $billing_email, $billing_mobile, $billing_address1, $billing_address2, $billing_city, $billing_state, $billing_pincode, $shipping_fullname, $shipping_email, $shipping_mobile, $shipping_address1, $shipping_address2, $shipping_city, $shipping_state, $shipping_pincode, $total_products, $subtotal, $gst, $total, $grandtotal, $coupon, $discount, $coupon_type, $payment_mode, $payment_amount, $payment_reference, $payment_proof);
-        
-                if ($query->execute()) {
-                    // Get the last inserted order ID
-                    $order_id = $con->insert_id;
-        
-                    // Fetch all cart items for the user with direct prices
-                    $cartQuery = $con->prepare('SELECT 
-                        cart.user_id, 
-                        cart.product_id, 
-                        cart.quantity, 
-                        products.product_name, 
-                        products.featured_image, 
-                        products.product_price AS actual_price,
-                        products.discounted_price,
-                        products.slug 
-                    FROM cart 
-                    INNER JOIN products ON cart.product_id = products.id 
-                    WHERE cart.user_id = ?');
-                    
-                    $cartQuery->bind_param('i', $user_id);
-                    $cartQuery->execute();
-                    $cartResult = $cartQuery->get_result();
-        
-                    // Insert cart items into order_products table
-                    $orderProductQuery = $con->prepare('INSERT INTO order_products (
-                        order_id, 
-                        user_id, 
-                        product_id, 
-                        product_name, 
-                        product_image, 
-                        quantity, 
-                        product_actual_price, 
-                        product_price, 
-                        product_slug
-                    ) VALUES (?,?,?,?,?,?,?,?,?)');
-        
-                    while ($cartRow = $cartResult->fetch_assoc()) {
-                        // Use direct prices from products table
-                        $orderProductQuery->bind_param('iisssidds', 
-                            $order_id, 
-                            $cartRow['user_id'], 
-                            $cartRow['product_id'], 
-                            $cartRow['product_name'], 
-                            $cartRow['featured_image'], 
-                            $cartRow['quantity'], 
-                            $cartRow['actual_price'],
-                            $cartRow['discounted_price'],
-                            $cartRow['slug']
-                        );
-                        $orderProductQuery->execute();
-                    }
-        
-                    // Clear the user's cart
-                    $clearCartQuery = $con->prepare('DELETE FROM cart WHERE user_id = ?');
-                    $clearCartQuery->bind_param('i', $user_id);
-                    $clearCartQuery->execute();
-        
-                    // Commit transaction
-                    $con->commit();
-                    $res['status'] = 1;
-                } else {
-                    // Rollback transaction if orders insertion fails
-                    $con->rollback();
-                    $res['error'] = 'Order insertion failed.';
-                }
-            } catch (Exception $e) {
-                // Rollback transaction in case of error
-                $con->rollback();
-                $res['error'] = $e->getMessage();
-            }
-        
-            // Close the connection
-            $con->close();
-        
-            return $res;
+public function PlaceOrder($orderData) {
+    $res = array();
+    $res['status'] = 0;
+
+    try {
+        $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+        if ($con->connect_error) {
+            throw new Exception("Database connection failed: " . $con->connect_error);
         }
+
+        // Begin transaction
+        $con->begin_transaction();
+
+        // Generate unique order ID if not provided
+        if (empty($orderData['order_id'])) {
+            $orderData['order_id'] = 'ORD' . time() . rand(1000, 9999);
+        }
+
+        // Original orders table insertion SQL
+        $sql = "INSERT INTO orders (
+            order_id, razorpay_order_id, user_id, 
+            billing_fullname, billing_email, billing_mobile,
+            billing_address1, billing_address2, billing_city,
+            billing_state, billing_pincode,
+            total_products, subtotal, gst, total, grandtotal,
+            payment_mode, payment_amount, payment_reference,
+            payment_proof, approval, remarks, status,
+            payment_id, payment_date, order_status, payment_status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $con->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Failed to prepare orders statement: " . $con->error);
+        }
+
+        $stmt->bind_param(
+            'sssssssssssssssssssssssssss',
+            $orderData['order_id'],
+            $orderData['razorpay_order_id'],
+            $orderData['user_id'],
+            $orderData['billing_fullname'],
+            $orderData['billing_email'],
+            $orderData['billing_mobile'],
+            $orderData['billing_address1'],
+            $orderData['billing_address2'],
+            $orderData['billing_city'],
+            $orderData['billing_state'],
+            $orderData['billing_pincode'],
+            $orderData['total_products'],
+            $orderData['subtotal'],
+            $orderData['gst'],
+            $orderData['total'],
+            $orderData['grandtotal'],
+            $orderData['payment_mode'],
+            $orderData['payment_amount'],
+            $orderData['payment_reference'],
+            $orderData['payment_proof'],
+            $orderData['approval'],
+            $orderData['remarks'],
+            $orderData['status'],
+            $orderData['payment_id'],
+            $orderData['payment_date'],
+            $orderData['order_status'],
+            $orderData['payment_status']
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to insert order: " . $stmt->error);
+        }
+
+        // Get the last inserted order ID
+        $order_id = $stmt->insert_id;
+
+        // Fetch cart items for the user and insert into order_products
+        $cartQuery = $con->prepare('SELECT 
+            cart.user_id, 
+            cart.product_id, 
+            cart.quantity, 
+            products.product_name, 
+            products.featured_image,
+            products.product_price as actual_price,
+            products.discounted_price,
+            products.slug,
+            ornaments.name AS ornament_name
+        FROM cart 
+        INNER JOIN products ON cart.product_id = products.id 
+        LEFT JOIN ornaments ON products.ornament_type = ornaments.id 
+        WHERE cart.user_id = ?');
+
+        $cartQuery->bind_param('i', $orderData['user_id']);
+        $cartQuery->execute();
+        $cartResult = $cartQuery->get_result();
+
+        // Prepare order_products insertion
+        $orderProductQuery = $con->prepare('INSERT INTO order_products (
+            order_id, user_id, product_id, product_name, product_image, 
+            quantity, product_actual_price, product_price, product_slug, product_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+
+        while ($cartRow = $cartResult->fetch_assoc()) {
+            $orderProductQuery->bind_param('iisssiddss', 
+                $order_id,
+                $cartRow['user_id'],
+                $cartRow['product_id'],
+                $cartRow['product_name'],
+                $cartRow['featured_image'],
+                $cartRow['quantity'],
+                $cartRow['actual_price'],
+                $cartRow['discounted_price'],
+                $cartRow['slug'],
+                $cartRow['ornament_name']
+            );
+            
+            if (!$orderProductQuery->execute()) {
+                throw new Exception("Failed to insert order product: " . $orderProductQuery->error);
+            }
+        }
+
+        // Clear cart
+        $clearCart = $con->prepare('DELETE FROM cart WHERE user_id = ?');
+        $clearCart->bind_param('s', $orderData['user_id']);
+        if (!$clearCart->execute()) {
+            throw new Exception("Failed to clear cart: " . $clearCart->error);
+        }
+
+        $con->commit();
+        $res['status'] = 1;
+        $res['order_id'] = $orderData['order_id'];
+
+    } catch (Exception $e) {
+        if (isset($con)) {
+            $con->rollback();
+        }
+        error_log("Error in PlaceOrder: " . $e->getMessage());
+        $res['error'] = $e->getMessage();
+    } finally {
+        if (isset($stmt)) $stmt->close();
+        if (isset($cartQuery)) $cartQuery->close();
+        if (isset($orderProductQuery)) $orderProductQuery->close();
+        if (isset($clearCart)) $clearCart->close();
+        if (isset($con)) $con->close();
+    }
+
+    return $res;
+}
         public function getOrders() {
             $res = array();
             $res['status'] = 0;
@@ -3311,7 +3502,6 @@ public function getProductBySubCatId($id) {
             }
             return $res;
         }
-
 
         public function getOrderProducts($order_id) {
             $res = array();
@@ -3902,6 +4092,87 @@ public function savePaymentDetails($data) {
     return $res;
 }
 
+public function getOrderDetails($order_id) {
+    $res = array();
+    $res['status'] = 0;
+
+    try {
+        $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+        
+        if ($con->connect_error) {
+            throw new Exception("Connection failed: " . $con->connect_error);
+        }
+
+        // Get order information with formatted date
+        $orderQuery = $con->prepare("
+            SELECT 
+                o.*,
+                DATE_FORMAT(o.created_at, '%d %M %Y') as formatted_date
+            FROM orders o 
+            WHERE o.id = ?
+        ");
+        
+        $orderQuery->bind_param('i', $order_id);
+        $orderQuery->execute();
+        $orderResult = $orderQuery->get_result();
+        
+        if ($orderRow = $orderResult->fetch_assoc()) {
+            $res['order'] = $orderRow;
+            $res['status'] = 1;
+            
+            // Get ordered products from order_products table
+            $productQuery = $con->prepare("
+                SELECT 
+                    op.*,
+                    o.payment_status,
+                    o.order_status
+                FROM order_products op
+                JOIN orders o ON op.order_id = o.id
+                WHERE op.order_id = ?
+                ORDER BY op.id ASC
+            ");
+            
+            $productQuery->bind_param('i', $order_id);
+            $productQuery->execute();
+            $productResult = $productQuery->get_result();
+            
+            $products = array();
+            $total_items = 0;
+            
+            while ($row = $productResult->fetch_assoc()) {
+                $products[] = array(
+                    'id' => $row['id'],
+                    'product_id' => $row['product_id'],
+                    'product_name' => $row['product_name'],
+                    'product_image' => $row['product_image'],
+                    'quantity' => $row['quantity'],
+                    'product_type' => $row['product_type'],
+                    'product_weight' => $row['product_weight'],
+                    'price_per_gram' => $row['price_per_gram'],
+                    'product_actual_price' => $row['product_actual_price'],
+                    'product_price' => $row['product_price'],
+                    'product_slug' => $row['product_slug'],
+                    'payment_status' => $row['payment_status'],
+                    'order_status' => $row['order_status']
+                );
+                
+                $total_items += $row['quantity'];
+            }
+            
+            $res['products'] = $products;
+            $res['total_items'] = $total_items;
+        }
+
+    } catch (Exception $e) {
+        $res['error'] = $e->getMessage();
+    } finally {
+        if (isset($orderQuery)) $orderQuery->close();
+        if (isset($productQuery)) $productQuery->close();
+        if (isset($con)) $con->close();
+    }
+
+    return $res;
+}
 }
 
 ?>

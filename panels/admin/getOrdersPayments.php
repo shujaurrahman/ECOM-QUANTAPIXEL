@@ -47,13 +47,11 @@ if (!empty($_SESSION['role'])) {
                                     <table id="example" class="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th>Payment ID</th>
                                                 <th>Order ID</th>
-                                                <th>Payment ID</th>
+                                                <th>Customer</th>
                                                 <th>Amount</th>
-                                                <th>Payment Status</th>
-                                                <th>Payment Signature</th>
-                                                <th>Created At</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -61,28 +59,35 @@ if (!empty($_SESSION['role'])) {
                                             <?php if ($verification['count'] > 0) { ?>
                                                 <?php for ($i = 0; $i < $verification['count']; $i++) { ?>
                                                     <tr>
-                                                        <td><?php echo $verification['id'][$i]; ?></td>
                                                         <td><?php echo $verification['order_id'][$i]; ?></td>
-                                                        <td><?php echo $verification['payment_id'][$i]; ?></td>
-                                                        <td>₹<?php echo number_format($verification['amount'][$i], 2); ?></td>
                                                         <td>
-                                                            <span class="badge bg-<?php echo ($verification['status'][$i] == 'success') ? 'success' : 'danger'; ?>">
-                                                                <?php echo ucfirst($verification['status'][$i]); ?>
-                                                            </span>
+                                                            <strong><?php echo $verification['billing_fullname'][$i]; ?></strong><br>
+                                                            <small><?php echo $verification['billing_email'][$i]; ?></small>
                                                         </td>
-                                                        <td><?php echo $verification['payment_signature'][$i]; ?></td>
-                                                        <td><?php echo date('d M Y h:i A', strtotime($verification['created_at'][$i])); ?></td>
+                                                        <td>
+                                                            <strong>₹<?php echo number_format($verification['grandtotal'][$i], 2); ?></strong><br>
+                                                            <small class="text-muted"><?php echo $verification['total_products'][$i]; ?> items</small>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-<?php 
+                                                                echo ($verification['payment_status'][$i] == 'paid') ? 'success' : 
+                                                                    (($verification['payment_status'][$i] == 'pending') ? 'warning' : 'danger'); ?>">
+                                                                <?php echo ucfirst($verification['payment_status'][$i]); ?>
+                                                            </span>
+                                                            <br>
+                                                            <small><?php echo date('d M Y', strtotime($verification['created_at'][$i])); ?></small>
+                                                        </td>
+                                                        <td>
+                                                            <button 
+                                                                class="btn btn-sm btn-primary" 
+                                                                onclick="generateInvoice('<?php echo $verification['id'][$i]; ?>')"
+                                                                title="Download Invoice">
+                                                                <i class="bx bx-download"></i> Invoice
+                                                            </button>
+                                                        </td>
                                                     </tr>
                                                 <?php } ?>
-                                            <?php } else { ?>
-                                                <tr>
-                                                    <td colspan="7" class="text-center">No payments found</td>
-                                                </tr>
                                             <?php } ?>
-                                        <?php } else { ?>
-                                            <tr>
-                                                <td colspan="7" class="text-center">Error loading payments data</td>
-                                            </tr>
                                         <?php } ?>
                                         </tbody>
                                     </table>
@@ -107,4 +112,8 @@ if (!empty($_SESSION['role'])) {
 ?>
 <script>
     new DataTable('#example');
+    
+    function generateInvoice(orderId) {
+        window.location.href = '../../order-details.php?id=' + orderId;
+    }
 </script>

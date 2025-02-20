@@ -2841,22 +2841,35 @@ public function AddProduct(
                 return $res;
             }
 
-            
+    
             public function getPayments() {
                 $res = array();
-                $res['result'] = 0; // Using 'result' to avoid confusion with status column
+                $res['result'] = 0;
                 
                 $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
                 
                 $query = $con->prepare('SELECT 
                     id,
                     order_id,
+                    razorpay_order_id,
+                    user_id,
+                    billing_fullname,
+                    billing_email,
+                    billing_mobile,
+                    total_products,
+                    subtotal,
+                    gst,
+                    total,
+                    grandtotal,
+                    payment_mode,
+                    payment_amount,
+                    payment_reference,
                     payment_id,
-                    payment_signature,
-                    amount,
-                    status,
+                    payment_date,
+                    payment_status,
+                    order_status,
                     created_at
-                FROM payments 
+                FROM orders 
                 ORDER BY id DESC');
                 
                 if ($query->execute()) {
@@ -2867,10 +2880,23 @@ public function AddProduct(
                         $res['result'] = 1;
                         $res['id'][$i] = $row['id'];
                         $res['order_id'][$i] = $row['order_id'];
+                        $res['razorpay_order_id'][$i] = $row['razorpay_order_id'];
+                        $res['user_id'][$i] = $row['user_id'];
+                        $res['billing_fullname'][$i] = $row['billing_fullname'];
+                        $res['billing_email'][$i] = $row['billing_email'];
+                        $res['billing_mobile'][$i] = $row['billing_mobile'];
+                        $res['total_products'][$i] = $row['total_products'];
+                        $res['subtotal'][$i] = $row['subtotal'];
+                        $res['gst'][$i] = $row['gst'];
+                        $res['total'][$i] = $row['total'];
+                        $res['grandtotal'][$i] = $row['grandtotal'];
+                        $res['payment_mode'][$i] = $row['payment_mode'];
+                        $res['payment_amount'][$i] = $row['payment_amount'];
+                        $res['payment_reference'][$i] = $row['payment_reference'];
                         $res['payment_id'][$i] = $row['payment_id'];
-                        $res['payment_signature'][$i] = $row['payment_signature'];
-                        $res['amount'][$i] = $row['amount'];
-                        $res['status'][$i] = $row['status'];
+                        $res['payment_date'][$i] = $row['payment_date'];
+                        $res['payment_status'][$i] = $row['payment_status'];
+                        $res['order_status'][$i] = $row['order_status'];
                         $res['created_at'][$i] = $row['created_at'];
                         $i++;
                     }
@@ -2879,6 +2905,87 @@ public function AddProduct(
                 
                 $query->close();
                 $con->close();
+                return $res;
+            }
+            public function getOrderDetails($order_id) {
+                $res = array();
+                $res['status'] = 0;
+            
+                try {
+                    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+                    
+                    if ($con->connect_error) {
+                        throw new Exception("Connection failed: " . $con->connect_error);
+                    }
+            
+                    // Get order information with formatted date
+                    $orderQuery = $con->prepare("
+                        SELECT 
+                            o.*,
+                            DATE_FORMAT(o.created_at, '%d %M %Y') as formatted_date
+                        FROM orders o 
+                        WHERE o.id = ?
+                    ");
+                    
+                    $orderQuery->bind_param('i', $order_id);
+                    $orderQuery->execute();
+                    $orderResult = $orderQuery->get_result();
+                    
+                    if ($orderRow = $orderResult->fetch_assoc()) {
+                        $res['order'] = $orderRow;
+                        $res['status'] = 1;
+                        
+                        // Get ordered products from order_products table
+                        $productQuery = $con->prepare("
+                            SELECT 
+                                op.*,
+                                o.payment_status,
+                                o.order_status
+                            FROM order_products op
+                            JOIN orders o ON op.order_id = o.id
+                            WHERE op.order_id = ?
+                            ORDER BY op.id ASC
+                        ");
+                        
+                        $productQuery->bind_param('i', $order_id);
+                        $productQuery->execute();
+                        $productResult = $productQuery->get_result();
+                        
+                        $products = array();
+                        $total_items = 0;
+                        
+                        while ($row = $productResult->fetch_assoc()) {
+                            $products[] = array(
+                                'id' => $row['id'],
+                                'product_id' => $row['product_id'],
+                                'product_name' => $row['product_name'],
+                                'product_image' => $row['product_image'],
+                                'quantity' => $row['quantity'],
+                                'product_type' => $row['product_type'],
+                                'product_weight' => $row['product_weight'],
+                                'price_per_gram' => $row['price_per_gram'],
+                                'product_actual_price' => $row['product_actual_price'],
+                                'product_price' => $row['product_price'],
+                                'product_slug' => $row['product_slug'],
+                                'payment_status' => $row['payment_status'],
+                                'order_status' => $row['order_status']
+                            );
+                            
+                            $total_items += $row['quantity'];
+                        }
+                        
+                        $res['products'] = $products;
+                        $res['total_items'] = $total_items;
+                    }
+            
+                } catch (Exception $e) {
+                    $res['error'] = $e->getMessage();
+                } finally {
+                    if (isset($orderQuery)) $orderQuery->close();
+                    if (isset($productQuery)) $productQuery->close();
+                    if (isset($con)) $con->close();
+                }
+            
                 return $res;
             }
         }

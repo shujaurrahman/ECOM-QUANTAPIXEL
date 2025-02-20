@@ -3,12 +3,10 @@ session_start();
 require_once('./header.php');
 
 // Get parameters from URL
-$orderId = isset($_GET['oid']) ? $_GET['oid'] : '';
-$paymentId = isset($_GET['rp_payment_id']) ? $_GET['rp_payment_id'] : '';
-$signature = isset($_GET['rp_signature']) ? $_GET['rp_signature'] : '';
-$productNames = isset($_GET['product_names']) ? $_GET['product_names'] : '';
-$quantities = isset($_GET['quantities']) ? $_GET['quantities'] : '';
-$totalAmount = isset($_GET['total_amount']) ? $_GET['total_amount'] : '';
+$orderId = isset($_GET['order_id']) ? $_GET['order_id'] : '';
+$paymentId = isset($_GET['payment_id']) ? $_GET['payment_id'] : '';
+$amount = isset($_GET['amount']) ? $_GET['amount'] : '';
+$productDetails = isset($_GET['product_details']) ? json_decode(urldecode($_GET['product_details']), true) : [];
 ?>
 
 <style>
@@ -57,12 +55,12 @@ $totalAmount = isset($_GET['total_amount']) ? $_GET['total_amount'] : '';
                         
                         <div class="payment-info mb-5">
                             <div class="alert alert-success" role="alert">
-                                <h4 class="alert-heading mb-3">Thank You for Your Purchase!</h4>
-                                <p>Your order has been placed successfully and will be processed soon.</p>
+                                <h4 class="alert-heading mb-3">Transaction Successful!</h4>
+                                <p>Your order has been placed successfully.</p>
                             </div>
                             
                             <div class="order-details p-4 bg-light rounded">
-                                <h4 class="mb-4 text-primary">Order Summary</h4>
+                                <h4 class="mb-4">Order Details</h4>
                                 <div class="row mb-3">
                                     <div class="col-sm-6 text-muted">Order ID:</div>
                                     <div class="col-sm-6"><?php echo htmlspecialchars($orderId); ?></div>
@@ -72,22 +70,44 @@ $totalAmount = isset($_GET['total_amount']) ? $_GET['total_amount'] : '';
                                     <div class="col-sm-6"><?php echo htmlspecialchars($paymentId); ?></div>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-sm-6 text-muted">Product(s):</div>
-                                    <div class="col-sm-6"><?php echo htmlspecialchars($productNames); ?></div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm-6 text-muted">Total Amount:</div>
-                                    <div class="col-sm-6">₹<?php echo number_format($totalAmount, 2); ?></div>
+                                    <div class="col-sm-6 text-muted">Amount Paid:</div>
+                                    <div class="col-sm-6">₹<?php echo htmlspecialchars($amount); ?></div>
                                 </div>
                             </div>
+
+                            <?php if (!empty($productDetails)): ?>
+                            <div class="product-details mt-4 p-4 bg-light rounded">
+                                <h4 class="mb-4">Products Purchased</h4>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($productDetails as $product): ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                                <td><?php echo htmlspecialchars($product['quantity']); ?></td>
+                                                <td>₹<?php echo htmlspecialchars($product['price']); ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         </div>
                         
                         <div class="mt-5">
-                            <a href="index.php" class="btn btn-primary btn-lg px-5">
-                                <i class="fas fa-shopping-cart mr-2"></i>Continue Shopping
+                            <a href="account.php" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-list mr-2"></i>View Orders
                             </a>
-                            <a href="account.php" class="btn btn-outline-primary btn-lg px-5 ml-3">
-                                <i class="fas fa-box mr-2"></i>View Orders
+                            <a href="index.php" class="btn btn-outline-primary btn-lg px-5 ml-3">
+                                <i class="fas fa-home mr-2"></i>Continue Shopping
                             </a>
                         </div>
                     </div>

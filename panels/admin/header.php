@@ -96,7 +96,7 @@
             <li class="menu-item <?php if(!empty($title) && $title=='Payments'){ echo 'active'; } ?>">
               <a href="./getOrdersPayments" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-cart"></i>
-                <div data-i18n="Analytics">Orders Payments</div>
+                <div data-i18n="Analytics">Payments</div>
               </a>
             </li>
 

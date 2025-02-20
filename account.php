@@ -1,5 +1,24 @@
 <?php 
 session_start();
+function getStatusColor($status) {
+    switch(strtolower($status)) {
+        case 'pending':
+            return 'warning';
+        case 'confirmed':
+            return 'info';
+        case 'processing':
+            return 'primary';
+        case 'shipped':
+            return 'info';
+        case 'delivered':
+            return 'success';
+        case 'cancelled':
+            return 'danger';
+        default:
+            return 'secondary';
+    }
+}
+
 if(!empty($_SESSION['username'])){
 require_once('./header.php');
 ?>
@@ -30,15 +49,15 @@ require_once('./header.php');
             <div class="col-lg-12">
                 <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">My Orders</span></h5>
                 <div style="overflow-x:scroll">
-                    <table class="table table-bordered" id="example">
+                    <table class="table table-bordered order-table" id="example">
                         <thead>
                             <tr>
-                                <th>Sno</th>
-                                <th>Order Id</th>
-                                <th>Products Count</th>
-                                <th>Price</th>
-                                <!-- <th>Order Approval</th> -->
-                                <th>Status</th>
+                                <th width="5%">Sno</th>
+                                <th width="15%">Order Id</th>
+                                <th width="15%">Products</th>
+                                <th width="15%">Price</th>
+                                <th width="15%">Status</th>
+                                <th width="35%">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -49,14 +68,41 @@ require_once('./header.php');
                                 ?>
                                 <tr>
                                     <td><?php echo $i+1; ?></td>
-                                    <td><?php echo $getOrders['id'][$i]; ?></td>
-                                    <td><a href="" data-toggle="modal" data-target="#OrderProductsModal" 
-                                    onclick="fetchOrderProducts(<?php echo $getOrders['id'][$i]; ?>)"
-                                    
-                                    ><?php echo $getOrders['total_products'][$i]; ?> Products</a></td>
-                                    <td><?php echo $getOrders['grandtotal'][$i]; ?></td>
-                                    <!-- <td><b style="color:<?php if($getOrders['approval'][$i]=='pending'){ echo "orange"; }elseif($getOrders['approval'][$i]=='approved'){ echo "green"; }elseif($getOrders['approval'][$i]=='rejected'){ echo "red"; } ?>"><?php echo $getOrders['approval'][$i]; ?></b></td> -->
-                                    <td><b style="color:<?php if($getOrders['order_status'][$i]=='placed'){ echo "orange"; }elseif($getOrders['order_status'][$i]=='dispatched'){ echo "blue"; }elseif($getOrders['order_status'][$i]=='delivered'){ echo "green"; }elseif($getOrders['order_status'][$i]=='cancelled'){ echo "red"; } ?>"><?php echo $getOrders['order_status'][$i]; ?></b></td>
+                                    <td>
+                                        <span class="order-id">#<?php echo $getOrders['id'][$i]; ?></span>
+                                    </td>
+                                    <td style="color: #c4996c !important ;">
+                                        <a href="javascript:void(0);" 
+                                           onclick="fetchOrderProducts(<?php echo $getOrders['id'][$i]; ?>)"
+                                           class="products-link">
+                                            <i class="bi bi-box-seam me-1"></i>
+                                            <?php echo $getOrders['total_products'][$i]; ?> Products
+                                        </a>
+                                    </td>
+                                    <td class="price-column">
+                                        ₹<?php echo number_format($getOrders['grandtotal'][$i], 2); ?>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge bg-primary " style="color: #fff;">
+                                            <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>
+                                            <?php echo ucfirst($getOrders['order_status'][$i]); ?>
+                                        </span>
+                                    </td>
+                                    <td class="action-buttons">
+                                        <div class="d-flex gap-2">
+                                            <a href="./order-details?id=<?php echo $getOrders['id'][$i]; ?>" 
+                                               class="btn btn-invoice" 
+                                               title="View Invoice">
+                                                <i class="bi bi-file-earmark-text me-1"></i> Invoice
+                                            </a>
+                                            &nbsp; &nbsp; &nbsp;
+                                            <a href="./trackorder?id=<?php echo $getOrders['id'][$i]; ?>" 
+                                               class="btn btn-track" 
+                                               title="Track Order">
+                                                <i class="bi bi-truck me-1"></i> Track Order
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
 
                                 <?php
@@ -96,40 +142,172 @@ require_once('./footer.php');
 
 <script>
 function fetchOrderProducts(orderId) {
-    // alert(orderId)
-    $.ajax({
-        url: 'open-logics.php', // Create a separate PHP file to handle the request
-        type: 'POST',
-        data: { order_id: orderId, getOrderProducts:'getOrderProducts' },
-        success: function(response) {
-            if (typeof response === "string") {
-                    data = JSON.parse(response);
-                }
-            // const data = JSON.parse(response);
+    // Show loading state
+    $('#OrderProductsModal tbody').html('<tr><td colspan="8" class="text-center">Loading...</td></tr>');
+    $('#OrderProductsModal').modal('show');
 
-            if (data.status == '1') {
-                console.log(response)
-                let rows = '';
-                for (let i = 0; i < data.count; i++) {
-                    rows += `<tr>
-                        <td>${i + 1}</td>
-                        <td><img src="panels/admin/product/${data.product_image[i]}" style="border-radius: 50%;width:50px" alt=""></td>
-                        <td><a href="./product-view?slug=${data.product_slug[i]}">${data.product_name[i]}</a></td>
-                        <td>${data.product_type[i]}</td>
-                        <td>${data.product_price[i]}</td>
-                        <td>${data.quantity[i]}</td>
-                        <td>${data.product_weight[i]}</td>
-                        <td>${data.product_actual_price[i]}</td>
-                    </tr>`;
+    $.ajax({
+        url: 'open-logics.php',
+        type: 'POST',
+        data: { 
+            order_id: orderId, 
+            getOrderProducts: 'getOrderProducts' 
+        },
+        success: function(response) {
+            let data;
+            try {
+                if (typeof response === "string") {
+                    data = JSON.parse(response);
+                } else {
+                    data = response;
                 }
-                $('#OrderProductsModal tbody').html(rows);
-            } else {
-                $('#OrderProductsModal tbody').html('<tr><td colspan="8">No products found...</td></tr>');
+
+                if (data.status == '1' && data.count > 0) {
+                    let rows = '';
+                    for (let i = 0; i < data.count; i++) {
+                        rows += `<tr>
+                            <td>${i + 1}</td>
+                            <td><img src="panels/admin/product/${data.product_image[i]}" class="img-fluid" style="max-width: 50px; border-radius: 50%;" alt="${data.product_name[i]}"></td>
+                            <td><a href="./product-view?slug=${data.product_slug[i]}">${data.product_name[i]}</a></td>
+                            <td>${data.product_type[i]}</td>
+                            <td>₹${data.product_price[i]}</td>
+                            <td>${data.quantity[i]}</td>
+                            <td>${data.product_weight[i]}</td>
+                            <td>₹${data.product_actual_price[i]}</td>
+                        </tr>`;
+                    }
+                    $('#OrderProductsModal tbody').html(rows);
+                } else {
+                    $('#OrderProductsModal tbody').html('<tr><td colspan="8" class="text-center">No products found</td></tr>');
+                }
+            } catch (e) {
+                console.error('Error parsing response:', e);
+                $('#OrderProductsModal tbody').html('<tr><td colspan="8" class="text-center text-danger">Error loading products</td></tr>');
             }
         },
-        error: function() {
-            alert('Failed to fetch order products. Please try again.');
+        error: function(xhr, status, error) {
+            console.error('Ajax error:', error);
+            $('#OrderProductsModal tbody').html('<tr><td colspan="8" class="text-center text-danger">Failed to load products. Please try again.</td></tr>');
         }
     });
 }
+
+// Add this to ensure jQuery and Bootstrap are loaded
+$(document).ready(function() {
+    // Initialize DataTable
+    new DataTable('#example');
+    
+    // Ensure modal is working
+    $('#OrderProductsModal').on('hidden.bs.modal', function () {
+        $(this).find('tbody').html('');
+    });
+});
 </script>
+
+<!-- Order Products Modal -->
+<div class="modal fade" id="OrderProductsModal" tabindex="-1" role="dialog" aria-labelledby="OrderProductsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="OrderProductsModalLabel">Order Products</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Image</th>
+                                <th>Product</th>
+                                <th>Type</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Weight</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Products will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .order-table {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .order-table thead th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        padding: 15px;
+    }
+    .order-table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+    }
+    .order-id {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    .products-link {
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .products-link:hover {
+        color: #c4996c;
+    }
+    .price-column {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+    .action-buttons .btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        transition: all 0.3s ease;
+    }
+    .action-buttons .btn:hover {
+        transform: translateY(-1px);
+    }
+    .btn-invoice {
+        background: #fff;
+        border: 1px solid #c4996c;
+        color: #2c3e50;
+    }
+    .btn-invoice:hover {
+        background: #ffff;
+        color: #c4996c;
+    }
+    .btn-track {
+        background: #fff;
+        border: 1px solid #c4996c;
+        color: #3498db;
+    }
+    .btn-track:hover {
+        background: #fff;
+        color: #c4996c;
+    }
+</style>
