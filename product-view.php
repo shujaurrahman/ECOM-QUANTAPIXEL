@@ -13,6 +13,118 @@ $slug = ucwords($slug);
   flex-direction: column;
   justify-content: space-between;
 }
+
+.product-thumbnails {
+    width: 70px;
+    margin-right: 5px;
+}
+
+.thumbnail-item {
+    width: 100%;
+    height: 80px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    border: 2px solid transparent;
+}
+
+.thumbnail-item.active {
+    opacity: 1;
+    border-color: #696cff;
+}
+
+.thumbnail-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-gallery {
+    display: flex;
+}
+
+#product-carousel {
+    flex: 1;
+}
+
+.thumbnails-container {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+/* Custom scrollbar styling */
+.thumbnails-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.thumbnails-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.thumbnails-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+/* Updated CSS */
+.product-gallery {
+    display: flex;
+}
+
+.product-thumbnails {
+    width: 70px;
+    flex-shrink: 0;
+    background-color: #fff;
+}
+
+.thumbnail-item {
+    width: 100%;
+    height: 80px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    border: 2px solid transparent;
+}
+
+#product-carousel {
+    flex: 1;
+    width: calc(100% - 95px); /* 80px thumbnails + 15px gap */
+}
+
+.carousel-inner img {
+    width: 100%;
+    height: 550px; /* Increased height */
+    object-fit: contain;
+}
+
+/* Carousel Controls Styling */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.8;
+}
+
+.carousel-control-prev {
+    left: 15px;
+}
+
+.carousel-control-next {
+    right: 15px;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+}
 </style>
 <?php
     for ($i = 0; $i < $products['count']; $i++) {
@@ -43,26 +155,48 @@ $slug = ucwords($slug);
     <div class="container-fluid pb-5">
         <div class="row px-xl-5">
             <div class="col-lg-5 mb-30">
-                <div id="product-carousel" class="carousel slide" data-ride="carousel">
-                    <div class="carousel-inner bg-light">
-                        <div class="carousel-item active">
-                            <img class="w-100" style="height: 500px;" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
-                        </div>
-                        <?php 
-                        $imageList = explode(',', $products['additional_images'][$i]); // Split the comma-separated string into an array
-                        foreach ($imageList as $key => $image): 
-                        ?>
-                            <div class="carousel-item">
-                                <img class="w-100" style="height: 500px;" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
+                <div class="product-gallery">
+                    <div class="product-thumbnails">
+                        <div class="thumbnails-container">
+                            <!-- Featured image thumbnail -->
+                            <div class="thumbnail-item active" data-slide-index="0">
+                                <img src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Thumbnail">
                             </div>
-                        <?php endforeach; ?>
+                            
+                            <!-- Additional images thumbnails -->
+                            <?php 
+                            $imageList = explode(',', $products['additional_images'][$i]);
+                            foreach ($imageList as $key => $image): 
+                                $slideIndex = $key + 1;
+                            ?>
+                                <div class="thumbnail-item" data-slide-index="<?php echo $slideIndex; ?>">
+                                    <img src="./panels/admin/product/<?php echo trim($image); ?>" alt="Thumbnail">
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                    <a class="carousel-control-prev" href="#product-carousel" data-slide="prev">
-                        <i class="fa fa-2x fa-angle-left text-dark"></i>
-                    </a>
-                    <a class="carousel-control-next" href="#product-carousel" data-slide="next">
-                        <i class="fa fa-2x fa-angle-right text-dark"></i>
-                    </a>
+
+                    <div id="product-carousel" class="carousel slide" data-ride="carousel">
+                        <div class="carousel-inner bg-light">
+                            <div class="carousel-item active">
+                                <img class="w-100" style="height: 500px;" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
+                            </div>
+                            <?php foreach ($imageList as $image): ?>
+                                <div class="carousel-item">
+                                    <img class="w-100" style="height: 500px;" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <!-- Add back the carousel controls -->
+                        <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#product-carousel" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -653,3 +787,31 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
 <?php
 require_once('footer.php');
 ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the carousel instance
+    var carousel = $('#product-carousel');
+    
+    // Handle thumbnail clicks
+    $('.thumbnail-item').on('click', function() {
+        var slideIndex = $(this).data('slide-index');
+        
+        // Move carousel to selected slide
+        carousel.carousel(slideIndex);
+        
+        // Update active thumbnail
+        $('.thumbnail-item').removeClass('active');
+        $(this).addClass('active');
+    });
+    
+    // Update thumbnail when carousel slides
+    carousel.on('slide.bs.carousel', function(e) {
+        var slideIndex = e.to;
+        
+        // Update active thumbnail
+        $('.thumbnail-item').removeClass('active');
+        $('.thumbnail-item[data-slide-index="' + slideIndex + '"]').addClass('active');
+    });
+});
+</script>

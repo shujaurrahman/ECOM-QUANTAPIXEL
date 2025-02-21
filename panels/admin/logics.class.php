@@ -2988,5 +2988,100 @@ public function AddProduct(
             
                 return $res;
             }
+            
+            public function getDashboardStats($timeframe = 'all') {
+                $stats = array();
+                try {
+                    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+                    
+                    // Set time constraint based on timeframe
+                    $timeConstraint = '';
+                    switch($timeframe) {
+                        case '24h':
+                            $timeConstraint = "AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+                            break;
+                        case '7d':
+                            $timeConstraint = "AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                            break;
+                        case '30d':
+                            $timeConstraint = "AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+                            break;
+                    }
+            
+                    // Orders Statistics
+                    $orderQuery = $con->query("
+                        SELECT 
+                            COUNT(*) as total_orders,
+                            COUNT(CASE WHEN order_status = 'pending' THEN 1 END) as pending_orders,
+                            COUNT(CASE WHEN order_status = 'confirmed' THEN 1 END) as confirmed_orders,
+                            COUNT(CASE WHEN order_status = 'processing' THEN 1 END) as processing_orders,
+                            COUNT(CASE WHEN order_status = 'shipped' THEN 1 END) as shipped_orders,
+                            COUNT(CASE WHEN order_status = 'delivered' THEN 1 END) as delivered_orders,
+                            COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid_orders,
+                            SUM(payment_amount) as total_revenue
+                        FROM orders 
+                        WHERE status = 1 $timeConstraint"
+                    );
+                    $stats['orders'] = $orderQuery->fetch_assoc();
+            
+                    // Categories and Subcategories
+                    $categoryQuery = $con->query("
+                        SELECT 
+                            (SELECT COUNT(*) FROM categories WHERE status = 1) as total_categories,
+                            (SELECT COUNT(*) FROM sub_categories WHERE status = 1) as total_subcategories
+                    ");
+                    $stats['categories'] = $categoryQuery->fetch_assoc();
+            
+                    // Products Statistics
+                    $productQuery = $con->query("
+                        SELECT 
+                            COUNT(*) as total_products,
+                            COUNT(CASE WHEN status = 1 THEN 1 END) as active_products,
+                            COUNT(CASE WHEN is_popular_collection = '1' THEN 1 END) as popular_products,
+                            COUNT(CASE WHEN is_recommended = '1' THEN 1 END) as recommended_products,
+                            COUNT(CASE WHEN is_lakshmi_kubera = '1' THEN 1 END) as special_products
+                        FROM products
+                        WHERE status = 1 $timeConstraint"
+                    );
+                    $stats['products'] = $productQuery->fetch_assoc();
+            
+                    // Users and Reviews
+                    $userQuery = $con->query("
+                        SELECT 
+                            (SELECT COUNT(*) FROM users WHERE status = 1) as total_users,
+                            (SELECT COUNT(*) FROM ratings WHERE status = 1) as total_reviews,
+                            (SELECT COUNT(*) FROM contact) as total_inquiries,
+                            (SELECT COUNT(*) FROM subscriptions) as total_subscribers
+                    ");
+                    $stats['users'] = $userQuery->fetch_assoc();
+            
+                    // Cart and Wishlist Analysis
+                    $cartQuery = $con->query("
+                        SELECT 
+                            COUNT(DISTINCT user_id) as users_with_cart,
+                            COUNT(*) as total_cart_items
+                        FROM cart 
+                        WHERE status = 1"
+                    );
+                    $stats['cart'] = $cartQuery->fetch_assoc();
+            
+                    $wishlistQuery = $con->query("
+                        SELECT 
+                            COUNT(DISTINCT user_id) as users_with_wishlist,
+                            COUNT(*) as total_wishlist_items
+                        FROM wishlist 
+                        WHERE status = 1"
+                    );
+                    $stats['wishlist'] = $wishlistQuery->fetch_assoc();
+            
+                } catch (Exception $e) {
+                    error_log("Error in getDashboardStats: " . $e->getMessage());
+                    $stats['error'] = $e->getMessage();
+                } finally {
+                    if (isset($con)) $con->close();
+                }
+                
+                return $stats;
+            }
         }
 ?>

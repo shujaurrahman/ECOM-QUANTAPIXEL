@@ -289,13 +289,13 @@ if(!empty($_SESSION['user_id'])){
             <div class="col-lg-6 text-center text-lg-right">
                 <div class="d-inline-flex align-items-center">
 
-                    <div class="btn-group mx-2">
+                    <!-- <div class="btn-group mx-2">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Account</button>
                         <div class="dropdown-menu dropdown-menu-right">
                             <button class="dropdown-item" type="button">SignUp</button>
                             <button class="dropdown-item" type="button">Login</button>
                         </div>
-                    </div>
+                    </div> -->
                     <!-- <div class="btn-group mx-2">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">USD</button>
                         <div class="dropdown-menu dropdown-menu-right">

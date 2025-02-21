@@ -90,7 +90,7 @@ require_once('./header.php');
                                     </td>
                                     <td class="action-buttons">
                                         <div class="d-flex gap-2">
-                                            <a href="./order-details?id=<?php echo $getOrders['id'][$i]; ?>" 
+                                            <a href="order-details.php?id=<?php echo $getOrders['id'][$i]; ?>" 
                                                class="btn btn-invoice" 
                                                title="View Invoice">
                                                 <i class="bi bi-file-earmark-text me-1"></i> Invoice
@@ -172,7 +172,6 @@ function fetchOrderProducts(orderId) {
                             <td>${data.product_type[i]}</td>
                             <td>₹${data.product_price[i]}</td>
                             <td>${data.quantity[i]}</td>
-                            <td>${data.product_weight[i]}</td>
                             <td>₹${data.product_actual_price[i]}</td>
                         </tr>`;
                     }
@@ -225,8 +224,7 @@ $(document).ready(function() {
                                 <th>Type</th>
                                 <th>Price</th>
                                 <th>Quantity</th>
-                                <th>Weight</th>
-                                <th>Total</th>
+                                <th>Unit Price</th>
                             </tr>
                         </thead>
                         <tbody>
