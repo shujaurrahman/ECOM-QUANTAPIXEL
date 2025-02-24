@@ -1,10 +1,9 @@
 <?php
 session_start();
-if(!empty($_SESSION['admin'])){
-    unset($_SESSION['admin']);
-    header('location: login.php');
-}
-unset($_SESSION['admin']);
-    header('location: login.php');
-
+session_destroy();
+session_unset();
+unset($_SESSION['role']);
+unset($_SESSION['username']);
+header('Location: ./login.php');
+exit();
 ?>

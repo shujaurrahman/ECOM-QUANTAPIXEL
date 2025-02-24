@@ -53,9 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h5 class="text-secondary text-uppercase mb-4">Quick Shop</h5>
                         <div class="d-flex flex-column justify-content-start">
                             <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Home</a>
-                            <a class="text-secondary mb-2" href="product-listing?id=6&name=subca1"><i class="fa fa-angle-right mr-2"></i>Popular Collections</a>
-                            <a class="text-secondary mb-2" href="product-listing?id=1&name=new-sub-category"><i class="fa fa-angle-right mr-2"></i>New Arrivals</a>
-                            <a class="text-secondary mb-2" href="product-listing?id=9&name=rtvcxsfdr"><i class="fa fa-angle-right mr-2"></i>Ready to Ship</a>
+                            <a class="text-secondary mb-2" href="popular-products.php"><i class="fa fa-angle-right mr-2"></i>Popular Collections</a>
+                            <a class="text-secondary mb-2" href="recent-products"><i class="fa fa-angle-right mr-2"></i>New Arrivals</a>
                             <a class="text-secondary mb-2" href="contact"><i class="fa fa-angle-right mr-2"></i>Contact Us</a>
                             <a class="text-secondary" href="./panels/admin/"><i class="fa fa-angle-right mr-2"></i>Admin</a>
                         </div>

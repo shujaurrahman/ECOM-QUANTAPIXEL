@@ -283,19 +283,31 @@ if(!empty($_SESSION['user_id'])){
                     <a class="text-body mr-3" href="privacy-policy">Privacy Policy</a>
                     <a class="text-body mr-3" href="terms-conditions">Terms & Conditions</a>
                     <a class="text-body mr-3" href="contact">Help</a>
-                    <a class="text-body mr-3" href="FAQ">FAQs</a>
+                    <a class="text-body mr-3" href="faqs">FAQs</a>
                 </div>
             </div>
             <div class="col-lg-6 text-center text-lg-right">
                 <div class="d-inline-flex align-items-center">
 
-                    <!-- <div class="btn-group mx-2">
-                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Account</button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <button class="dropdown-item" type="button">SignUp</button>
-                            <button class="dropdown-item" type="button">Login</button>
+                    <?php if (!empty($_SESSION['user_id'])): ?>
+                        <div class="btn-group mx-2">
+                            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
+                                <?php echo htmlspecialchars($_SESSION['username']); ?>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="account">Account</a>
+                                <a class="dropdown-item" href="logout">Logout</a>
+                            </div>
                         </div>
-                    </div> -->
+                    <?php else: ?>
+                        <div class="btn-group mx-2">
+                            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">Account</button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <button class="dropdown-item" type="button" data-toggle="modal" data-target="#SignupModal">SignUp</button>
+                                <button class="dropdown-item" type="button" data-toggle="modal" data-target="#SigninModal">Login</button>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                     <!-- <div class="btn-group mx-2">
                         <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">USD</button>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -418,7 +430,7 @@ if(!empty($_SESSION['user_id'])){
                                 <div class="nav-item dropdown dropright">
                                     <a href="sub-categories?id=<?php echo $category_id ?>&name=<?php echo $category_name ?>" class="nav-link dropdown-toggle" data-toggle="dropdown">
                                     <img src="./panels/admin/category/<?php echo $categories['image'][$cat]; ?>" style="width: 35px;height:35px;border-radius:50%;margin-right:10px" alt="sdf"><?php echo htmlspecialchars($category_name); ?> <i class="fa fa-angle-right float-right mt-1"></i>
-                                    </a>
+                                </a>
                                     <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
                                         <?php
                                         // Loop through subcategories to display those under the current category
@@ -430,6 +442,7 @@ if(!empty($_SESSION['user_id'])){
                                         }
                                         ?>
                                     </div>
+                     
                                 </div>
                                 <?php
                             } else {
@@ -458,10 +471,10 @@ if(!empty($_SESSION['user_id'])){
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                        <div class="navbar-nav mr-auto py-0">
-                            <a href="index" class="nav-item nav-link active mx-3">Home</a>
+                        <div class="navbar-nav  py-0">
+                            <a href="index" class="nav-item nav-link  ">Home</a>
                             <a href="popular-products.php" class="nav-item nav-link">Popular Collections</a>
-                            <a href="recent-products" class="mx-3 nav-item nav-link">New Arrivals</a>
+                            <a href="recent-products" class=" nav-item nav-link">New Arrivals</a>
                             <!-- <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages <i class="fa fa-angle-down mt-1"></i></a>
                                 <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
@@ -470,10 +483,10 @@ if(!empty($_SESSION['user_id'])){
                                 </div>
                             </div> -->
                             <!-- <a href="contact.html" class="nav-item nav-link">Read To Ship</a> -->
-                            <!-- <a href="product-listing?id=9&name=rtvcxsfdr" class="mx-3 nav-item nav-link">Ready to Ship
+                            <!-- <a href="product-listing?id=9&name=rtvcxsfdr" class=" nav-item nav-link">Ready to Ship
                                 <sup><img src="./images/newGif1.gif" width="40px" alt=""></sup>
                             </a> -->
-                            <a href="contact" class="mx-3 nav-item nav-link">Contact Us</a>
+                            <a href="contact" class=" nav-item nav-link">Contact Us</a>
                             <!-- <a href="contact.html" class="nav-item nav-link">Contact</a> -->
                         </div>
                         <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
@@ -689,7 +702,7 @@ if(!empty($_SESSION['user_id'])){
                 <div class="col-11">
                     <form action="" method="get" class="position-relative">
                         <div class="search-input-wrapper">
-                            <input type="search" name="search" placeholder="Search for jewelry..." 
+                            <input type="search" name="search" placeholder="Search..." 
                                 id="modal-search-input" autocomplete="off"
                                 class="form-control form-control-lg rounded-pill shadow-sm border-0">
                             <button type="button" class="btn btn-primary rounded-circle search-btn">

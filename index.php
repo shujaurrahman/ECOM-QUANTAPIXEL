@@ -140,7 +140,7 @@ endif;
                                         <img class="img-fluid" src="./panels/admin/advertisements/<?php echo $advertisements['image'][$i] ?>" alt="">
                                         <div class="offer-text">
                                             <h6 class="text-white text-uppercase"><?php echo $advertisements['description'][$i] ?></h6>
-                                            <h3 class="text-white mb-3"><?php echo $advertisements['name'][$i] ?></h3>
+                                            <h3 class="text-white mb-3 text-center"><?php echo $advertisements['name'][$i] ?></h3>
                                             <a href="<?php echo $advertisements['url'][$i] ?>" class="btn btn-primary text-light">Shop Now</a>
                                         </div>
                                     </div>

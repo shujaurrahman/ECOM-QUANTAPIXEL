@@ -131,31 +131,58 @@
 
 
 const searchBar = document.getElementById('search-bar');
-const words = ["'Gold Jewelley'", "'Silver Jewelley'", "'Mixed Jewelley'", "'Lakshmi Kubera'"];
-let currentWordIndex = 0;
-let charIndex = 0;
-let isAdding = true;
+const searchKeywords = [];
 
-function updatePlaceholder() {
-    let currentWord = words[currentWordIndex];
-    if (isAdding) {
-        searchBar.placeholder = `Please Search for ${currentWord.substring(0, charIndex)}`;
-        charIndex++;
-        if (charIndex > currentWord.length) {
-            isAdding = false;
-            setTimeout(updatePlaceholder, 1000); // Wait before deleting
-            return;
-        }
-    } else {
-        searchBar.placeholder = `Please Search for ${currentWord.substring(0, charIndex)}`;
-        charIndex--;
-        if (charIndex === 0) {
-            isAdding = true;
-            currentWordIndex = (currentWordIndex + 1) % words.length;
-        }
-    }
-    setTimeout(updatePlaceholder, 150); // Typing speed
-}
+// Fetch categories from PHP backend
+fetch('./get_categories.php')
+    .then(response => response.json())
+    .then(data => {
+        // Extract category and subcategory names
+        data.categories.forEach(category => {
+            searchKeywords.push(category.name);
+        });
+        data.subcategories.forEach(subcat => {
+            searchKeywords.push(subcat.name);
+        });
+        
+        // Initialize the typing animation
+        let currentWordIndex = 0;
+        let charIndex = 0;
+        let isAdding = true;
 
-updatePlaceholder();
+        function updatePlaceholder() {
+            let currentWord = searchKeywords[currentWordIndex];
+            if (isAdding) {
+                searchBar.placeholder = `Search for ${currentWord?.substring(0, charIndex)}`;
+                charIndex++;
+                if (charIndex > currentWord?.length) {
+                    isAdding = false;
+                    setTimeout(updatePlaceholder, 1000); // Pause before deleting
+                    return;
+                }
+            } else {
+                searchBar.placeholder = `Search for ${currentWord?.substring(0, charIndex)}`;
+                charIndex--;
+                if (charIndex === 0) {
+                    isAdding = true;
+                    currentWordIndex = (currentWordIndex + 1) % searchKeywords.length;
+                }
+            }
+            setTimeout(updatePlaceholder, 150); // Typing speed
+        }
+
+        updatePlaceholder();
+    })
+    .catch(error => {
+        console.error('Error fetching categories:', error);
+        // Fallback keywords if fetch fails
+        searchKeywords.push(
+            "Gold Necklaces",
+            "Diamond Rings",
+            "Silver Bangles",
+            "Bridal Jewelry",
+            "Temple Jewelry",
+            "Antique Collections"
+        );
+    });
 

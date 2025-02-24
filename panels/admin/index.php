@@ -1,8 +1,5 @@
 <?php 
 session_start();
-// error_reporting(0);
-// ini_set('display_errors', 0);
-// ini_set('log_errors', 1);
 if(!empty($_SESSION['role'])){
     $title="home";
     require_once('header.php');
@@ -146,18 +143,6 @@ if(!empty($_SESSION['role'])){
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Timeframe Selector -->
-    <div class="mb-4">
-        <form class="d-flex gap-2" method="GET">
-            <select name="timeframe" class="form-select w-auto" onchange="this.form.submit()">
-                <option value="all" <?php echo $timeframe == 'all' ? 'selected' : ''; ?>>All Time</option>
-                <option value="24h" <?php echo $timeframe == '24h' ? 'selected' : ''; ?>>Last 24 Hours</option>
-                <option value="7d" <?php echo $timeframe == '7d' ? 'selected' : ''; ?>>Last 7 Days</option>
-                <option value="30d" <?php echo $timeframe == '30d' ? 'selected' : ''; ?>>Last 30 Days</option>
-            </select>
-        </form>
     </div>
 
     <!-- Statistics Cards -->
