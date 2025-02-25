@@ -272,6 +272,61 @@ $slug = ucwords($slug);
         margin-bottom: 0;
     }
 }
+
+/* Update the zoom styling */
+.zoom-container {
+    position: relative;
+    overflow: visible; /* Changed from hidden to visible */
+    width: 100%;
+    height: auto;
+}
+
+.zoom-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.zoom-lens {
+    position: absolute;
+    border: 2px solid #d4d4d4;
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    cursor: zoom-in;
+    display: none;
+}
+
+.zoom-result {
+    position: absolute;
+    top: 0;
+    left: 105%;
+    width: 300px;
+    height: 300px;
+    border: 2px solid #d4d4d4;
+    background-repeat: no-repeat;
+    background-color: #fff;
+    display: none;
+    z-index: 1000;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Make sure carousel items don't hide zoom result */
+.carousel-item {
+    overflow: visible !important;
+}
+
+/* Make sure parent containers don't clip the zoom result */
+#product-carousel, .carousel-inner {
+    overflow: visible !important;
+}
+
+@media (max-width: 991px) {
+    .zoom-result, .zoom-lens {
+        display: none !important; /* Disable zoom on mobile */
+    }
+}
 </style>
 <?php
     for ($i = 0; $i < $products['count']; $i++) {
@@ -332,13 +387,21 @@ $slug = ucwords($slug);
                 <div id="product-carousel" class="carousel slide" data-ride="carousel" data-interval="5000">
                     <div class="carousel-inner">
                         <div class="carousel-item active">
-                            <img class="w-100" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
+                            <div class="zoom-container">
+                                <img class="w-100 zoom-image" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
+                                <div class="zoom-lens"></div>
+                                <div class="zoom-result"></div>
+                            </div>
                         </div>
                         <?php foreach ($imageList as $image): 
                             if(trim($image) != ""):
                         ?>
                             <div class="carousel-item">
-                                <img class="w-100" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
+                                <div class="zoom-container">
+                                    <img class="w-100 zoom-image" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
+                                    <div class="zoom-lens"></div>
+                                    <div class="zoom-result"></div>
+                                </div>
                             </div>
                         <?php 
                             endif;
@@ -1127,4 +1190,186 @@ document.addEventListener('DOMContentLoaded', function() {
         return this;
     };
 })(jQuery);
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image zoom functionality
+    function imageZoom() {
+        const images = document.querySelectorAll('.zoom-container');
+        
+        images.forEach(container => {
+            const img = container.querySelector('.zoom-image');
+            const lens = container.querySelector('.zoom-lens');
+            const result = container.querySelector('.zoom-result');
+            
+            // Only initialize if elements exist
+            if (!img || !lens || !result) return;
+            
+            // Wait for image to fully load before setting up zoom
+            img.onload = function() {
+                setupZoom();
+            };
+            
+            // If image is already loaded, set up zoom immediately
+            if (img.complete) {
+                setupZoom();
+            }
+            
+            function setupZoom() {
+                // Set up the background image for the result div
+                result.style.backgroundImage = `url('${img.src}')`;
+                
+                // Calculate the ratio between result div and lens
+                const cx = result.offsetWidth / lens.offsetWidth;
+                const cy = result.offsetHeight / lens.offsetHeight;
+                
+                // Functions to handle mouse events
+                container.addEventListener('mouseenter', () => {
+                    lens.style.display = 'block';
+                    result.style.display = 'block';
+                });
+                
+                container.addEventListener('mouseleave', () => {
+                    lens.style.display = 'none';
+                    result.style.display = 'none';
+                });
+                
+                container.addEventListener('mousemove', (e) => {
+                    e.preventDefault();
+                    
+                    // Get cursor position
+                    const pos = getCursorPos(e, container);
+                    
+                    // Calculate position of lens
+                    let x = pos.x - (lens.offsetWidth / 2);
+                    let y = pos.y - (lens.offsetHeight / 2);
+                    
+                    // Get actual image dimensions (may differ from display size)
+                    const imageWidth = img.offsetWidth;
+                    const imageHeight = img.offsetHeight;
+                    
+                    // Prevent lens from going outside the image
+                    if (x > imageWidth - lens.offsetWidth) x = imageWidth - lens.offsetWidth;
+                    if (x < 0) x = 0;
+                    if (y > imageHeight - lens.offsetHeight) y = imageHeight - lens.offsetHeight;
+                    if (y < 0) y = 0;
+                    
+                    // Set lens position
+                    lens.style.left = x + "px";
+                    lens.style.top = y + "px";
+                    
+                    // Calculate the position ratio
+                    const xRatio = x / imageWidth;
+                    const yRatio = y / imageHeight;
+                    
+                    // Move the image in the result div - use ratios for smoother zoom
+                    result.style.backgroundPosition = `-${xRatio * (imageWidth * cx - result.offsetWidth)}px -${yRatio * (imageHeight * cy - result.offsetHeight)}px`;
+                    result.style.backgroundSize = `${imageWidth * cx}px ${imageHeight * cy}px`;
+                });
+            }
+            
+            // Helper function to get cursor position
+            function getCursorPos(e, elem) {
+                const rect = elem.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                return { x, y };
+            }
+        });
+    }
+    
+    // Initialize zoom on page load
+    imageZoom();
+    
+    // Re-initialize zoom when carousel slides
+    $('#product-carousel').on('slid.bs.carousel', function() {
+        setTimeout(imageZoom, 100); // Small delay to ensure new slide is fully loaded
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize zoom functionality for the first image
+    initZoom();
+    
+    // Update zoom when carousel changes images
+    $('#product-carousel').on('slid.bs.carousel', function() {
+        initZoom();
+    });
+    
+    function initZoom() {
+        const container = document.querySelector('.zoom-container');
+        const img = container.querySelector('.zoom-image');
+        const lens = container.querySelector('.zoom-lens');
+        const result = container.querySelector('.zoom-result');
+        
+        // Only apply zoom on desktop/larger screens
+        if (window.innerWidth < 992) {
+            return;
+        }
+        
+        // Set result background to the same image
+        if (img.complete) {
+            result.style.backgroundImage = `url('${img.src}')`;
+        } else {
+            img.addEventListener('load', function() {
+                result.style.backgroundImage = `url('${img.src}')`;
+            });
+        }
+        
+        // Mouse enter - show zoom elements
+        container.addEventListener('mouseenter', function() {
+            lens.style.display = 'block';
+            result.style.display = 'block';
+        });
+        
+        // Mouse leave - hide zoom elements
+        container.addEventListener('mouseleave', function() {
+            lens.style.display = 'none';
+            result.style.display = 'none';
+        });
+        
+        // Mouse move - update zoom position and content
+        container.addEventListener('mousemove', moveLens);
+        
+        function moveLens(e) {
+            // Prevent any default action
+            e.preventDefault();
+            
+            // Get cursor position
+            const pos = getCursorPos(e);
+            
+            // Calculate position of lens
+            let x = pos.x - (lens.offsetWidth / 2);
+            let y = pos.y - (lens.offsetHeight / 2);
+            
+            // Prevent lens from going outside the image
+            if (x > img.width - lens.offsetWidth) {x = img.width - lens.offsetWidth;}
+            if (x < 0) {x = 0;}
+            if (y > img.height - lens.offsetHeight) {y = img.height - lens.offsetHeight;}
+            if (y < 0) {y = 0;}
+            
+            // Set lens position
+            lens.style.left = x + "px";
+            lens.style.top = y + "px";
+            
+            // Calculate ratio between result div and lens
+            const cx = result.offsetWidth / lens.offsetWidth;
+            const cy = result.offsetHeight / lens.offsetHeight;
+            
+            // Set background position for the result div
+            result.style.backgroundSize = (img.width * cx) + "px " + (img.height * cy) + "px";
+            result.style.backgroundPosition = "-" + (x * cx) + "px -" + (y * cy) + "px";
+        }
+        
+        function getCursorPos(e) {
+            let bounds = img.getBoundingClientRect();
+            let x = e.pageX - bounds.left - window.scrollX;
+            let y = e.pageY - bounds.top - window.scrollY;
+            return {x: x, y: y};
+        }
+    }
+});
 </script>
