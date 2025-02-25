@@ -27,11 +27,53 @@ endif;
     height: 150px;
 }
 .product-item {
-  height: 400px; 
+  height: 450px;  
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-radius: 10px;
 }
+
+.product-img {
+  height: 350px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.mobile-small-image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.h6.text-decoration-none, .mobile-small-font {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.product-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* For small screens */
+@media (max-width: 576px) {
+  .product-item {
+    height: 290px;
+  }
+  
+  .product-img {
+    height: 180px;
+  }
+}
+
 .d-flex::-webkit-scrollbar {
             height: 8px;
         }
@@ -241,6 +283,8 @@ endif;
             <?php
             for ($i = 0; $i < min($products['count'], 10); $i++) {
                 if ($products['statusval'][$i] == 1 && $products['is_lakshmi_kubera'][$i] == 1) {
+                        $averageRating = $Obj->getAverageRating($products['id'][$i]);
+                        $averageRatingValue = $averageRating['status'] == 1 ? $averageRating['average_rating'] : 0;
                     ?>
                     <div class="item  pb-1">
                         <div class="product-item bg-light mb-4">
@@ -260,19 +304,28 @@ endif;
                                         ₹<?php echo number_format(floor($products['discounted_price'][$i])); ?>
                                     </h5>
                                     <small class="text-muted ml-2">
-                                        <del>₹<?php echo number_format(floor($products['actual_price'][$i])); ?></del>
+                                        <del>₹<?php echo number_format(floor($products['_price'][$i])); ?></del>
                                     </small>
                                 </div>
                                 <!-- <span class="font-weight-bold"><small class="text-danger">Save <?php echo $products['discount_percentage'][$i]; ?>% on </small> <?php echo $products['ornament_weight'][$i]; ?>g</span> -->
 
                                 <div class="d-flex align-items-center justify-content-center mb-1">
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small class="fa fa-star text-primary mr-1"></small>
-                                    <small>(99)</small>
-                                </div>
+                                <?php
+                                // Display filled stars based on average rating
+                                for ($j = 0; $j < floor($averageRatingValue); $j++) {
+                                    echo '<small class="fa fa-star text-primary mr-1"></small>';
+                                }
+                                // Display half star if average rating is not an integer
+                                if ($averageRatingValue - floor($averageRatingValue) >= 0.5) {
+                                    echo '<small class="fa fa-star-half-alt text-primary mr-1"></small>';
+                                }
+                                // Display empty stars
+                                for ($j = ceil($averageRatingValue); $j < 5; $j++) {
+                                    echo '<small class="far fa-star text-primary mr-1"></small>';
+                                }
+                                ?>
+                                <small>(<?php echo $averageRatingValue; ?>)</small>
+                            </div>
                             </div>
                         </div>
                     </div>

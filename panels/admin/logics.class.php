@@ -2842,7 +2842,7 @@ public function AddProduct(
             }
 
     
-            public function getPayments() {
+            public function  getPayments() {
                 $res = array();
                 $res['result'] = 0;
                 

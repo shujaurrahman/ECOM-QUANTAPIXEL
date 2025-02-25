@@ -7,45 +7,90 @@ $slug = str_replace('-', ' ', $slug);
 $slug = ucwords($slug);
 ?>
 <style>
-    .product-item {
-  height: 400px; 
+.product-item {
+  height: 450px;  
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-radius: 10px;
 }
 
-.product-thumbnails {
-    width: 70px;
-    margin-right: 5px;
+.product-img {
+  height: 350px;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
-.thumbnail-item {
-    width: 100%;
-    height: 80px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.3s;
-    border: 2px solid transparent;
+.mobile-small-image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
 }
 
-.thumbnail-item.active {
-    opacity: 1;
-    border-color: #696cff;
+.h6.text-decoration-none, .mobile-small-font {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding-left: 12px;
+  padding-right: 12px;
 }
 
-.thumbnail-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.product-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* For small screens */
+@media (max-width: 576px) {
+  .product-item {
+    height: 290px;
+  }
+  
+  .product-img {
+    height: 180px;
+  }
+}
+
+/* Product gallery styling */
 .product-gallery {
     display: flex;
+    flex-direction: row;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    position: relative;
 }
 
+@media (min-width: 992px) {
+    .product-details-column, .product-gallery-column {
+        min-height: 470px !important;
+        display: flex
+;
+        flex-direction: column;
+    }
+}
+
+/* Main product carousel */
 #product-carousel {
     flex: 1;
+    width: calc(100% - 90px);
+}
+
+.carousel-inner {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.carousel-inner img {
+    width: 100%;
+    height: 390px;
+    object-fit: contain;
+    background: #fff;
+    padding-top: 20px;
 }
 
 .thumbnails-container {
@@ -68,36 +113,87 @@ $slug = ucwords($slug);
     border-radius: 3px;
 }
 
-/* Updated CSS */
-.product-gallery {
+/* Vertical thumbnails for desktop */
+.product-thumbnails.vertical {
+    width: 80px;
+    margin-right: 8px;
+    height: 450px;
+    overflow-y: auto;
     display: flex;
-}
-
-.product-thumbnails {
-    width: 70px;
+    flex-direction: column;
+    margin-top: 20px;
+    padding: 0 5px;
+    scrollbar-width: thin;
     flex-shrink: 0;
     background-color: #fff;
 }
 
+.product-thumbnails.vertical .thumbnails-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Horizontal thumbnails for mobile */
+.product-thumbnails.horizontal {
+    width: 100%;
+    margin-top: 15px;
+    overflow-x: auto;
+    display: none;
+    flex-direction: row;
+    padding: 10px 0;
+    scrollbar-width: thin;
+}
+
+.product-thumbnails.horizontal .thumbnails-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding-left: 5px;
+}
+
+/* Thumbnail styling */
 .thumbnail-item {
-    width: 100%;
-    height: 80px;
-    margin-bottom: 10px;
+    width: 70px;
+    height: 70px;
+    flex-shrink: 0;
     cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.3s;
+    opacity: 0.7;
+    transition: all 0.3s;
     border: 2px solid transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 10px;
 }
 
-#product-carousel {
-    flex: 1;
-    width: calc(100% - 95px); /* 80px thumbnails + 15px gap */
+.thumbnail-item:hover {
+    opacity: 0.9;
 }
 
-.carousel-inner img {
+.thumbnail-item.active {
+    opacity: 1;
+    border-color: #696cff;
+}
+
+.thumbnail-item img {
     width: 100%;
-    height: 550px; /* Increased height */
-    object-fit: contain;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Custom scrollbar for thumbnails */
+.product-thumbnails::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.product-thumbnails::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.product-thumbnails::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
 }
 
 /* Carousel Controls Styling */
@@ -105,11 +201,12 @@ $slug = ucwords($slug);
 .carousel-control-next {
     width: 40px;
     height: 40px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 50%;
     top: 50%;
     transform: translateY(-50%);
     opacity: 0.8;
+    z-index: 10;
 }
 
 .carousel-control-prev {
@@ -122,8 +219,58 @@ $slug = ucwords($slug);
 
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.7);
     opacity: 1;
+}
+
+/* Ensure consistent heights for product content columns */
+@media (min-width: 992px) {
+    .product-details-column,
+    .product-gallery-column {
+        min-height: 550px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .product-gallery {
+        height: 100%;
+    }
+    
+    .h-100.bg-light.p-30 {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 991px) {
+    .product-gallery {
+        flex-direction: column;
+    }
+    
+    #product-carousel {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .carousel-inner img {
+        height: 350px;
+    }
+    
+    .product-thumbnails.vertical {
+        display: none;
+    }
+    
+    .product-thumbnails.horizontal {
+        display: flex;
+    }
+    
+    .thumbnail-item {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 0;
+    }
 }
 </style>
 <?php
@@ -153,56 +300,90 @@ $slug = ucwords($slug);
         if($products['slug'][$i] == $_GET['slug']){
     ?>
     <div class="container-fluid pb-5">
-        <div class="row px-xl-5">
-            <div class="col-lg-5 mb-30">
-                <div class="product-gallery">
-                    <div class="product-thumbnails">
-                        <div class="thumbnails-container">
-                            <!-- Featured image thumbnail -->
-                            <div class="thumbnail-item active" data-slide-index="0">
-                                <img src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Thumbnail">
-                            </div>
-                            
-                            <!-- Additional images thumbnails -->
-                            <?php 
-                            $imageList = explode(',', $products['additional_images'][$i]);
-                            foreach ($imageList as $key => $image): 
-                                $slideIndex = $key + 1;
-                            ?>
-                                <div class="thumbnail-item" data-slide-index="<?php echo $slideIndex; ?>">
-                                    <img src="./panels/admin/product/<?php echo trim($image); ?>" alt="Thumbnail">
-                                </div>
-                            <?php endforeach; ?>
+    <div class="row px-xl-5">
+        <div class="col-lg-5 mb-30 product-gallery-column">
+            <div class="product-gallery">
+                <!-- Vertical thumbnails on the left (desktop) -->
+                <div class="product-thumbnails vertical">
+                    <div class="thumbnails-container">
+                        <!-- Featured image thumbnail -->
+                        <div class="thumbnail-item active" data-slide-index="0">
+                            <img src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Thumbnail">
                         </div>
+                        
+                        <!-- Additional images thumbnails -->
+                        <?php 
+                        $imageList = explode(',', $products['additional_images'][$i]);
+                        foreach ($imageList as $key => $image): 
+                            $slideIndex = $key + 1;
+                            if(trim($image) != ""):
+                        ?>
+                            <div class="thumbnail-item" data-slide-index="<?php echo $slideIndex; ?>">
+                                <img src="./panels/admin/product/<?php echo trim($image); ?>" alt="Thumbnail">
+                            </div>
+                        <?php 
+                            endif;
+                        endforeach; 
+                        ?>
                     </div>
-
-                    <div id="product-carousel" class="carousel slide" data-ride="carousel">
-                        <div class="carousel-inner bg-light">
-                            <div class="carousel-item active">
-                                <img class="w-100" style="height: 500px;" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
-                            </div>
-                            <?php foreach ($imageList as $image): ?>
-                                <div class="carousel-item">
-                                    <img class="w-100" style="height: 500px;" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
-                                </div>
-                            <?php endforeach; ?>
+                </div>
+                
+                <!-- Main carousel -->
+                <div id="product-carousel" class="carousel slide" data-ride="carousel" data-interval="5000">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img class="w-100" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
                         </div>
-                        <!-- Add back the carousel controls -->
-                        <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                        <a class="carousel-control-next" href="#product-carousel" role="button" data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                        </a>
+                        <?php foreach ($imageList as $image): 
+                            if(trim($image) != ""):
+                        ?>
+                            <div class="carousel-item">
+                                <img class="w-100" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
+                            </div>
+                        <?php 
+                            endif;
+                        endforeach; ?>
+                    </div>
+                    <!-- Carousel controls -->
+                    <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#product-carousel" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+                
+                <!-- Horizontal thumbnails below (mobile) -->
+                <div class="product-thumbnails horizontal">
+                    <div class="thumbnails-container">
+                        <!-- Featured image thumbnail -->
+                        <div class="thumbnail-item active" data-slide-index="0">
+                            <img src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Thumbnail">
+                        </div>
+                        
+                        <!-- Additional images thumbnails -->
+                        <?php 
+                        foreach ($imageList as $key => $image): 
+                            $slideIndex = $key + 1;
+                            if(trim($image) != ""):
+                        ?>
+                            <div class="thumbnail-item" data-slide-index="<?php echo $slideIndex; ?>">
+                                <img src="./panels/admin/product/<?php echo trim($image); ?>" alt="Thumbnail">
+                            </div>
+                        <?php 
+                            endif;
+                        endforeach; 
+                        ?>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-lg-7 h-auto mb-30">
-                <div class="h-100 bg-light p-30">
-                    <h3><?php echo $products['product_name'][$i] ?></h3>
+        <div class="col-lg-7 h-auto mb-30 product-details-column">
+            <div class="h-100 bg-light p-30">
+                <h3><?php echo $products['product_name'][$i] ?></h3>
                     <div class="d-flex mb-3">
                         <div class="text-primary mr-2">
                             <?php
@@ -224,7 +405,7 @@ $slug = ucwords($slug);
                     </div>
                     <h3 class="font-weight-semi-bold mb-1" id="product-price">₹<?php echo $products['discounted_price'][$i] ?> &emsp;<small><del>₹<?php echo $products['product_price'][$i] ?></del></small></h3>
                     <!-- <span class="mb-4">Ornament & Weight : <b><?php echo $products['ornament_type'][$i] ?> (<?php echo $products['ornament_weight'][$i] ?> Grams)</b></span> -->
-                    <br><br>
+
     
                     <p class="mb-4"><?php echo $products['short_description'][$i] ?></p>
 
@@ -353,7 +534,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
 </script>
 
 
-                    <br>
+    
                     <!-- <h4>For Customization, Upload Pic to get estimated price:</h4>
                     <form action="./open-logics.php" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="user_id" value="<?php echo !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>" >
@@ -371,7 +552,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
                         }
                         ?>
                     </form> -->
-                    <br>
+
 
                     <div class="d-flex pt-2">
                     <strong class="text-dark mr-2 my-auto">Share This Product:</strong>
@@ -561,7 +742,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
 
 
     <!-- Products Start -->
-    <div class="container-fluid py-5 d-none">
+    <!-- <div class="container-fluid py-5 d-none">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">You May Also Like</span></h2>
         <div class="row px-xl-5">
             <div class="col">
@@ -720,7 +901,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <!-- Products End -->
 
     
@@ -752,7 +933,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
                                     ₹<?php echo number_format(floor($products['discounted_price'][$i])); ?>
                                 </h5>
                                 <small class="text-muted ml-2">
-                                    <del>₹<?php echo number_format(floor($products['actual_price'][$i])); ?></del>
+                                    <del>₹<?php echo number_format(floor($products['_price'][$i])); ?></del>
                                 </small>
                             </div>
                             <div class="d-flex align-items-center justify-content-center mb-1">
@@ -790,28 +971,160 @@ require_once('footer.php');
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the carousel instance
-    var carousel = $('#product-carousel');
-    
-    // Handle thumbnail clicks
-    $('.thumbnail-item').on('click', function() {
-        var slideIndex = $(this).data('slide-index');
-        
-        // Move carousel to selected slide
-        carousel.carousel(slideIndex);
-        
-        // Update active thumbnail
-        $('.thumbnail-item').removeClass('active');
-        $(this).addClass('active');
+    // Initialize the carousel with auto-sliding
+    var carousel = $('#product-carousel').carousel({
+        interval: 5000, // Auto-slide every 5 seconds
+        pause: 'hover'  // Pause on mouse hover
     });
     
-    // Update thumbnail when carousel slides
+    // Function to handle thumbnail clicks (for both vertical and horizontal layouts)
+    function setupThumbnailClicks() {
+        $('.thumbnail-item').on('click', function() {
+            var slideIndex = $(this).data('slide-index');
+            
+            // Move carousel to selected slide
+            carousel.carousel(slideIndex);
+            
+            // Update active thumbnail in both layouts
+            $('.thumbnail-item').removeClass('active');
+            $('.thumbnail-item[data-slide-index="' + slideIndex + '"]').addClass('active');
+        });
+    }
+    
+    // Update thumbnails when carousel slides
     carousel.on('slide.bs.carousel', function(e) {
         var slideIndex = e.to;
         
-        // Update active thumbnail
+        // Update active thumbnail in both layouts
         $('.thumbnail-item').removeClass('active');
         $('.thumbnail-item[data-slide-index="' + slideIndex + '"]').addClass('active');
+        
+        // Scroll the active thumbnail into view (vertical)
+        const activeThumbVertical = document.querySelector('.product-thumbnails.vertical .thumbnail-item[data-slide-index="' + slideIndex + '"]');
+        if (activeThumbVertical) {
+            activeThumbVertical.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'start'
+            });
+        }
+        
+        // Scroll the active thumbnail into view (horizontal)
+        const activeThumbHorizontal = document.querySelector('.product-thumbnails.horizontal .thumbnail-item[data-slide-index="' + slideIndex + '"]');
+        if (activeThumbHorizontal) {
+            activeThumbHorizontal.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
     });
+    
+    // Handle window resize to switch between vertical and horizontal layouts
+    function handleResponsiveLayout() {
+        if (window.innerWidth < 992) {
+            // Mobile layout
+            $('.product-gallery').css('flex-direction', 'column');
+            $('.product-thumbnails.vertical').css('display', 'none');
+            $('.product-thumbnails.horizontal').css('display', 'flex');
+        } else {
+            // Desktop layout
+            $('.product-gallery').css('flex-direction', 'row');
+            $('.product-thumbnails.vertical').css('display', 'flex');
+            $('.product-thumbnails.horizontal').css('display', 'none');
+        }
+        
+        // Ensure consistent heights between gallery and product details
+        adjustGalleryHeight();
+    }
+    
+    // Adjust gallery height
+    function adjustGalleryHeight() {
+        if (window.innerWidth >= 992) {
+            const galleryHeight = $('.product-gallery').outerHeight();
+            const detailsHeight = $('.h-100.bg-light.p-30').outerHeight();
+            
+            if (galleryHeight > detailsHeight) {
+                $('.h-100.bg-light.p-30').css('min-height', galleryHeight);
+            } else if (detailsHeight > galleryHeight) {
+                $('.product-gallery').css('min-height', detailsHeight);
+            }
+        } else {
+            // Reset heights on mobile
+            $('.product-gallery').css('min-height', '');
+            $('.h-100.bg-light.p-30').css('min-height', '');
+        }
+    }
+    
+    // Initialize everything
+    setupThumbnailClicks();
+    handleResponsiveLayout();
+    
+    // Handle window resize
+    $(window).on('resize', function() {
+        handleResponsiveLayout();
+    });
+    
+    // Fix for iOS Safari and some other mobile browsers
+    $('.carousel').bcSwipe({ threshold: 50 });
 });
+</script>
+
+<script>
+// Simple swipe gesture support for Bootstrap carousels
+(function($) {
+    $.fn.bcSwipe = function(settings) {
+        var config = { threshold: 50 };
+        if (settings) {
+            $.extend(config, settings);
+        }
+
+        this.each(function() {
+            var startX, startY;
+            
+            $(this).on('touchstart', function(e) {
+                if (e.originalEvent.touches.length === 1) {
+                    var touch = e.originalEvent.touches[0];
+                    startX = touch.pageX;
+                    startY = touch.pageY;
+                }
+            });
+
+            $(this).on('touchmove', function(e) {
+                if (startX && startY) {
+                    var touch = e.originalEvent.touches[0];
+                    var diffX = startX - touch.pageX;
+                    var diffY = startY - touch.pageY;
+
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        // Horizontal swipe
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            $(this).on('touchend', function(e) {
+                if (startX && startY) {
+                    var touch = e.originalEvent.changedTouches[0];
+                    var diffX = startX - touch.pageX;
+
+                    if (Math.abs(diffX) > config.threshold) {
+                        if (diffX > 0) {
+                            // Swipe left, go to next slide
+                            $(this).carousel('next');
+                        } else {
+                            // Swipe right, go to previous slide
+                            $(this).carousel('prev');
+                        }
+                    }
+                    
+                    startX = null;
+                    startY = null;
+                }
+            });
+        });
+
+        return this;
+    };
+})(jQuery);
 </script>
