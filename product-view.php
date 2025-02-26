@@ -7,6 +7,10 @@ $slug = str_replace('-', ' ', $slug);
 $slug = ucwords($slug);
 ?>
 <style>
+
+
+
+
 .product-item {
   height: 450px;  
   display: flex;
@@ -78,6 +82,8 @@ $slug = ucwords($slug);
 #product-carousel {
     flex: 1;
     width: calc(100% - 90px);
+    overflow: hidden !important;
+    position: relative;
 }
 
 .carousel-inner {
@@ -126,6 +132,8 @@ $slug = ucwords($slug);
     scrollbar-width: thin;
     flex-shrink: 0;
     background-color: #fff;
+    position: relative;
+    z-index: 1010; /* Higher than zoom-result to stay on top */
 }
 
 .product-thumbnails.vertical .thumbnails-container {
@@ -279,6 +287,7 @@ $slug = ucwords($slug);
     overflow: visible; /* Changed from hidden to visible */
     width: 100%;
     height: auto;
+    z-index: 1001; /* Higher than thumbnails when active */
 }
 
 .zoom-image {
@@ -307,9 +316,10 @@ $slug = ucwords($slug);
     background-repeat: no-repeat;
     background-color: #fff;
     display: none;
-    z-index: 1000;
+    z-index: 1005;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    pointer-events: none; /* Prevent interference with mouse events */
 }
 
 /* Make sure carousel items don't hide zoom result */
@@ -322,11 +332,40 @@ $slug = ucwords($slug);
     overflow: visible !important;
 }
 
-@media (max-width: 991px) {
-    .zoom-result, .zoom-lens {
-        display: none !important; /* Disable zoom on mobile */
-    }
+/* Improve carousel slide transitions */
+#product-carousel .carousel-item {
+    transition: transform 0.6s ease-in-out;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    opacity: 0;
+    display: block !important;
 }
+
+#product-carousel .carousel-item.active {
+    opacity: 1;
+    position: relative;
+}
+
+/* Use a fade transition instead of slide */
+.carousel-inner .carousel-item {
+    transition: opacity 0.6s ease !important;
+    display: block;
+    position: absolute;
+    top: 0;
+}
+
+/* Override Bootstrap's default slide behavior */
+.carousel-item-next.carousel-item-left,
+.carousel-item-prev.carousel-item-right {
+    transform: translateX(0) !important;
+}
+
+.carousel-item-left.active,
+.carousel-item-right.active {
+    transform: translateX(0) !important;
+}
+
 </style>
 <?php
     for ($i = 0; $i < $products['count']; $i++) {
@@ -1372,4 +1411,111 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Modify Bootstrap's carousel to use fade transition instead of slide
+    $('#product-carousel').on('slide.bs.carousel', function(e) {
+        $(this).find('.carousel-item.active').addClass('fading');
+        $(this).find('.carousel-item.active').removeClass('active');
+        $(this).find('.carousel-item').eq(e.to).addClass('active');
+        
+        // Update active thumbnail
+        $('.thumbnail-item').removeClass('active');
+        $('.thumbnail-item[data-slide-index="' + e.to + '"]').addClass('active');
+        
+        // Reset zoom when changing slides
+        $('.zoom-lens, .zoom-result').hide();
+        
+        setTimeout(function() {
+            $('.carousel-item.fading').removeClass('fading');
+        }, 600);
+    });
+    
+    // Initialize zoom for the active slide
+    initZoom();
+    
+    // Click on thumbnails to change carousel slide
+    $('.thumbnail-item').on('click', function() {
+        const slideIndex = $(this).data('slide-index');
+        $('#product-carousel').carousel(slideIndex);
+    });
+});
+
+// Your existing zoom functionality
+function initZoom() {
+    const container = document.querySelector('.zoom-container');
+    if (!container) return;
+    
+    const img = container.querySelector('.zoom-image');
+    const lens = container.querySelector('.zoom-lens');
+    const result = container.querySelector('.zoom-result');
+    
+    // Only apply zoom on desktop/larger screens
+    if (window.innerWidth < 992) {
+        return;
+    }
+    
+    // Set result background to the same image
+    if (img && img.complete) {
+        result.style.backgroundImage = `url('${img.src}')`;
+    } else if (img) {
+        img.addEventListener('load', function() {
+            result.style.backgroundImage = `url('${img.src}')`;
+        });
+    }
+    
+    // Mouse enter - show zoom elements
+    container.addEventListener('mouseenter', function() {
+        lens.style.display = 'block';
+        result.style.display = 'block';
+    });
+    
+    // Mouse leave - hide zoom elements
+    container.addEventListener('mouseleave', function() {
+        lens.style.display = 'none';
+        result.style.display = 'none';
+    });
+    
+    // Mouse move - update zoom position and content
+    container.addEventListener('mousemove', moveLens);
+    
+    function moveLens(e) {
+        // Prevent any default action
+        e.preventDefault();
+        
+        // Get cursor position
+        const pos = getCursorPos(e);
+        
+        // Calculate position of lens
+        let x = pos.x - (lens.offsetWidth / 2);
+        let y = pos.y - (lens.offsetHeight / 2);
+        
+        // Prevent lens from going outside the image
+        if (x > img.width - lens.offsetWidth) {x = img.width - lens.offsetWidth;}
+        if (x < 0) {x = 0;}
+        if (y > img.height - lens.offsetHeight) {y = img.height - lens.offsetHeight;}
+        if (y < 0) {y = 0;}
+        
+        // Set lens position
+        lens.style.left = x + "px";
+        lens.style.top = y + "px";
+        
+        // Calculate ratio between result div and lens
+        const cx = result.offsetWidth / lens.offsetWidth;
+        const cy = result.offsetHeight / lens.offsetHeight;
+        
+        // Set background position for the result div
+        result.style.backgroundSize = (img.width * cx) + "px " + (img.height * cy) + "px";
+        result.style.backgroundPosition = "-" + (x * cx) + "px -" + (y * cy) + "px";
+    }
+    
+    function getCursorPos(e) {
+        let bounds = img.getBoundingClientRect();
+        let x = e.pageX - bounds.left - window.scrollX;
+        let y = e.pageY - bounds.top - window.scrollY;
+        return {x: x, y: y};
+    }
+}
 </script>

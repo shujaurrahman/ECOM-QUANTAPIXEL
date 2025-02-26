@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 if (!empty($_SESSION['role'])) {
     $title = "Payments";
     require_once('header.php');
@@ -65,7 +65,7 @@ if (!empty($_SESSION['role'])) {
                                                             <small><?php echo $verification['billing_email'][$i]; ?></small>
                                                         </td>
                                                         <td>
-                                                            <strong>₹<?php echo number_format($verification['grandtotal'][$i], 2); ?></strong><br>
+                                                            <strong>₹<?php echo number_format((float)str_replace(',', '', $verification['grandtotal'][$i]), 2); ?></strong><br>
                                                             <small class="text-muted"><?php echo $verification['total_products'][$i]; ?> items</small>
                                                         </td>
                                                         <td>

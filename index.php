@@ -302,9 +302,9 @@ endif;
                                 <div class="d-flex align-items-center justify-content-center mt-2">
                                     <h5 class="font-weight-bold mr-2">
                                         ₹<?php echo number_format(floor($products['discounted_price'][$i])); ?>
-                                    </h5>
+                                    </h5> 
                                     <small class="text-muted ml-2">
-                                        <del>₹<?php echo number_format(floor($products['_price'][$i])); ?></del>
+                                        <del>₹<?php echo number_format(floor($products['product_price'][$i])); ?></del>
                                     </small>
                                 </div>
                                 <!-- <span class="font-weight-bold"><small class="text-danger">Save <?php echo $products['discount_percentage'][$i]; ?>% on </small> <?php echo $products['ornament_weight'][$i]; ?>g</span> -->
