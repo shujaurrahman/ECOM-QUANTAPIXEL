@@ -237,7 +237,7 @@ if(isset($_POST['submit'])  ){
               <label for="featured_image">Add Featured Image</label>
               <p class="text-danger small mb-2">
                 <i class="bx bx-error-circle"></i>
-                Maximum image size allowed is 2MB
+                Maximum image size allowed is 2MB. Image dimensions must be 100px × 400px.
               </p>
               <input type="file" name="featured_image" placeholder="Enter Stock Quantity"  class="form-control mb-3"   id="stock">
 
@@ -422,7 +422,7 @@ if(isset($_POST['submit'])  ){
               <label for="size_chart">Add Size Chart</label>
               <p class="text-danger small mb-2">
                 <i class="bx bx-error-circle"></i>
-                Maximum image size allowed is 2MB
+                Maximum image size allowed is 2MB. Image dimensions must be 100px × 400px.
               </p>
               <input type="file" name="size_chart" placeholder=""  class="form-control mb-3"   id="stock">
               <label for="hashtagInput">Product Hashtags</label>
@@ -691,6 +691,7 @@ function toggleOptions(optionClass, checkbox) {
     }
     
     if (fileInput.files && fileInput.files[0]) {
+      // Size validation
       if (fileInput.files[0].size > maxSize) {
         // Create error alert
         alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
@@ -704,13 +705,36 @@ function toggleOptions(optionClass, checkbox) {
         
         // Clear the file input
         fileInput.value = '';
+      } else {
+        // Dimension validation
+        validateImageDimensions(fileInput.files[0], function(errorMessage) {
+          alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+          alertDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+              <i class="bx bx-error-circle me-2"></i>
+              <strong>Error:</strong>&nbsp;${errorMessage}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `;
+          
+          // Clear the file input
+          fileInput.value = '';
+          
+          // Insert alert
+          const alertContainer = document.createElement('div');
+          alertContainer.className = 'w-100';
+          alertContainer.appendChild(alertDiv);
+          fileInput.parentNode.parentNode.insertBefore(alertContainer, fileInput.parentNode.nextSibling);
+        });
       }
       
-      // Insert alert after the file input container
-      const alertContainer = document.createElement('div');
-      alertContainer.className = 'w-100';
-      alertContainer.appendChild(alertDiv);
-      fileInput.parentNode.parentNode.insertBefore(alertContainer, fileInput.parentNode.nextSibling);
+      // Insert alert if size validation failed
+      if (fileInput.files[0].size > maxSize) {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = 'w-100';
+        alertContainer.appendChild(alertDiv);
+        fileInput.parentNode.parentNode.insertBefore(alertContainer, fileInput.parentNode.nextSibling);
+      }
       
       // Auto-dismiss alert after 5 seconds
       setTimeout(() => {
@@ -756,13 +780,13 @@ document.querySelector('input[name="featured_image"]').addEventListener('change'
     const alertDiv = document.createElement('div');
     alertDiv.id = 'sizeAlert';
     
- 
     const existingAlert = document.getElementById('sizeAlert');
     if (existingAlert) {
         existingAlert.remove();
     }
     
     if (fileInput.files && fileInput.files[0]) {
+        // Size validation
         if (fileInput.files[0].size > maxSize) {
             // Create error alert
             alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
@@ -776,10 +800,30 @@ document.querySelector('input[name="featured_image"]').addEventListener('change'
             
             // Clear the file input
             fileInput.value = '';
+        } else {
+            // Dimension validation
+            validateImageDimensions(fileInput.files[0], function(errorMessage) {
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+                alertDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <strong>Error:</strong>&nbsp;${errorMessage}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Clear the file input
+                fileInput.value = '';
+                
+                // Insert alert after the file input
+                fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+            });
         }
         
-        // Insert alert after the file input
-        fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+        // Insert alert after the file input if size validation failed
+        if (fileInput.files[0].size > maxSize) {
+            fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+        }
         
         // Auto-dismiss alert after 5 seconds
         setTimeout(() => {
@@ -796,13 +840,13 @@ document.querySelector('input[name="size_chart"]').addEventListener('change', fu
     const alertDiv = document.createElement('div');
     alertDiv.id = 'sizeAlert';
     
- 
     const existingAlert = document.getElementById('sizeAlert');
     if (existingAlert) {
         existingAlert.remove();
     }
     
     if (fileInput.files && fileInput.files[0]) {
+        // Size validation
         if (fileInput.files[0].size > maxSize) {
             // Create error alert
             alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
@@ -816,10 +860,30 @@ document.querySelector('input[name="size_chart"]').addEventListener('change', fu
             
             // Clear the file input
             fileInput.value = '';
+        } else {
+            // Dimension validation
+            validateImageDimensions(fileInput.files[0], function(errorMessage) {
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+                alertDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <strong>Error:</strong>&nbsp;${errorMessage}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Clear the file input
+                fileInput.value = '';
+                
+                // Insert alert after the file input
+                fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+            });
         }
         
-        // Insert alert after the file input
-        fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+        // Insert alert after the file input if size validation failed
+        if (fileInput.files[0].size > maxSize) {
+            fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+        }
         
         // Auto-dismiss alert after 5 seconds
         setTimeout(() => {
@@ -829,7 +893,6 @@ document.querySelector('input[name="size_chart"]').addEventListener('change', fu
         }, 5000);
     }
 });
-
 
 const hashtagInput = document.getElementById('hashtagInput');
 const tagContainer = document.getElementById('tagContainer');
@@ -869,6 +932,186 @@ function removeTag(element, tag) {
 function updateHiddenInput() {
     hashtagsHidden.value = tags.join(',');
 }
+
+// Add image dimension validation functions
+function validateImageDimensions(file, errorCallback) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
+    reader.onload = function(e) {
+      const image = new Image();
+      image.src = e.target.result;
+      
+      image.onload = function() {
+        const width = this.width;
+        const height = this.height;
+        
+        if (width !== 100 || height !== 500) {
+          errorCallback(`Image dimensions must be 100px × 400px. Current dimensions: ${width}px × ${height}px.`);
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      };
+      
+      image.onerror = function() {
+        reject(new Error("Failed to load image"));
+      };
+    };
+    
+    reader.onerror = function() {
+      reject(new Error("Failed to read file"));
+    };
+  });
+}
+
+// Update featured image validation
+document.querySelector('input[name="featured_image"]').addEventListener('change', function() {
+    const fileInput = this;
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    const alertDiv = document.createElement('div');
+    alertDiv.id = 'sizeAlert';
+    
+    const existingAlert = document.getElementById('sizeAlert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+    
+    if (fileInput.files && fileInput.files[0]) {
+        // Size validation
+        if (fileInput.files[0].size > maxSize) {
+            // Create error alert
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <strong>Error:</strong>&nbsp;Image size exceeds 2MB. Please choose a smaller file.
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Clear the file input
+            fileInput.value = '';
+        } else {
+            // Dimension validation
+            validateImageDimensions(fileInput.files[0], function(errorMessage) {
+                // alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+                // alertDiv.innerHTML = `
+                //     <div class="d-flex align-items-center">
+                //         <i class="bx bx-error-circle me-2"></i>
+                //         <strong>Error:</strong>&nbsp;${errorMessage}
+                //     </div>
+                //     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                // `;
+                
+                // Clear the file input
+                fileInput.value = '';
+                
+                // Insert alert after the file input
+                fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+            });
+        }
+        
+        // Insert alert after the file input if size validation failed
+        if (fileInput.files[0].size > maxSize) {
+            fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+        }
+        
+        // Auto-dismiss alert after 5 seconds
+        setTimeout(() => {
+            if (document.getElementById('sizeAlert')) {
+                document.getElementById('sizeAlert').remove();
+            }
+        }, 5000);
+    }
+});
+
+// Update additional images validation function
+function validateImageSize(fileInput) {
+    const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+    const alertDiv = document.createElement('div');
+    alertDiv.id = 'sizeAlertAdditional';
+    
+    const existingAlert = fileInput.parentNode.querySelector('#sizeAlertAdditional');
+    if (existingAlert) {
+      existingAlert.remove();
+    }
+    
+    if (fileInput.files && fileInput.files[0]) {
+      // Size validation
+      if (fileInput.files[0].size > maxSize) {
+        // Create error alert
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+        alertDiv.innerHTML = `
+          <div class="d-flex align-items-center">
+            <i class="bx bx-error-circle me-2"></i>
+            <strong>Error:</strong>&nbsp;Image size exceeds 2MB. Please choose a smaller file.
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        // Clear the file input
+        fileInput.value = '';
+      } else {
+        // Dimension validation
+        validateImageDimensions(fileInput.files[0], function(errorMessage) {
+          alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+          alertDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+              <i class="bx bx-error-circle me-2"></i>
+              <strong>Error:</strong>&nbsp;${errorMessage}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `;
+          
+          // Clear the file input
+          fileInput.value = '';
+          
+          // Insert alert
+          const alertContainer = document.createElement('div');
+          alertContainer.className = 'w-100';
+          alertContainer.appendChild(alertDiv);
+          fileInput.parentNode.parentNode.insertBefore(alertContainer, fileInput.parentNode.nextSibling);
+        });
+      }
+      
+      // Insert alert if size validation failed
+      if (fileInput.files[0].size > maxSize) {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = 'w-100';
+        alertContainer.appendChild(alertDiv);
+        fileInput.parentNode.parentNode.insertBefore(alertContainer, fileInput.parentNode.nextSibling);
+      }
+      
+      // Auto-dismiss alert after 5 seconds
+      setTimeout(() => {
+        if (fileInput.parentNode.parentNode.querySelector('#sizeAlertAdditional')) {
+          fileInput.parentNode.parentNode.querySelector('#sizeAlertAdditional').remove();
+        }
+      }, 5000);
+    }
+}
+
+// Update label text to include dimension requirements
+document.addEventListener('DOMContentLoaded', function() {
+    // Update featured image label
+    const featuredLabel = document.querySelector('label[for="featured_image"]').nextElementSibling;
+    featuredLabel.innerHTML = `
+      <i class="bx bx-error-circle"></i>
+      Maximum image size allowed is 2MB. Image dimensions must be 100px × 500px.
+    `;
+    
+    // // Add dimension info to additional images label
+    // const additionalImagesLabel = document.querySelector('label[for="category"]');
+    // const additionalImagesNote = document.createElement('p');
+    // additionalImagesNote.className = 'text-danger small mb-2';
+    // additionalImagesNote.innerHTML = `
+    //   <i class="bx bx-error-circle"></i>
+    //   Maximum image size allowed is 2MB. Image dimensions must be 100px × 500px.
+    // `;
+    additionalImagesLabel.insertAdjacentElement('afterend', additionalImagesNote);
+});
 </script>
 
 

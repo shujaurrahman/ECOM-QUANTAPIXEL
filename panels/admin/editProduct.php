@@ -255,7 +255,7 @@ $productVariations = $Obj->getProductVariations($_GET['id']);
               <label for="featured_image">Add Featured Image</label>
               <p class="text-danger small mb-2">
                 <i class="bx bx-error-circle"></i>
-                Maximum image size allowed is 2MB
+                Maximum image size allowed is 2MB. Image dimensions must be 100px × 400px.
               </p>
               <input type="file" name="featured_image" placeholder="Enter Stock Quantity"  class="form-control mb-3"   id="stock">
               <input type="hidden" name="actual_featured_image" value="<?php echo $products['featured_image'][$j] ?>" id="">
@@ -493,6 +493,39 @@ require_once('footer.php');
 <!-- <script src="../js/ckeditor.js"></script> -->
 <script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
 <script>
+// Add image dimension validation function
+function validateImageDimensions(file, errorCallback) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
+    reader.onload = function(e) {
+      const image = new Image();
+      image.src = e.target.result;
+      
+      image.onload = function() {
+        const width = this.width;
+        const height = this.height;
+        
+        if (width !== 100 || height !== 400) {
+          errorCallback(`Image dimensions must be 100px × 400px. Current dimensions: ${width}px × ${height}px.`);
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      };
+      
+      image.onerror = function() {
+        reject(new Error("Failed to load image"));
+      };
+    };
+    
+    reader.onerror = function() {
+      reject(new Error("Failed to read file"));
+    };
+  });
+}
+
 function calculateDiscountedPrice() {
   const productPrice = parseFloat(document.getElementById('product_Price').value) || 0;
   const discountPercentage = parseFloat(document.getElementById('discounted_percentage').value) || 0;
@@ -562,6 +595,7 @@ document.querySelector('input[name="aaditional_images[]"]').addEventListener('ch
     }
     
     if (fileInput.files && fileInput.files[0]) {
+      // Size validation
       if (fileInput.files[0].size > maxSize) {
         // Create error alert
         alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
@@ -575,6 +609,21 @@ document.querySelector('input[name="aaditional_images[]"]').addEventListener('ch
         
         // Clear the file input
         fileInput.value = '';
+      } else {
+        // Dimension validation
+        validateImageDimensions(fileInput.files[0], function(errorMessage) {
+          alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+          alertDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+              <i class="bx bx-error-circle me-2"></i>
+              <strong>Error:</strong>&nbsp;${errorMessage}
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `;
+          
+          // Clear the file input
+          fileInput.value = '';
+        });
       }
       
       // Insert alert after the file input container
@@ -627,13 +676,13 @@ document.querySelector('input[name="featured_image"]').addEventListener('change'
     const alertDiv = document.createElement('div');
     alertDiv.id = 'sizeAlert';
     
- 
     const existingAlert = document.getElementById('sizeAlert');
     if (existingAlert) {
         existingAlert.remove();
     }
     
     if (fileInput.files && fileInput.files[0]) {
+        // Size validation
         if (fileInput.files[0].size > maxSize) {
             // Create error alert
             alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
@@ -647,6 +696,21 @@ document.querySelector('input[name="featured_image"]').addEventListener('change'
             
             // Clear the file input
             fileInput.value = '';
+        } else {
+            // Dimension validation
+            validateImageDimensions(fileInput.files[0], function(errorMessage) {
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+                alertDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <strong>Error:</strong>&nbsp;${errorMessage}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Clear the file input
+                fileInput.value = '';
+            });
         }
         
         // Insert alert after the file input
@@ -687,6 +751,21 @@ document.querySelector('input[name="size_chart"]').addEventListener('change', fu
             
             // Clear the file input
             fileInput.value = '';
+        } else {
+            // Dimension validation
+            validateImageDimensions(fileInput.files[0], function(errorMessage) {
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+                alertDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <strong>Error:</strong>&nbsp;${errorMessage}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Clear the file input
+                fileInput.value = '';
+            });
         }
         
         // Insert alert after the file input
