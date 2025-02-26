@@ -73,9 +73,21 @@ if (!empty($_SESSION['role'])) {
                                                     </a>
                                                 </td>
                                                 <td>
-                                                    <a href="create_shipment.php?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-outline-info">
-                                                        <i class="bx bx-package"></i>
-                                                    </a>
+                                                    <?php 
+                                                    // Check if shipment exists for this order
+                                                    $shipment = $getUsers->getShipmentByOrderId($verification['id'][$i]);
+                                                    if (!empty($shipment)) {
+                                                        // Shipment exists - show view shipment button
+                                                        echo '<a href="view_shipment.php?id=' . $verification['id'][$i] . '" class="btn btn-sm btn-outline-success">';
+                                                        echo '<i class="bx bx-check-circle"></i>';
+                                                        echo '</a>';
+                                                    } else {
+                                                        // No shipment - show create shipment button
+                                                        echo '<a href="create_shipment.php?id=' . $verification['id'][$i] . '" class="btn btn-sm btn-outline-info">';
+                                                        echo '<i class="bx bx-package"></i>';
+                                                        echo '</a>';
+                                                    }
+                                                    ?>
                                                 </td>
                                                 <td>
                                                     <form action="" method="post">

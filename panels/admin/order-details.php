@@ -155,6 +155,48 @@ if (!empty($_SESSION['role'])) {
                         <strong>Payment Date:</strong> <?php echo date('d M Y H:i', strtotime($orderDetails['order']['payment_date'])); ?>
                     </div>
                 </div>
+                <!-- Add this after the payment information box -->
+                <?php 
+                $shipment = $getUsers->getShipmentByOrderId($orderDetails['order']['id']);
+                if (!empty($shipment)):
+                ?>
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <h5 class="d-flex justify-content-between align-items-center">
+                            Shipment Information
+                            <a href="view_shipment.php?id=<?php echo $orderDetails['order']['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                <i class="bx bx-show-alt"></i> Details
+                            </a>
+                        </h5>
+                        
+                        <div class="mb-2">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-info"><?php echo ucfirst($shipment['status']); ?></span>
+                        </div>
+                        
+                        <?php if(!empty($shipment['tracking_number'])): ?>
+                            <div class="mb-2">
+                                <strong>Tracking:</strong> 
+                                <a href="https://shiprocket.co/tracking/<?php echo $shipment['tracking_number']; ?>" target="_blank" class="text-primary">
+                                    <?php echo $shipment['tracking_number']; ?>
+                                    <i class="bx bx-link-external"></i>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if(!empty($shipment['courier_company'])): ?>
+                            <strong>Courier:</strong> <?php echo $shipment['courier_company']; ?><br>
+                        <?php endif; ?>
+                        
+                        <?php if(!empty($shipment['awb_code'])): ?>
+                            <strong>AWB Code:</strong> <?php echo $shipment['awb_code']; ?><br>
+                        <?php endif; ?>
+                        
+                        <strong>ShipRocket ID:</strong> <?php echo $shipment['shiprocket_order_id']; ?><br>
+                        <strong>Created:</strong> <?php echo date('d M Y', strtotime($shipment['created_at'])); ?>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Order Items -->

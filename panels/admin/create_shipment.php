@@ -184,12 +184,55 @@ $shiprocket_payment_method = ($payment_mode === 'razorpay') ? "Prepaid" : "COD";
         $result = json_decode($response, true);
         
         if (isset($result['order_id'])) {
-            return [
-                'success' => true,
-                'shiprocket_order_id' => $result['order_id'],
-                'shipment_id' => $result['shipment_id'] ?? null,
-                'response' => $result
-            ];
+            // Save shipment details to database
+            try {
+                $db_conn = new logics(); // Assuming your logics class has database connection
+                
+                // Prepare shipment data to save
+                $shipment_data = [
+                    'order_id' => $orderDetails['order']['id'],
+                    'shiprocket_order_id' => $result['order_id'],
+                    'shipment_id' => $result['shipment_id'] ?? null,
+                    'tracking_number' => $result['tracking_number'] ?? null,
+                    'courier_company' => $result['courier_name'] ?? null,
+                    'awb_code' => $result['awb_code'] ?? null,
+                    'payment_method' => $shiprocket_payment_method,
+                    'shipping_cost' => $result['shipping_cost'] ?? null,
+                    'customer_name' => $orderDetails['order']['billing_fullname'],
+                    'customer_phone' => $orderDetails['order']['billing_mobile'],
+                    'shipping_address' => !$shipping_is_billing ? 
+                        $orderDetails['order']['shipping_address1'] : $orderDetails['order']['billing_address1'],
+                    'shipping_city' => !$shipping_is_billing ? 
+                        $orderDetails['order']['shipping_city'] : $orderDetails['order']['billing_city'],
+                    'shipping_pincode' => !$shipping_is_billing ? 
+                        $orderDetails['order']['shipping_pincode'] : $orderDetails['order']['billing_pincode'],
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'status' => 'created',
+                    'response_data' => json_encode($result)
+                ];
+                
+                // Save to database - using a method from your logics class
+                // Assuming the method is available or implement it
+                $saved = $db_conn->saveShipment($shipment_data);
+                
+                return [
+                    'success' => true,
+                    'shiprocket_order_id' => $result['order_id'],
+                    'shipment_id' => $result['shipment_id'] ?? null,
+                    'tracking_number' => $result['tracking_number'] ?? null,
+                    'saved_to_db' => $saved,
+                    'response' => $result
+                ];
+            } catch (Exception $e) {
+                // Continue even if saving to DB fails
+                return [
+                    'success' => true,
+                    'shiprocket_order_id' => $result['order_id'],
+                    'shipment_id' => $result['shipment_id'] ?? null,
+                    'db_error' => $e->getMessage(),
+                    'response' => $result
+                ];
+            }
         } else {
             return [
                 'success' => false,

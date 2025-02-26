@@ -3187,7 +3187,163 @@ public function AddProduct(
                     if (isset($con)) $con->close();
                 }
                 
+               
                 return $stats;
             }
+
+public function saveShipment($shipment_data) {
+    $res = array();
+    $res['status'] = 0;
+    
+    // Establish database connection
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    // Check connection
+    if ($con->connect_error) {
+        die("Connection failed: " . $con->connect_error);
+    }
+
+    
+    // Begin transaction
+    $con->begin_transaction();
+    
+    try {
+        // Build columns and values for insertion
+        $columns = implode(', ', array_keys($shipment_data));
+        $placeholders = '';
+        $types = '';
+        $values = [];
+        
+        // Build the placeholder string and types string for bind_param
+        foreach ($shipment_data as $key => $value) {
+            $placeholders .= '?, ';
+            if (is_int($value)) {
+                $types .= 'i';
+            } elseif (is_float($value)) {
+                $types .= 'd';
+            } else {
+                $types .= 's';
+            }
+            $values[] = $value;
         }
+        
+        // Remove trailing comma and space from placeholders
+        $placeholders = rtrim($placeholders, ', ');
+        
+        // Create SQL query
+        $sql = "INSERT INTO shipments ($columns) VALUES ($placeholders)";
+        $stmt = $con->prepare($sql);
+        
+        if ($stmt) {
+            // Use reflection to bind parameters dynamically
+            $params = array();
+            $params[] = &$types;
+            
+            for ($i = 0; $i < count($values); $i++) {
+                $params[] = &$values[$i];
+            }
+            
+            call_user_func_array(array($stmt, 'bind_param'), $params);
+            
+            if ($stmt->execute()) {
+                $con->commit();
+                $res['status'] = 1;
+                $res['insert_id'] = $stmt->insert_id;
+            } else {
+                $con->rollback();
+                $res['error'] = 'Statement not executed: ' . $stmt->error;
+            }
+        } else {
+            $con->rollback();
+            $res['error'] = 'Prepare statement failed: ' . $con->error;
+        }
+    } catch (Exception $e) {
+        $con->rollback();
+        $res['error'] = $e->getMessage();
+    }
+    
+    // Close the connection
+    if (isset($stmt)) {
+        $stmt->close();
+    }
+    $con->close();
+    
+    return $res['status'] == 1;
+}
+
+
+public function getShipmentByOrderId($order_id) {
+    $res = array();
+    $res['status'] = 0;
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        error_log("Connection failed: " . $con->connect_error);
+        return null;
+    }
+    
+    $query = $con->prepare("SELECT * FROM shipments WHERE order_id = ? ORDER BY created_at DESC LIMIT 1");
+    
+    if (!$query) {
+        error_log("Prepare failed: " . $con->error);
+        $con->close();
+        return null;
+    }
+    
+    $query->bind_param('s', $order_id);
+    
+    if ($query->execute()) {
+        $result = $query->get_result();
+        $shipment = $result->fetch_assoc();
+        $query->close();
+        $con->close();
+        return $shipment;
+    } else {
+        error_log("Execute failed: " . $query->error);
+        $query->close();
+        $con->close();
+        return null;
+    }
+}
+
+
+public function getAllShipments($limit = 20, $offset = 0) {
+    $res = array();
+    $res['status'] = 0;
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        error_log("Connection failed: " . $con->connect_error);
+        return [];
+    }
+    
+    $query = $con->prepare("SELECT * FROM shipments ORDER BY created_at DESC LIMIT ?, ?");
+    
+    if (!$query) {
+        error_log("Prepare failed: " . $con->error);
+        $con->close();
+        return [];
+    }
+    
+    $query->bind_param('ii', $offset, $limit);
+    
+    $shipments = [];
+    if ($query->execute()) {
+        $result = $query->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $shipments[] = $row;
+        }
+    } else {
+        error_log("Execute failed: " . $query->error);
+    }
+    
+    $query->close();
+    $con->close();
+    return $shipments;
+}
+
+        }
+
 ?>
