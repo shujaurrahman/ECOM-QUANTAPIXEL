@@ -162,7 +162,7 @@ if (!empty($_SESSION['role'])) {
                         <tr>
                             <th>#</th>
                             <th>Product</th>
-                            <th>Type</th>
+                            <!-- <th>Type</th> -->
                             <th class="text-end">Price</th>
                             <th class="text-center">Quantity</th>
                             <th class="text-end">Total</th>
@@ -182,7 +182,7 @@ if (!empty($_SESSION['role'])) {
                                     </div>
                                 </div>
                             </td>
-                            <td><?php echo $product['product_type']; ?></td>
+                            <!-- <td><?php echo $product['product_type']; ?></td> -->
                             <td class="text-end">₹<?php echo number_format($product['product_actual_price'], 2); ?></td>
                             <td class="text-center"><?php echo $product['quantity']; ?></td>
                             <td class="text-end">₹<?php echo number_format($product['product_price'], 2); ?></td>

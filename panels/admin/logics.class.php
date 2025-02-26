@@ -2755,6 +2755,112 @@ public function AddProduct(
                 
                 return $res;
             }
+
+            public function getTestimonialById($id) {
+                $res = array();
+                $res['status'] = 0;
+                
+                $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+                
+                if ($con->connect_error) {
+                    error_log("Connection failed: " . $con->connect_error);
+                    die("Connection failed: " . $con->connect_error);
+                }
+            
+                $query = $con->prepare("SELECT id, name, subject, message, rating, image, status, created_at 
+                                       FROM testimonials 
+                                       WHERE id = ?");
+                
+                if (!$query) {
+                    error_log("Prepare failed: " . $con->error);
+                    return $res;
+                }
+                
+                $query->bind_param('i', $id);
+                
+                if ($query->execute()) {
+                    $query->bind_result($id, $name, $subject, $message, $rating, $image, $status, $created_at);
+                    
+                    if ($query->fetch()) {
+                        $res['status'] = 1;
+                        $res['id'] = $id;
+                        $res['name'] = $name;
+                        $res['subject'] = $subject;
+                        $res['review'] = $message; // Map 'message' to 'review' for form
+                        $res['designation'] = $subject; // Map 'subject' to 'designation' for form
+                        $res['rating'] = $rating;
+                        $res['image'] = $image;
+                        $res['statusval'] = $status;
+                        $res['created_at'] = $created_at;
+                        error_log("Found testimonial with ID: " . $id);
+                    } else {
+                        error_log("Testimonial with ID " . $id . " not found");
+                    }
+                } else {
+                    error_log("Execute failed: " . $query->error);
+                }
+            
+                $query->close();
+                $con->close();
+                
+                return $res;
+            }
+            
+            public function UpdateTestimonial($id, $name, $designation, $review, $rating, $image) {
+                $res = array();
+                $res['status'] = 0;
+                
+                $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+                
+                if ($con->connect_error) {
+                    error_log("Connection failed: " . $con->connect_error);
+                    die("Connection failed: " . $con->connect_error);
+                }
+            
+                try {
+                    $con->begin_transaction();
+                    
+                    // Set current timestamp for updated_at
+                    $updated_at = date('Y-m-d H:i:s');
+                    
+                    // Map form fields to database fields:
+                    // 'designation' form field becomes 'subject' in database
+                    // 'review' form field becomes 'message' in database
+                    $query = $con->prepare("UPDATE testimonials 
+                                           SET name = ?, subject = ?, message = ?, rating = ?, image = ?, updated_at = ? 
+                                           WHERE id = ?");
+                    
+                    if (!$query) {
+                        throw new Exception("Prepare failed: " . $con->error);
+                    }
+                    
+                    $query->bind_param('sssissi', $name, $designation, $review, $rating, $image, $updated_at, $id);
+                    
+                    if ($query->execute()) {
+                        if ($query->affected_rows > 0 || $query->affected_rows === 0) {
+                            $res['status'] = 1;
+                            error_log("Testimonial updated successfully: " . $id);
+                            $con->commit();
+                        } else {
+                            throw new Exception("Failed to update testimonial: No rows affected");
+                        }
+                    } else {
+                        throw new Exception("Execute failed: " . $query->error);
+                    }
+                    
+                } catch (Exception $e) {
+                    $con->rollback();
+                    error_log("Error updating testimonial: " . $e->getMessage());
+                    $res['message'] = $e->getMessage();
+                }
+            
+                if (isset($query)) {
+                    $query->close();
+                }
+                $con->close();
+                
+                return $res;
+            }
                 
             public function UpdateLakshmiKuberaStatus($product_id, $status) {
                 $res = array();

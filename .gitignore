@@ -11,6 +11,8 @@
 *.mp4
 *.mov
 *.pdf
+*.json
+panels/admin/ship-rocket-cred.php
 
 # Vendor and Dependencies
 /vendor/

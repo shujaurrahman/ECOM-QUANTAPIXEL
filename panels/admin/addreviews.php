@@ -80,6 +80,9 @@ if (!empty($_SESSION['role'])) {
                                                     </span>
                                                 </td>
                                                 <td>
+                                                    <a href="edit-testimonial.php?id=<?php echo $verification['id'][$i]; ?>" title="Edit Testimonial">
+                                                        <i class="menu-icon tf-icons bx bx-edit text-primary mx-2"></i>
+                                                    </a>
                                                     <a href="manage-status?update_record_id=<?php echo $verification['id'][$i]; ?>&update_table_name=testimonials&statusval=<?php echo ($verification['statusval'][$i] == 1) ? '2' : '1'; ?>&url=addreviews" 
                                                        onclick="return confirm('Are you sure to <?php echo ($verification['statusval'][$i] == 1) ? 'deactivate' : 'activate'; ?> this testimonial?')">
                                                         <i class="menu-icon tf-icons bx bx-<?php echo ($verification['statusval'][$i] == 1) ? 'minus-circle text-warning' : 'plus-circle text-success'; ?> mx-2"></i>

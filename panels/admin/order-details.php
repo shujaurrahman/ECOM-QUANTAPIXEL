@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+
 if (!empty($_SESSION['role'])) {
     $title = "Order Details";
     require_once('header.php');
@@ -96,6 +98,10 @@ if (!empty($_SESSION['role'])) {
             <button onclick="window.print()" class="btn btn-primary float-end no-print">
                 <i class="bx bx-printer"></i> Print Invoice
             </button>
+            <!-- Add this button near the print invoice button -->
+            <!-- <a href="create_shipment.php?id=<?php echo $orderDetails['order']['id']; ?>" class="btn btn-success float-end no-print me-2">
+                <i class="bx bx-package"></i> Create Shipment
+            </a> -->
 
             <!-- Invoice Header -->
             <div class="invoice-header d-flex justify-content-between align-items-start">
@@ -158,7 +164,7 @@ if (!empty($_SESSION['role'])) {
                         <tr>
                             <th>#</th>
                             <th>Product</th>
-                            <th>Type</th>
+                            <!-- <th>Discount </th> -->
                             <th class="text-end">Price</th>
                             <th class="text-center">Quantity</th>
                             <th class="text-end">Total</th>
@@ -178,10 +184,11 @@ if (!empty($_SESSION['role'])) {
                                     </div>
                                 </div>
                             </td>
-                            <td><?php echo $product['product_type']; ?></td>
-                            <td class="text-end">₹<?php echo number_format($product['product_actual_price'], 2); ?></td>
-                            <td class="text-center"><?php echo $product['quantity']; ?></td>
+                            <!-- <td><?php echo $product['discount_percentage']; ?></td> -->
                             <td class="text-end">₹<?php echo number_format($product['product_price'], 2); ?></td>
+                            <td class="text-center"><?php echo $product['quantity']; ?></td>
+
+                            <td class="text-end">₹<?php echo number_format($product['product_price'] * $product['quantity'], 2); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

@@ -68,13 +68,14 @@ if (!empty($_SESSION['role'])) {
                                                 <td><?php echo $verification['grandtotal'][$i]; ?></td>
                                                 <td><?php echo $verification['created_at'][$i]; ?></td>
                                                 <td>
-                                                    <a href="order-details?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-outline-success rounded-pill">Detailed View</a>
+                                                    <a href="order-details?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bx bx-show-alt"></i>
+                                                    </a>
                                                 </td>
                                                 <td>
-                                                    <form action="ship_order.php" method="post">
-                                                        <input type="hidden" name="order_id" value="<?php echo $verification['id'][$i]; ?>">
-                                                        <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill">Ship Order</button>
-                                                    </form>
+                                                    <a href="create_shipment.php?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-outline-info">
+                                                        <i class="bx bx-package"></i>
+                                                    </a>
                                                 </td>
                                                 <td>
                                                     <form action="" method="post">
