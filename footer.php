@@ -56,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <a class="text-secondary mb-2" href="popular-products.php"><i class="fa fa-angle-right mr-2"></i>Popular Collections</a>
                             <a class="text-secondary mb-2" href="recent-products"><i class="fa fa-angle-right mr-2"></i>New Arrivals</a>
                             <a class="text-secondary mb-2" href="contact"><i class="fa fa-angle-right mr-2"></i>Contact Us</a>
-                            <a class="text-secondary" href="./panels/admin/"><i class="fa fa-angle-right mr-2"></i>Admin</a>
                         </div>
                     </div>
                     <div class="col-md-4 mb-5">
