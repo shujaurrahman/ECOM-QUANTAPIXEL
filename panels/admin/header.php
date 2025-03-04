@@ -301,13 +301,13 @@ checkAdminSession();
             </li>
             <li class="menu-item <?php if(!empty($title) && $title=='Partner'){ echo 'active'; } ?> ">
               <a href="./addPartners.php" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-check-circle"></i>
+              <i class="menu-icon tf-icons bx bx-plus-circle"></i>
                 <div data-i18n="Analytics">Add Partners</div>
               </a>
             </li>
             <li class="menu-item <?php if(!empty($title) && $title=='reviews'){ echo 'active'; } ?> ">
               <a href="./addreviews.php" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-check-circle"></i>
+              <i class="menu-icon tf-icons bx bx-plus-circle"></i>
                 <div data-i18n="Analytics">Add Reviews</div>
               </a>
             </li>
@@ -316,26 +316,37 @@ checkAdminSession();
                 <i class="menu-icon tf-icons bx bx-check-circle"></i>
                 <div data-i18n="Analytics">Product Reviews</div>
               </a>
-            </li>
-<!--             
-            <li class="menu-item <?php if(!empty($title) && $title=='students'){ echo 'active'; } ?>">
-              <a href="./addstudents.php" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-plus"></i>
-                <div data-i18n="Analytics">Add Students</div>
-              </a>
-            </li>
-            <li class="menu-item <?php if(!empty($title) && $title=='blogs'){ echo 'active'; } ?>">
+            </li>           
+            <li class="menu-item <?php if(!empty($title) && $title=='addBlogs'){ echo 'active'; } ?>">
               <a href="./addblogs.php" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-plus"></i>
+              <i class="menu-icon tf-icons bx bx-plus-circle"></i>
                 <div data-i18n="Analytics">Add Blogs</div>
               </a>
             </li>
-            <li class="menu-item <?php if(!empty($title) && $title=='addtasks'){ echo 'active'; } ?>">
+            <li class="menu-item <?php if(!empty($title) && $title=='blogs'){ echo 'active'; } ?>">
+              <a href="./blogs.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-check-circle"></i>
+                <div data-i18n="Analytics">View Blogs</div>
+              </a>
+            </li>
+            <li class="menu-item <?php if(!empty($title) && $title=='addnews'){ echo 'active'; } ?>">
+              <a href="./addnews.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-plus-circle"></i>
+                <div data-i18n="Analytics">Add News</div>
+              </a>
+            </li>
+            <li class="menu-item <?php if(!empty($title) && $title=='news'){ echo 'active'; } ?>">
+              <a href="./news.php" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-check-circle"></i>
+                <div data-i18n="Analytics">View News</div>
+              </a>
+            </li>
+            <!-- <li class="menu-item <?php if(!empty($title) && $title=='addnews'){ echo 'active'; } ?>">
               <a href="./addtasks.php" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-plus"></i>
                 <div data-i18n="Analytics">Add Tasks</div>
               </a>
-            </li> -->
+            </li>  -->
             <!-- <li class="menu-item <?php if(!empty($title) && $title=='registrations'){ echo 'active'; } ?>">
               <a href="./registrations.php" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-plus"></i>

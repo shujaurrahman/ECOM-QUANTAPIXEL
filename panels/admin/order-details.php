@@ -90,6 +90,12 @@ if (!empty($_SESSION['role'])) {
             .invoice-box { position: absolute; left: 0; top: 0; }
             .no-print { display: none; }
         }
+        .invoice-header {
+    border-bottom: 2px solid #eee;
+    padding-bottom: 14px;
+    margin-bottom: 28px;
+    padding-right: 10px;
+}
     </style>
 
     <div class="container-fluid py-4">
@@ -155,12 +161,12 @@ if (!empty($_SESSION['role'])) {
                         <strong>Payment Date:</strong> <?php echo date('d M Y H:i', strtotime($orderDetails['order']['payment_date'])); ?>
                     </div>
                 </div>
-                <!-- Add this after the payment information box -->
+   
                 <?php 
                 $shipment = $getUsers->getShipmentByOrderId($orderDetails['order']['id']);
                 if (!empty($shipment)):
                 ?>
-                <div class="col-md-4">
+                <div class="col-md-6" style="padding-top: 20px;">
                     <div class="info-box">
                         <h5 class="d-flex justify-content-between align-items-center">
                             Shipment Information

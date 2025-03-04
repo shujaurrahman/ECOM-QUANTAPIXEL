@@ -1,8 +1,10 @@
 <?php
 session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 if (!empty($_SESSION['role'])) {
     $title = "blogs";
-    require_once('header.php');
+    require_once('./header.php');
     require_once('./logics.class.php');
 
     $getUsers = new logics();
@@ -10,9 +12,6 @@ if (!empty($_SESSION['role'])) {
 
     if (!empty($verification['status']) && $verification['status'] == 1) {
         ?>
-        <head>
-            <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
-        </head>
 
         <!--  Content -->
         <div class="container-xxl flex-grow-1 container-p-y">
@@ -30,15 +29,17 @@ if (!empty($_SESSION['role'])) {
                                     <table id="example" class="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <td>ID</td>
-                                                <td>Image</td>
-                                                <td>Username</td>
-                                                <td>Blog Heading</td>
-                                                <td>Description</td>
-                                                <td>Category</td>
-                                                <td>Meta Keywords</td>
-                                                <td>Meta Desc</td>
-                                                <td>Created At</td>
+                                                <th>ID</th>
+                                                <th>Image</th>
+                                                <th>Username</th>
+                                                <th>Blog Heading</th>
+                                                <th>Blog Description</th>
+                                                <th>Meta Title</th>
+                                                <th>Meta Keywords</th>
+                                                <th>Meta Description</th>
+                                                <th>Created At</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -46,18 +47,26 @@ if (!empty($_SESSION['role'])) {
                                         for ($i = 0; $i < $verification['count']; $i++) {
                                             ?>
                                             <tr>
-                                                <td><?php echo $i + 1; ?></td>
-                                                <td><img src="./Blogimages/<?php echo $verification['featured_image'][$i]; ?>" width="100px" height="100px" alt=""></td>
-                                                
+                                                <td><?php echo $verification['id'][$i]; ?></td>
+                                                <td><img src="./Blogimages/<?php echo $verification['featured_image'][$i]; ?>" width="100px" height="100px" alt="Blog Image"></td>
                                                 <td><?php echo $verification['username'][$i]; ?></td>
-                                                <td><a href="<?php echo $verification['slug_url'][$i]; ?>" target="_blank"><?php echo $verification['blog_heading'][$i]; ?></a></td>
-                                                <td><?php echo $verification['description'][$i]; ?></td>
-                                                <td><?php echo $verification['category'][$i]; ?></td>
+                                                <td><?php echo $verification['blog_heading'][$i]; ?></td>
+                                                <td><?php echo substr($verification['blog_desc'][$i], 0, 50) . '...'; ?></td>
+                                                <td><?php echo $verification['meta_title'][$i]; ?></td>
                                                 <td><?php echo $verification['meta_keywords'][$i]; ?></td>
-                                                <td><?php echo $verification['meta_description'][$i]; ?></td>
-                                                
+                                                <td><?php echo substr($verification['meta_description'][$i], 0, 50) . '...'; ?></td>
                                                 <td><?php echo $verification['created_at'][$i]; ?></td>
-                                                
+                                                <td>
+                                                    <?php if($verification['status_value'][$i] == 1): ?>
+                                                        <span class="badge bg-success">Active</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-danger">Inactive</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <a href="edit_blog.php?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-primary">Edit</a>
+                                                    <a href="delete_blog.php?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this blog?')">Delete</a>
+                                                </td>
                                             </tr>
                                             <?php
                                         }
@@ -75,7 +84,9 @@ if (!empty($_SESSION['role'])) {
 
         <?php
     } else {
-        echo "Data not fetched";
+        echo '<div class="container-xxl flex-grow-1 container-p-y">';
+        echo '<div class="alert alert-info">No blogs found. <a href="./addblogs.php" class="btn btn-sm btn-primary">Add a Blog</a></div>';
+        echo '</div>';
     }
 
     require_once('footer.php');

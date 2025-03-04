@@ -1,10 +1,10 @@
 <?php 
 session_start();
 if(!empty($_SESSION['role'])){
-  $title="addBlogs";
+  $title="addnews";
 require_once('header.php');
 
-if(!empty($_POST['username']) && !empty($_POST['blog_heading']) && !empty($_POST['blog_desc']) && !empty($_POST['meta_title']) && !empty($_POST['meta_keywords']) && !empty($_POST['meta_description']) && !empty($_POST['description']) ){
+if(!empty($_POST['username']) && !empty($_POST['newsheading']) && !empty($_POST['newsdesc']) && !empty($_POST['newslink']) && !empty($_POST['meta_title']) && !empty($_POST['meta_keywords']) && !empty($_POST['meta_description'])){
     require_once('./logics.class.php');
     $adminObj = new logics();
 
@@ -17,7 +17,7 @@ if(!empty($_POST['username']) && !empty($_POST['blog_heading']) && !empty($_POST
         $extension = pathinfo($featured_imageName, PATHINFO_EXTENSION);
         $featured_imageName = pathinfo($featured_imageName, PATHINFO_FILENAME) . '_' . $timestamp . '.' . $extension;
   
-        $featured_imageStore = "Blogimages/" . $featured_imageName;
+        $featured_imageStore = "newsimages/" . $featured_imageName;
   
         // Move uploaded featured_image photo to desired directory
         move_uploaded_file($featured_imageTempLocal, $featured_imageStore);
@@ -26,18 +26,17 @@ if(!empty($_POST['username']) && !empty($_POST['blog_heading']) && !empty($_POST
         $featured_imagePhoto = $featured_imageName;
       }
 
-    $slug = strtolower($_POST['blog_heading']);
-    $slug_url = str_replace(' ','-',$slug);
-    $verification = $adminObj->AddBlogs($_POST['username'], $_POST['blog_heading'], $_POST['blog_desc'], $_POST['meta_title'], $_POST['meta_keywords'], $_POST['meta_description'], $_POST['description'], $featured_imagePhoto, $slug_url);
+    // No slug needed as we'll use the newslink directly
+    $verification = $adminObj->AddNews($_POST['username'], $_POST['newsheading'], $_POST['newsdesc'], $_POST['newslink'], $_POST['meta_title'], $_POST['meta_keywords'], $_POST['meta_description'], $featured_imagePhoto);
     if(!empty($verification['status']) && $verification['status']==1){
         echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>';
         echo '<script>';
         echo 'Swal.fire({
                 icon: "success",
-                title: "Blog Successfully Submitted!",
+                title: "News Successfully Submitted!",
                 showConfirmButton: true,
             }).then(function() {
-                window.location.href = "addblogs";
+                window.location.href = "addnews";
             });';
         echo '</script>';
     }else{
@@ -48,7 +47,7 @@ if(!empty($_POST['username']) && !empty($_POST['blog_heading']) && !empty($_POST
                 title: "Data not Submitted!",
                 text: "Please try again"
             }).then(function() {
-                window.location.href = "addblogs";
+                window.location.href = "addnews";
             });';
         echo '</script>';
     }
@@ -73,12 +72,10 @@ if(!empty($_POST['username']) && !empty($_POST['blog_heading']) && !empty($_POST
           <div class="d-flex align-items-end row">
             <div class="col-sm-12">
               <div class="card-body d-flex justify-content-between">
-                <h5 class="card-title text-primary">Add Blogs</h5>
-                <a href="./blogs.php" class="btn btn-sm btn-primary">View Blogs</a>
-                
+                <h5 class="card-title text-primary">Add News</h5>
+                <a href="./news.php" class="btn btn-sm btn-primary">View News</a>
               </div>
             </div>
-          
           </div>
         </div>
       </div>
@@ -87,29 +84,23 @@ if(!empty($_POST['username']) && !empty($_POST['blog_heading']) && !empty($_POST
           <div class="d-flex align-items-end row">
             <div class="col-sm-12">
               <div class="card-body">
-                <!-- <h5 class="card-title text-primary">Instructions to Use the Portal</h5> -->
-                 <form action="./addblogs.php" method="post" enctype="multipart/form-data">
+                <form action="./addnews.php" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="username" value="<?php echo $_SESSION['role'] ?>" id="">
-                    <input type="text" name="blog_heading" placeholder="Enter Blog Title* (Max:200)" class="form-control mb-3" required>
-                    <input type="text" name="blog_desc" placeholder="Enter Blog Description* (Max:200)" class="form-control mb-3" required>
+                    <input type="text" name="newsheading" placeholder="Enter News Title* (Max:200)" class="form-control mb-3" required>
+                    <input type="text" name="newsdesc" placeholder="Enter News Description* (Max:200)" class="form-control mb-3" required>
+                    <input type="url" name="newslink" placeholder="Enter News Link* (e.g., https://example.com)" class="form-control mb-3" required>
                     <input type="file" name="featured_image" class="form-control mb-3" required>
                     <input type="text" name="meta_title" placeholder="Enter Meta Title*" class="form-control mb-3" required>
                     <input type="text" name="meta_keywords" placeholder="Enter Meta Keywords*" class="form-control mb-3" required>
                     <input type="text" name="meta_description" placeholder="Enter Meta Description*" class="form-control mb-3" required>
-                    <textarea name="description" placeholder="Blog Description* " rows="8" class="form-control mb-3" id="description"></textarea>
                     <br>
                     <input type="submit" name="submit" value="Submit" class="btn btn-primary">
-                 </form>
-                 
-
-                
+                </form>
               </div>
             </div>
-          
           </div>
         </div>
       </div>
-      
     </div>
   </div>
   

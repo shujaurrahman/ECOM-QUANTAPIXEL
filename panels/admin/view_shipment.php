@@ -62,7 +62,7 @@ if (!empty($_SESSION['role'])) {
                                     <i class="bx bx-package text-primary" style="font-size: 1.5rem"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-0">Shipment Order id #<?php echo $shipment['shiprocket_order_id']; ?></h6>
+                                    <h6 class="mb-0">Shiprocket  id #<?php echo $shipment['shiprocket_order_id']; ?></h6>
                                     <h6 class="mb-0">Shipment id #<?php echo $shipment['shipment_id']; ?></h6>
                                     <small class="text-muted">Created on <?php echo date('d M Y H:i', strtotime($shipment['created_at'])); ?></small>
                                 </div>

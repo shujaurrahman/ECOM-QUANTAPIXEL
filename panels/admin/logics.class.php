@@ -275,36 +275,208 @@ class logics extends dbcredentials{
     }
 
 
-    public function getBlogs(){
+    public function getBlogs() {
         $res = array();
         $res['status'] = 0;
+        $res['id'] = array();
+        $res['username'] = array();
+        $res['blog_heading'] = array();
+        $res['blog_desc'] = array();
+        $res['meta_title'] = array();
+        $res['meta_keywords'] = array();
+        $res['meta_description'] = array();
+        $res['description'] = array();
+        $res['featured_image'] = array();
+        $res['slug_url'] = array();
+        $res['status'] = array();
+        $res['created_at'] = array();
+        $res['count'] = 0;
+        
         $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-        $query = $con->prepare('SELECT username,blog_heading,description,category,featured_image,meta_keywords,meta_description,slug_url,status,updated_at,updated_by,created_at FROM blog ORDER BY sno DESC');
-        if($query->execute()){
-            $query->bind_result($username,$blog_heading,$description,$category,$featured_image,$meta_keywords,$meta_description,$slug_url,$status,$updated_at,$updated_by,$created_at);
-            $i=0;
-            while($query->fetch()){
-                $res['status'] = 1;
+        
+        if ($con->connect_error) {
+            return $res;
+        }
+        
+        $query = $con->prepare('SELECT id, username, blog_heading, blog_desc, meta_title, meta_keywords, meta_description, description, featured_image, slug_url, status, created_at FROM blogs ORDER BY id DESC');
+        
+        if (!$query) {
+            return $res;
+        }
+        
+        if ($query->execute()) {
+            $query->store_result();
+            $query->bind_result($id, $username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url, $status, $created_at);
+            $i = 0;
+            
+            while ($query->fetch()) {
+                $res['id'][$i] = $id;
                 $res['username'][$i] = $username;
                 $res['blog_heading'][$i] = $blog_heading;
-                $res['description'][$i] = $description;
-                $res['category'][$i] = $category;
-                $res['featured_image'][$i] = $featured_image;
+                $res['blog_desc'][$i] = $blog_desc;
+                $res['meta_title'][$i] = $meta_title;
                 $res['meta_keywords'][$i] = $meta_keywords;
                 $res['meta_description'][$i] = $meta_description;
+                $res['description'][$i] = $description;
+                $res['featured_image'][$i] = $featured_image;
                 $res['slug_url'][$i] = $slug_url;
-                $res['status_val'][$i] = $status;
-                $res['updated_at'][$i] = $updated_at;
-                $res['updated_by'][$i] = $updated_by;
+                $res['status_value'][$i] = $status; // Changed name to avoid conflict
                 $res['created_at'][$i] = $created_at;
                 $i++;
             }
-            $res['count']=$i;
-        }else{
-            $err = 'Statement not Executed';
+            
+            $res['count'] = $i;
+            $res['status'] = 1; // Set status back to 1 when successful
         }
+        
+        $query->close();
+        $con->close();
         return $res;
     }
+
+
+// Add to logics.class.php
+public function getBlogById($id) {
+    $res = array();
+    $res['status'] = 0;
+    $res['id'] = array();
+    $res['username'] = array();
+    $res['blog_heading'] = array();
+    $res['blog_desc'] = array();
+    $res['meta_title'] = array();
+    $res['meta_keywords'] = array();
+    $res['meta_description'] = array();
+    $res['description'] = array();
+    $res['featured_image'] = array();
+    $res['slug_url'] = array();
+    $res['status_value'] = array();
+    $res['created_at'] = array();
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    if ($con->connect_error) {
+        return $res;
+    }
+    
+    $query = $con->prepare('SELECT id, username, blog_heading, blog_desc, meta_title, meta_keywords, meta_description, description, featured_image, slug_url, status, created_at FROM blogs WHERE id = ? LIMIT 1');
+    $query->bind_param('i', $id);
+    
+    if ($query->execute()) {
+        $query->store_result();
+        
+        if ($query->num_rows > 0) {
+            $query->bind_result($id, $username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url, $status, $created_at);
+            
+            if ($query->fetch()) {
+                $res['id'][0] = $id;
+                $res['username'][0] = $username;
+                $res['blog_heading'][0] = $blog_heading;
+                $res['blog_desc'][0] = $blog_desc;
+                $res['meta_title'][0] = $meta_title;
+                $res['meta_keywords'][0] = $meta_keywords;
+                $res['meta_description'][0] = $meta_description;
+                $res['description'][0] = $description;
+                $res['featured_image'][0] = $featured_image;
+                $res['slug_url'][0] = $slug_url;
+                $res['status_value'][0] = $status;
+                $res['created_at'][0] = $created_at;
+                $res['status'] = 1;
+            }
+        }
+    }
+    
+    $query->close();
+    $con->close();
+    return $res;
+}
+public function getNews() {
+    $res = array();
+    $res['status'] = 0;
+    $res['id'] = array();
+    $res['username'] = array();
+    $res['newsheading'] = array();
+    $res['newsdesc'] = array();
+    $res['newslink'] = array();
+    $res['meta_title'] = array();
+    $res['meta_keywords'] = array();
+    $res['meta_description'] = array();
+    $res['featured_image'] = array();
+    $res['status_value'] = array();
+    $res['created_at'] = array();
+    $res['count'] = 0;
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        return $res;
+    }
+    
+    $query = $con->prepare('SELECT id, username, newsheading, newsdesc, newslink, meta_title, meta_keywords, meta_description, featured_image, status, created_at FROM news ORDER BY id DESC');
+    
+    if (!$query) {
+        return $res;
+    }
+    
+    if ($query->execute()) {
+        $query->store_result();
+        $query->bind_result($id, $username, $newsheading, $newsdesc, $newslink, $meta_title, $meta_keywords, $meta_description, $featured_image, $status, $created_at);
+        $i = 0;
+        
+        while ($query->fetch()) {
+            $res['id'][$i] = $id;
+            $res['username'][$i] = $username;
+            $res['newsheading'][$i] = $newsheading;
+            $res['newsdesc'][$i] = $newsdesc;
+            $res['newslink'][$i] = $newslink;
+            $res['meta_title'][$i] = $meta_title;
+            $res['meta_keywords'][$i] = $meta_keywords;
+            $res['meta_description'][$i] = $meta_description;
+            $res['featured_image'][$i] = $featured_image;
+            $res['status_value'][$i] = $status;
+            $res['created_at'][$i] = $created_at;
+            $i++;
+        }
+        
+        $res['count'] = $i;
+        $res['status'] = 1; // Set status to 1 when successful
+    }
+    
+    $query->close();
+    $con->close();
+    return $res;
+}
+public function updateBlog($id, $username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url, $status) {
+    $res = array();
+    $res['status'] = 0;
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    if ($con->connect_error) {
+        return $res;
+    }
+    
+    $query = $con->prepare('UPDATE blogs SET username = ?, blog_heading = ?, blog_desc = ?, meta_title = ?, meta_keywords = ?, meta_description = ?, description = ?, featured_image = ?, slug_url = ?, status = ? WHERE id = ?');
+    
+    $query->bind_param('sssssssssii', 
+        $username, 
+        $blog_heading, 
+        $blog_desc, 
+        $meta_title, 
+        $meta_keywords, 
+        $meta_description, 
+        $description, 
+        $featured_image, 
+        $slug_url, 
+        $status, 
+        $id
+    );
+    
+    if ($query->execute()) {
+        $res['status'] = 1;
+    }
+    
+    $query->close();
+    $con->close();
+    return $res;
+}
 
   
 
@@ -382,19 +554,33 @@ class logics extends dbcredentials{
         return $res;
     }
 
-    public function AddBlogs($username,$blog_heading,$description,$category,$featured_image,$meta_keywords,$meta_description,$slug_url){
+    public function AddBlogs($username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url) {
         $res = array();
         $res['status'] = 0;
         $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-        $query = $con->prepare('INSERT INTO blog (username,blog_heading,description,category,featured_image,meta_keywords,meta_description,slug_url) values (?,?,?,?,?,?,?,?)');
-        $query->bind_param('ssssssss',$username,$blog_heading,$description,$category,$featured_image,$meta_keywords,$meta_description,$slug_url);
+        $query = $con->prepare('INSERT INTO blogs (username, blog_heading, blog_desc, meta_title, meta_keywords, meta_description, description, featured_image, slug_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $query->bind_param('sssssssss', $username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url);
         if($query->execute()){
-            $res['status']=1;
-        }else{
+            $res['status'] = 1;
+        } else {
             $err = 'Statement not Executed';
         }
         return $res;
     }
+
+public function AddNews($username, $newsheading, $newsdesc, $newslink, $meta_title, $meta_keywords, $meta_description, $featured_image) {
+    $res = array();
+    $res['status'] = 0;
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    $query = $con->prepare('INSERT INTO news (username, newsheading, newsdesc, newslink, meta_title, meta_keywords, meta_description, featured_image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $query->bind_param('ssssssss', $username, $newsheading, $newsdesc, $newslink, $meta_title, $meta_keywords, $meta_description, $featured_image);
+    if($query->execute()){
+        $res['status'] = 1;
+    } else {
+        $err = 'Statement not Executed';
+    }
+    return $res;
+}
     public function AddTasks($task_date,$domain,$task_name,$task_description,$tasks){
         $res = array();
         $res['status'] = 0;
@@ -3342,6 +3528,32 @@ public function getAllShipments($limit = 20, $offset = 0) {
     $query->close();
     $con->close();
     return $shipments;
+}
+
+public function updateShipmentStatus($order_id, $status) {
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        error_log("Connection failed: " . $con->connect_error);
+        return false;
+    }
+    
+    $stmt = $con->prepare("UPDATE shipments SET status = ? WHERE order_id = ?");
+    
+    if (!$stmt) {
+        error_log("Prepare failed: " . $con->error);
+        $con->close();
+        return false;
+    }
+    
+    $stmt->bind_param("si", $status, $order_id);
+    
+    $success = $stmt->execute();
+    
+    $stmt->close();
+    $con->close();
+    
+    return $success;
 }
 
         }
