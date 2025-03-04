@@ -1035,7 +1035,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
                                     ₹<?php echo number_format(floor($products['discounted_price'][$i])); ?>
                                 </h5>
                                 <small class="text-muted ml-2">
-                                    <del>₹<?php echo number_format(floor($products['_price'][$i])); ?></del>
+                                    <del>₹<?php echo number_format(floor($products['product_price'][$i])); ?></del>
                                 </small>
                             </div>
                             <div class="d-flex align-items-center justify-content-center mb-1">

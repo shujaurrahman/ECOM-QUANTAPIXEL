@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <img class="img-fluid w-100" 
                              src="./panels/admin/product/${product.featured_image}"
                              alt="${product.product_name}"
-                             style="height: 200px; object-fit: cover;">
+                             >
                         <div class="product-action">
                             <a class="btn btn-outline-dark btn-square" href="./open-logics.php?type=addToCart&product_id=${product.id}">
                                 <i class="fa fa-shopping-cart"></i>

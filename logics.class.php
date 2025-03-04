@@ -4080,6 +4080,7 @@ public function getAverageRating($product_id) {
     return $res;
 }
 
+
 public function searchProducts($searchTerm) {
     $res = array();
     $res['status'] = 0;
