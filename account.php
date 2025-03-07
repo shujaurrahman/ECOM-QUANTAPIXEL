@@ -109,47 +109,49 @@ if(!empty($_SESSION['username'])){
                                         </span>
                                     </td>
                                     <td class="action-buttons">
-                                        <div class="d-flex flex-column gap-2">
-                                            <div class="d-flex"> <!-- Removed gap class to use manual margins -->
-                                                <a href="order-details.php?id=<?php echo $getOrders['id'][$i]; ?>" 
-                                                   class="btn btn-invoice me-3" 
-                                                   title="View Invoice">
-                                                    <i class="bi bi-file-earmark-text me-1"></i> Invoice
-                                                </a>
-                                                <a href="./trackorder?id=<?php echo $getOrders['id'][$i]; ?>" 
-                                                   class="btn btn-track me-3" 
-                                                   title="Track Order">
-                                                    <i class="bi bi-truck me-1"></i> Track Order
-                                                </a>
+                                        <div class="d-flex"> <!-- Removed gap class to use manual margins -->
+                                            <a href="order-details.php?id=<?php echo $getOrders['id'][$i]; ?>" 
+                                               class="btn btn-invoice me-3" 
+                                               title="View Invoice">
+                                                <i class="bi bi-file-earmark-text me-1"></i> Invoice
+                                            </a>
+                                            
+                                            <?php if (strtolower($orderStatus) != 'cancelled'): ?>
+                                            <a href="./trackorder?id=<?php echo $getOrders['id'][$i]; ?>" 
+                                               class="btn btn-track me-3" 
+                                               title="Track Order">
+                                                <i class="bi bi-truck me-1"></i> Track Order
+                                            </a>
+                                            <?php endif; ?>
+                                            
+                                            <?php 
+                                            // Show cancel button only for orders that aren't already cancelled or delivered
+                                            // Define variable here to avoid undefined variable error
+                                            $awbGenerated = false;
+                                            
+                                            if (strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered') { 
+                                                // Check if AWB number is generated
+                                                $awbGenerated = !empty($shipmentData[$getOrders['id'][$i]]['awb_code'][0]);
                                                 
-                                                <?php 
-                                                // Show cancel button only for orders that aren't already cancelled or delivered
-                                                // Define variable here to avoid undefined variable error
-                                                $awbGenerated = false;
-                                                
-                                                if (strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered') { 
-                                                    // Check if AWB number is generated
-                                                    $awbGenerated = !empty($shipmentData[$getOrders['id'][$i]]['awb_code'][0]);
-                                                    
-                                                    if (!$awbGenerated) {
-                                                    ?>
-                                                        <a href="javascript:void(0);" 
-                                                           onclick="cancelOrder(<?php echo $getOrders['id'][$i]; ?>)" 
-                                                           class="btn btn-cancel" 
-                                                           title="Cancel Order">
-                                                            <i class="bi bi-x-circle me-1"></i> Cancel
-                                                        </a>
-                                                    <?php 
-                                                    } else {
-                                                    ?>
-                                                        <span class="btn btn-secondary disabled">
-                                                            <i class="bi bi-box-seam me-1"></i> Shipped
-                                                        </span>
-                                                    <?php
-                                                    }
-                                                } 
+                                                if (!$awbGenerated) {
                                                 ?>
-                                            </div>
+                                                    <a href="javascript:void(0);" 
+                                                       onclick="cancelOrder(<?php echo $getOrders['id'][$i]; ?>)" 
+                                                       class="btn btn-cancel" 
+                                                       title="Cancel Order">
+                                                        <i class="bi bi-x-circle me-1"></i> Cancel
+                                                    </a>
+                                                <?php 
+                                                } else {
+                                                ?>
+                                                    <span class="btn btn-secondary disabled">
+                                                        <i class="bi bi-box-seam me-1"></i> Shipped
+                                                    </span>
+                                                <?php
+                                                }
+                                            } 
+                                            ?>
+                                        </div>
                                             
                                             <?php 
                                             // Display message only if AWB is generated

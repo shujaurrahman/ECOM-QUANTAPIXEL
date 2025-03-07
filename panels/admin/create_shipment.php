@@ -693,29 +693,44 @@ function generateAWB(shipmentId) {
             awbResult.innerHTML = `
                 <div class="alert alert-success mt-3">
                     <h6 class="mb-2">AWB Generated Successfully</h6>
-                    <div class="row g-2">
-                        <div class="col-md-4">
+                    <div class="row g-2 awb-details">
+                        <div class="col-md-6">
                             <div class="bg-light p-2 rounded">
                                 <small class="text-muted d-block">AWB Number</small>
                                 <strong>${data.awb_code}</strong>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="bg-light p-2 rounded">
                                 <small class="text-muted d-block">Courier Partner</small>
                                 <strong>${data.courier_name}</strong>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="bg-light p-2 rounded">
-                                <small class="text-muted d-block">Shipping Cost</small>
-                                <strong>₹${data.shipping_cost}</strong>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
             awbBtn.style.display = 'none';
+            
+            // Disable the Create Shipment button as well
+            const createShipmentBtn = document.getElementById('createShipment');
+            if (createShipmentBtn) {
+                createShipmentBtn.disabled = true;
+                createShipmentBtn.innerHTML = '<i class="bx bx-check-circle me-2"></i> Shipment Created';
+                createShipmentBtn.classList.add('btn-success');
+                createShipmentBtn.classList.remove('btn-primary');
+            }
+
+            // Add inline styles for the AWB details row
+            const awbDetailsRow = document.querySelector('.awb-details');
+            if (awbDetailsRow) {
+                awbDetailsRow.style.display = 'flex';
+                awbDetailsRow.style.flexDirection = 'row';
+                const columns = awbDetailsRow.querySelectorAll('.col-md-6');
+                columns.forEach(col => {
+                    col.style.width = '48%';
+                    col.style.marginRight = '2%';
+                });
+            }
         } else {
             awbResult.innerHTML = `
                 <div class="alert alert-danger">
@@ -761,6 +776,41 @@ input[type="number"] {
     text-align: right;
     padding-right: 10px;
 }
+@media (min-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 auto !important;
+        width: 48.333333% !important;
+    }
+}
+
+.awb-details {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+}
+
+
+.awb-details .bg-light {
+    height: 100%;
+}
+
+@media (max-width: 768px) {
+    .awb-details {
+        flex-direction: column !important;
+    }
+    .awb-details .col-md-6 {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin-right: 0 !important;
+        margin-bottom: 10px;
+    }
+}
+.awb-details .col-md-6 {
+    flex: 0 0 70% !important;
+    width: 48% !important;
+    margin-right: 3% !important;
+}
+
+
 </style>
 
 <?php
