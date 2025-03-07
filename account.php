@@ -109,33 +109,54 @@ if(!empty($_SESSION['username'])){
                                         </span>
                                     </td>
                                     <td class="action-buttons">
-                                        <div class="d-flex gap-2">
-                                            <a href="order-details.php?id=<?php echo $getOrders['id'][$i]; ?>" 
-                                               class="btn btn-invoice" 
-                                               title="View Invoice">
-                                                <i class="bi bi-file-earmark-text me-1"></i> Invoice
-                                            </a>
-                                            &nbsp; &nbsp; &nbsp;
-                                            <a href="./trackorder?id=<?php echo $getOrders['id'][$i]; ?>" 
-                                               class="btn btn-track" 
-                                               title="Track Order">
-                                                <i class="bi bi-truck me-1"></i> Track Order
-                                            </a>
+                                        <div class="d-flex flex-column gap-2">
+                                            <div class="d-flex"> <!-- Removed gap class to use manual margins -->
+                                                <a href="order-details.php?id=<?php echo $getOrders['id'][$i]; ?>" 
+                                                   class="btn btn-invoice me-3" 
+                                                   title="View Invoice">
+                                                    <i class="bi bi-file-earmark-text me-1"></i> Invoice
+                                                </a>
+                                                <a href="./trackorder?id=<?php echo $getOrders['id'][$i]; ?>" 
+                                                   class="btn btn-track me-3" 
+                                                   title="Track Order">
+                                                    <i class="bi bi-truck me-1"></i> Track Order
+                                                </a>
+                                                
+                                                <?php 
+                                                // Show cancel button only for orders that aren't already cancelled or delivered
+                                                // Define variable here to avoid undefined variable error
+                                                $awbGenerated = false;
+                                                
+                                                if (strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered') { 
+                                                    // Check if AWB number is generated
+                                                    $awbGenerated = !empty($shipmentData[$getOrders['id'][$i]]['awb_code'][0]);
+                                                    
+                                                    if (!$awbGenerated) {
+                                                    ?>
+                                                        <a href="javascript:void(0);" 
+                                                           onclick="cancelOrder(<?php echo $getOrders['id'][$i]; ?>)" 
+                                                           class="btn btn-cancel" 
+                                                           title="Cancel Order">
+                                                            <i class="bi bi-x-circle me-1"></i> Cancel
+                                                        </a>
+                                                    <?php 
+                                                    } else {
+                                                    ?>
+                                                        <span class="btn btn-secondary disabled">
+                                                            <i class="bi bi-box-seam me-1"></i> Shipped
+                                                        </span>
+                                                    <?php
+                                                    }
+                                                } 
+                                                ?>
+                                            </div>
                                             
                                             <?php 
-                                            // Show cancel button only for orders that aren't already cancelled or delivered
-                                            // Use $orderStatus (the displayed status) instead of checking the database field directly
-                                            if (strtolower($orderStatus) != 'cancelled' && 
-                                                strtolower($orderStatus) != 'delivered') { 
+                                            // Display message only if AWB is generated
+                                            if (isset($awbGenerated) && $awbGenerated && strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered') {
+                                                echo '<small class="text-muted mt-2" >To cancel this order, please <a href="contact.php" class="text-primary">Contact Us</a>.</small>';
+                                            }
                                             ?>
-                                                &nbsp; &nbsp; &nbsp;
-                                                <a href="javascript:void(0);" 
-                                                   onclick="cancelOrder(<?php echo $getOrders['id'][$i]; ?>)" 
-                                                   class="btn btn-cancel" 
-                                                   title="Cancel Order">
-                                                    <i class="bi bi-x-circle me-1"></i> Cancel
-                                                </a>
-                                            <?php } ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -207,7 +228,8 @@ function fetchOrderProducts(orderId) {
                             <td>${data.product_type[i]}</td>
                             <td>₹${data.product_price[i]}</td>
                             <td>${data.quantity[i]}</td>
-                            <td>₹${data.product_actual_price[i]}</td>
+
+                            <td>₹${(data.product_price[i] * 1.18).toFixed(2)}</td>
                         </tr>`;
                     }
                     $('#OrderProductsModal tbody').html(rows);
@@ -310,9 +332,9 @@ $(document).ready(function() {
                                 <th>Image</th>
                                 <th>Product</th>
                                 <th>Type</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
                                 <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -375,6 +397,7 @@ $(document).ready(function() {
         padding: 6px 14px;
         border-radius: 6px;
         font-size: 13px;
+        margin-right: 10px;
         transition: all 0.3s ease;
     }
     .action-buttons .btn:hover {
@@ -404,6 +427,15 @@ $(document).ready(function() {
         color: #e74c3c;
     }
     .btn-cancel:hover {
+        background: #fff;
+        color: #c4996c;
+    }
+    .btn-contact {
+        background: #fff;
+        border: 1px solid #c4996c;
+        color: #3498db;
+    }
+    .btn-contact:hover {
         background: #fff;
         color: #c4996c;
     }

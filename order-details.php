@@ -1,19 +1,19 @@
 <?php
 session_start();
-if (!empty($_SESSION['role'])) {
-    $title = "Order Details";
-    require_once('header.php');
-    require_once('./logics.class.php');
+$title = "Order Details";
+require_once('header.php');
+require_once('./logics.class.php');
 
-    $getUsers = new logics();
-    $orderDetails = $getUsers->getOrderDetails($_GET['id']);
+$getUsers = new logics();
+$orderDetails = $getUsers->getOrderDetails($_GET['id']);
 
-    if (!empty($orderDetails['status']) && $orderDetails['status'] == 1) {
+if (!empty($orderDetails['status']) && $orderDetails['status'] == 1) {
 ?>
     <style>
         .float-end { 
             float: none !important; 
-            margin-right: 0 !important;}
+            margin-right: 0 !important;
+        }
 
         .invoice-box {
             background: #fff;
@@ -221,11 +221,8 @@ if (!empty($_SESSION['role'])) {
     </div>
 
 <?php
-    } else {
-        echo '<div class="alert alert-danger m-5">Order not found</div>';
-    }
-    require_once('footer.php');
 } else {
-    header('location:login.php');
+    echo '<div class="alert alert-danger m-5">Order not found</div>';
 }
+require_once('footer.php');
 ?>

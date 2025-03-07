@@ -3495,6 +3495,35 @@ public function getShipmentByOrderId($order_id) {
 }
 
 
+public function updateShipmentAWB($shipment_id, $awb_data) {
+    $res = array();
+    $res['status'] = 0;
+
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+
+    if ($con->connect_error) {
+        error_log("Connection failed: " . $con->connect_error);
+        return false;
+    }
+
+    $stmt = $con->prepare("UPDATE shipments SET awb_code = ?, courier_company = ?, shipping_cost = ?, response_data = ?, status = 'AWB Generated' WHERE shipment_id = ?");
+
+    if (!$stmt) {
+        error_log("Prepare failed: " . $con->error);
+        $con->close();
+        return false;
+    }
+
+    $stmt->bind_param("ssdss", $awb_data['awb_code'], $awb_data['courier_company'], $awb_data['shipping_cost'], $awb_data['response_data'], $shipment_id);
+
+    $success = $stmt->execute();
+
+    $stmt->close();
+    $con->close();
+
+    return $success;
+}
+
 public function getAllShipments($limit = 20, $offset = 0) {
     $res = array();
     $res['status'] = 0;
@@ -3557,6 +3586,85 @@ public function updateShipmentStatus($order_id, $status) {
     return $success;
 }
 
+
+function generateAWB($shipment_id, $config) {
+    try {
+        // Get authentication token
+        $token = getShipRocketToken($config);
+        
+        // Create AWB via API
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://apiv2.shiprocket.in/v1/external/courier/assign/awb",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode([
+                "shipment_id" => $shipment_id
+            ]),
+            CURLOPT_HTTPHEADER => [
+                "Content-Type: application/json",
+                "Authorization: Bearer " . $token
+            ],
+        ]);
+        
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        
+        if ($err) {
+            throw new Exception('cURL Error: ' . $err);
         }
+        
+        $result = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response: ' . $response);
+        }
+        
+        if (isset($result['awb_assign_status']) && $result['awb_assign_status'] == 1) {
+            // Create an instance of the logics class
+            $db_conn = new logics();
+            
+            // Extract relevant data from the response
+            $awb_data = [
+                'awb_code' => $result['response']['data']['awb_code'],
+                'courier_company' => $result['response']['data']['courier_name'],
+                'shipping_cost' => floatval($result['response']['data']['applied_weight']),
+                'response_data' => $response // Store the complete response
+            ];
+            
+            // Call the method on the instance
+            $updated = $db_conn->updateShipmentAWB($shipment_id, $awb_data);
+            
+            if (!$updated) {
+                error_log("Failed to update shipment in database for shipment_id: " . $shipment_id);
+            }
+            
+            return [
+                'success' => true,
+                'awb_code' => $result['response']['data']['awb_code'],
+                'courier_name' => $result['response']['data']['courier_name'],
+                'shipping_cost' => $result['response']['data']['applied_weight'],
+                'db_updated' => $updated,
+                'shipment_id' => $shipment_id
+            ];
+        } else {
+            throw new Exception(isset($result['message']) ? $result['message'] : 'Failed to generate AWB');
+        }
+        
+    } catch (Exception $e) {
+        error_log("AWB Generation Error: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'shipment_id' => $shipment_id
+        ];
+    }
+}
+
+ }
 
 ?>
