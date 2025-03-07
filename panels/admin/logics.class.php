@@ -388,6 +388,7 @@ public function getBlogById($id) {
     $con->close();
     return $res;
 }
+
 public function getNews() {
     $res = array();
     $res['status'] = 0;

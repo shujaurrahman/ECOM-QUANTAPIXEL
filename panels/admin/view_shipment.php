@@ -62,8 +62,9 @@ if (!empty($_SESSION['role'])) {
                                     <i class="bx bx-package text-primary" style="font-size: 1.5rem"></i>
                                 </div>
                                 <div>
-                                    <h6 class="mb-0">Shiprocket  id #<?php echo $shipment['shiprocket_order_id']; ?></h6>
-                                    <h6 class="mb-0">Shipment id #<?php echo $shipment['shipment_id']; ?></h6>
+                                <h6 class="mb-0">Shipment id #<?php echo $shipment['shipment_id']; ?></h6>
+                                    <h6 class="mb-0">Order id #<?php echo $shipment['shiprocket_order_id']; ?></h6>
+                             
                                     <small class="text-muted">Created on <?php echo date('d M Y H:i', strtotime($shipment['created_at'])); ?></small>
                                 </div>
                                 <span class="badge bg-info ms-auto"><?php echo ucfirst($shipment['status']); ?></span>
@@ -72,9 +73,9 @@ if (!empty($_SESSION['role'])) {
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <small class="text-muted d-block">Tracking Number</small>
-                                        <?php if (!empty($shipment['tracking_number'])): ?>
-                                            <strong class="fs-6"><?php echo $shipment['tracking_number']; ?></strong>
+                                        <small class="text-muted d-block">Shipping cost</small>
+                                        <?php if (!empty($shipment['shipping_cost'])): ?>
+                                            <strong class="fs-6"><?php echo $shipment['shipping_cost']; ?></strong>
                                         <?php else: ?>
                                             <span class="text-muted">Not available yet</span>
                                         <?php endif; ?>
@@ -173,7 +174,12 @@ if (!empty($_SESSION['role'])) {
                                     </div>
                                 </td>
                                 <td class="text-center"><?php echo $product['quantity']; ?></td>
-                                <td class="text-end">₹<?php echo $product['product_price']; ?></td>
+                                <td class="text-end">
+                                    ₹<?php echo $product['product_price']; ?><br>
+                                    <small class="text-muted">+ ₹<?php echo number_format($product['product_price'] * 0.18, 2); ?> GST</small><br>
+                                    <strong>Total: ₹<?php echo number_format($product['product_price'] * 1.18, 2); ?></strong>
+                                </td>
+                            </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>

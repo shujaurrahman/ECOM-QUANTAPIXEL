@@ -341,29 +341,63 @@ class logics extends dbcredentials{
         return $res;
     }
 
-      //Blogs Retieval
-      public function getBlogs(){
+  
+    public function getBlogs() {
         $res = array();
         $res['status'] = 0;
+        $res['id'] = array();
+        $res['username'] = array();
+        $res['blog_heading'] = array();
+        $res['blog_desc'] = array();
+        $res['meta_title'] = array();
+        $res['meta_keywords'] = array();
+        $res['meta_description'] = array();
+        $res['description'] = array();
+        $res['featured_image'] = array();
+        $res['slug_url'] = array();
+        $res['status'] = array();
+        $res['created_at'] = array();
+        $res['count'] = 0;
+        
         $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-        $query = $con->prepare('SELECT image, heading, meta, description, created_at FROM blogs ORDER BY sno DESC');
-        if($query->execute()){
-            $query->bind_result($image, $heading, $meta, $description, $created_at);
-            $i=1;
-            while($query->fetch()){
-                $res['status']=1;
-                $res['image'][$i] = $image;
-                $res['heading'][$i] = $heading;
-                $res['meta'][$i] = $meta;
+        
+        if ($con->connect_error) {
+            return $res;
+        }
+        
+        $query = $con->prepare('SELECT id, username, blog_heading, blog_desc, meta_title, meta_keywords, meta_description, description, featured_image, slug_url, status, created_at FROM blogs ORDER BY id DESC');
+        
+        if (!$query) {
+            return $res;
+        }
+        
+        if ($query->execute()) {
+            $query->store_result();
+            $query->bind_result($id, $username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url, $status, $created_at);
+            $i = 0;
+            
+            while ($query->fetch()) {
+                $res['id'][$i] = $id;
+                $res['username'][$i] = $username;
+                $res['blog_heading'][$i] = $blog_heading;
+                $res['blog_desc'][$i] = $blog_desc;
+                $res['meta_title'][$i] = $meta_title;
+                $res['meta_keywords'][$i] = $meta_keywords;
+                $res['meta_description'][$i] = $meta_description;
                 $res['description'][$i] = $description;
+                $res['featured_image'][$i] = $featured_image;
+                $res['slug_url'][$i] = $slug_url;
+                $res['status_value'][$i] = $status; // Changed name to avoid conflict
                 $res['created_at'][$i] = $created_at;
                 $i++;
             }
-            $res['count']=$i;
-        }else{
-
-            $err = 'Statement not Executed';
+            
+            $res['count'] = $i;
+            $res['status'] = 1; // Set status back to 1 when successful
         }
+        
+        $query->close();
+        $con->close();
         return $res;
     }
 

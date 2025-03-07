@@ -275,36 +275,66 @@ class logics extends dbcredentials{
     }
 
 
-    public function getBlogs(){
+
+    public function getBlogs() {
         $res = array();
         $res['status'] = 0;
+        $res['id'] = array();
+        $res['username'] = array();
+        $res['blog_heading'] = array();
+        $res['blog_desc'] = array();
+        $res['meta_title'] = array();
+        $res['meta_keywords'] = array();
+        $res['meta_description'] = array();
+        $res['description'] = array();
+        $res['featured_image'] = array();
+        $res['slug_url'] = array();
+        $res['status'] = array();
+        $res['created_at'] = array();
+        $res['count'] = 0;
+        
         $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-        $query = $con->prepare('SELECT username,blog_heading,description,category,featured_image,meta_keywords,meta_description,slug_url,status,updated_at,updated_by,created_at FROM blog ORDER BY sno DESC');
-        if($query->execute()){
-            $query->bind_result($username,$blog_heading,$description,$category,$featured_image,$meta_keywords,$meta_description,$slug_url,$status,$updated_at,$updated_by,$created_at);
-            $i=0;
-            while($query->fetch()){
-                $res['status'] = 1;
+        
+        if ($con->connect_error) {
+            return $res;
+        }
+        
+        $query = $con->prepare('SELECT id, username, blog_heading, blog_desc, meta_title, meta_keywords, meta_description, description, featured_image, slug_url, status, created_at FROM blogs ORDER BY id DESC');
+        
+        if (!$query) {
+            return $res;
+        }
+        
+        if ($query->execute()) {
+            $query->store_result();
+            $query->bind_result($id, $username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url, $status, $created_at);
+            $i = 0;
+            
+            while ($query->fetch()) {
+                $res['id'][$i] = $id;
                 $res['username'][$i] = $username;
                 $res['blog_heading'][$i] = $blog_heading;
-                $res['description'][$i] = $description;
-                $res['category'][$i] = $category;
-                $res['featured_image'][$i] = $featured_image;
+                $res['blog_desc'][$i] = $blog_desc;
+                $res['meta_title'][$i] = $meta_title;
                 $res['meta_keywords'][$i] = $meta_keywords;
                 $res['meta_description'][$i] = $meta_description;
+                $res['description'][$i] = $description;
+                $res['featured_image'][$i] = $featured_image;
                 $res['slug_url'][$i] = $slug_url;
-                $res['status_val'][$i] = $status;
-                $res['updated_at'][$i] = $updated_at;
-                $res['updated_by'][$i] = $updated_by;
+                $res['status_value'][$i] = $status; // Changed name to avoid conflict
                 $res['created_at'][$i] = $created_at;
                 $i++;
             }
-            $res['count']=$i;
-        }else{
-            $err = 'Statement not Executed';
+            
+            $res['count'] = $i;
+            $res['status'] = 1; // Set status back to 1 when successful
         }
+        
+        $query->close();
+        $con->close();
         return $res;
     }
+
 
   
 
@@ -3648,6 +3678,7 @@ public function PlaceOrder($orderData) {
                     $res['remarks'][$i] = $remarks;
                     $res['status_field'][$i] = $status; // Renamed to avoid conflict with the overall 'status' field
                     $res['created_at'][$i] = $created_at;
+
                     $i++;
                 }
                 $res['count'] = $i;
@@ -4172,7 +4203,7 @@ public function savePaymentDetails($data) {
                 payment_id = ?,
                 razorpay_order_id = ?,
                 payment_date = NOW(),
-                order_status = 'confirmed',
+                order_status = 'processing',
                 payment_mode = 'Razorpay',
                 payment_amount = ?,
                 payment_reference = ?,
@@ -4329,6 +4360,336 @@ public function getOrderDetails($order_id) {
 
     return $res;
 }
+public function getBlogBySlug($slug) {
+    $res = array();
+    $res['status'] = 0;
+    $res['id'] = array();
+    $res['username'] = array();
+    $res['blog_heading'] = array();
+    $res['blog_desc'] = array();
+    $res['meta_title'] = array();
+    $res['meta_keywords'] = array();
+    $res['meta_description'] = array();
+    $res['description'] = array();
+    $res['featured_image'] = array();
+    $res['slug_url'] = array();
+    $res['status_value'] = array();
+    $res['created_at'] = array();
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    if ($con->connect_error) {
+        return $res;
+    }
+    
+    $query = $con->prepare('SELECT id, username, blog_heading, blog_desc, meta_title, meta_keywords, meta_description, description, featured_image, slug_url, status, created_at FROM blogs WHERE slug_url = ? LIMIT 1');
+    $query->bind_param('s', $slug);
+    
+    if ($query->execute()) {
+        $query->store_result();
+        
+        if ($query->num_rows > 0) {
+            $query->bind_result($id, $username, $blog_heading, $blog_desc, $meta_title, $meta_keywords, $meta_description, $description, $featured_image, $slug_url, $status, $created_at);
+            
+            if ($query->fetch()) {
+                $res['id'][0] = $id;
+                $res['username'][0] = $username;
+                $res['blog_heading'][0] = $blog_heading;
+                $res['blog_desc'][0] = $blog_desc;
+                $res['meta_title'][0] = $meta_title;
+                $res['meta_keywords'][0] = $meta_keywords;
+                $res['meta_description'][0] = $meta_description;
+                $res['description'][0] = $description;
+                $res['featured_image'][0] = $featured_image;
+                $res['slug_url'][0] = $slug_url;
+                $res['status_value'][0] = $status;
+                $res['created_at'][0] = $created_at;
+                $res['status'] = 1;
+            }
+        }
+    }
+    
+    $query->close();
+    $con->close();
+    return $res;
+}
+
+public function getNews() {
+    $res = array();
+    $res['status'] = 0;
+    $res['id'] = array();
+    $res['username'] = array();
+    $res['newsheading'] = array();
+    $res['newsdesc'] = array();
+    $res['newslink'] = array();
+    $res['meta_title'] = array();
+    $res['meta_keywords'] = array();
+    $res['meta_description'] = array();
+    $res['featured_image'] = array();
+    $res['status_value'] = array();
+    $res['created_at'] = array();
+    $res['count'] = 0;
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        return $res;
+    }
+    
+    $query = $con->prepare('SELECT id, username, newsheading, newsdesc, newslink, meta_title, meta_keywords, meta_description, featured_image, status, created_at FROM news ORDER BY id DESC');
+    
+    if (!$query) {
+        return $res;
+    }
+    
+    if ($query->execute()) {
+        $query->store_result();
+        $query->bind_result($id, $username, $newsheading, $newsdesc, $newslink, $meta_title, $meta_keywords, $meta_description, $featured_image, $status, $created_at);
+        $i = 0;
+        
+        while ($query->fetch()) {
+            $res['id'][$i] = $id;
+            $res['username'][$i] = $username;
+            $res['newsheading'][$i] = $newsheading;
+            $res['newsdesc'][$i] = $newsdesc;
+            $res['newslink'][$i] = $newslink;
+            $res['meta_title'][$i] = $meta_title;
+            $res['meta_keywords'][$i] = $meta_keywords;
+            $res['meta_description'][$i] = $meta_description;
+            $res['featured_image'][$i] = $featured_image;
+            $res['status_value'][$i] = $status;
+            $res['created_at'][$i] = $created_at;
+            $i++;
+        }
+        
+        $res['count'] = $i;
+        $res['status'] = 1; // Set status to 1 when successful
+    }
+    
+    $query->close();
+    $con->close();
+    return $res;
+}
+
+public function getShipmentByOrderId($orderId) {
+    $res = array();
+    $res['status'] = 0;
+    $res['id'] = array();
+    $res['order_id'] = array();
+    $res['shiprocket_order_id'] = array();
+    $res['shipment_id'] = array();
+    $res['tracking_number'] = array();
+    $res['courier_company'] = array();
+    $res['awb_code'] = array();
+    $res['payment_method'] = array();
+    $res['shipping_cost'] = array();
+    $res['customer_name'] = array();
+    $res['customer_phone'] = array();
+    $res['shipping_address'] = array();
+    $res['shipping_city'] = array();
+    $res['shipping_pincode'] = array();
+    $res['created_at'] = array();
+    $res['status_value'] = array();
+    
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        return $res;
+    }
+    
+    $query = $con->prepare('SELECT id, order_id, shiprocket_order_id, shipment_id, tracking_number, 
+                            courier_company, awb_code, payment_method, shipping_cost, 
+                            customer_name, customer_phone, shipping_address, shipping_city, 
+                            shipping_pincode, created_at, status 
+                            FROM shipments WHERE order_id = ? LIMIT 1');
+    
+    if (!$query) {
+        return $res;
+    }
+    
+    $query->bind_param('s', $orderId);
+    
+    if ($query->execute()) {
+        $query->store_result();
+        
+        if ($query->num_rows > 0) {
+            $query->bind_result(
+                $id, $order_id, $shiprocket_order_id, $shipment_id, $tracking_number, 
+                $courier_company, $awb_code, $payment_method, $shipping_cost, 
+                $customer_name, $customer_phone, $shipping_address, $shipping_city, 
+                $shipping_pincode, $created_at, $status
+            );
+            
+            if ($query->fetch()) {
+                $res['id'][0] = $id;
+                $res['order_id'][0] = $order_id;
+                $res['shiprocket_order_id'][0] = $shiprocket_order_id;
+                $res['shipment_id'][0] = $shipment_id;
+                $res['tracking_number'][0] = $tracking_number;
+                $res['courier_company'][0] = $courier_company;
+                $res['awb_code'][0] = $awb_code;
+                $res['payment_method'][0] = $payment_method;
+                $res['shipping_cost'][0] = $shipping_cost;
+                $res['customer_name'][0] = $customer_name;
+                $res['customer_phone'][0] = $customer_phone;
+                $res['shipping_address'][0] = $shipping_address;
+                $res['shipping_city'][0] = $shipping_city;
+                $res['shipping_pincode'][0] = $shipping_pincode;
+                $res['created_at'][0] = $created_at;
+                $res['status_value'][0] = $status;
+                $res['status'] = 1;
+            }
+        }
+    }
+    
+    $query->close();
+    $con->close();
+    return $res;
+}
+
+
+
+
+
+public function verifyOrderOwnership($order_id, $user_id) {
+    $result = false;
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        return $result;
+    }
+    
+    $query = $con->prepare("SELECT id FROM orders WHERE id = ? AND user_id = ?");
+    if (!$query) {
+        return $result;
+    }
+    
+    $query->bind_param('ii', $order_id, $user_id);
+    
+    if ($query->execute()) {
+        $query->store_result();
+        if ($query->num_rows > 0) {
+            $result = true;
+        }
+    }
+    
+    $query->close();
+    $con->close();
+    return $result;
+}
+
+// Add these two complete function implementations to your logics class
+public function updateOrderStatus($order_id, $status) {
+    $result = false;
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        error_log("Database connection failed: " . $con->connect_error);
+        return $result;
+    }
+    
+    $query = $con->prepare("UPDATE orders SET order_status = ? WHERE id = ?");
+    if ($query) {
+        $query->bind_param('si', $status, $order_id);
+        $result = $query->execute();
+        if (!$result) {
+            error_log("Order status update error: " . $query->error);
+        }
+        $query->close();
+    } else {
+        error_log("Prepare failed for order status update: " . $con->error);
+    }
+    
+    $con->close();
+    return $result;
+}
+
+public function updateShipmentStatus($order_id, $status) {
+    $result = false;
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        error_log("Database connection failed: " . $con->connect_error);
+        return $result;
+    }
+    
+    $query = $con->prepare("UPDATE shipments SET status = ? WHERE order_id = ?");
+    if ($query) {
+        $query->bind_param('si', $status, $order_id);
+        $result = $query->execute();
+        if (!$result && $con->affected_rows == 0) {
+            // If no rows affected, it might be because there's no shipment for this order
+            error_log("No shipment found for order_id: " . $order_id);
+        }
+        $query->close();
+    } else {
+        error_log("Prepare failed for shipment status update: " . $con->error);
+    }
+    
+    $con->close();
+    return $result;
+}
+public function updateShipmentAWB($shipment_id, $awb_data) {
+    $result = false;
+    $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+    if ($con->connect_error) {
+        error_log("Database connection failed: " . $con->connect_error);
+        return $result;
+    }
+    
+    try {
+        // First, get the order_id using shipment_id
+        $get_order = $con->prepare("SELECT order_id FROM shipments WHERE shipment_id = ?");
+        if (!$get_order) {
+            error_log("Prepare failed: " . $con->error);
+            return $result;
+        }
+        
+        $get_order->bind_param('s', $shipment_id);
+        $get_order->execute();
+        $get_order->store_result();
+        
+        if ($get_order->num_rows > 0) {
+            $get_order->bind_result($order_id);
+            $get_order->fetch();
+            $get_order->close();
+            
+            // Now update the shipment record
+            $query = $con->prepare("UPDATE shipments SET 
+                awb_code = ?,
+                courier_company = ?,
+                shipping_cost = ?,
+                response_data = ?,
+                status = 'AWB Generated',
+                updated_at = NOW()
+                WHERE order_id = ?");
+                
+            if ($query) {
+                $query->bind_param('ssdss', 
+                    $awb_data['awb_code'],
+                    $awb_data['courier_company'],
+                    $awb_data['shipping_cost'],
+                    $awb_data['response_data'],
+                    $order_id
+                );
+                
+                $result = $query->execute();
+                if (!$result) {
+                    error_log("Execute failed: " . $query->error);
+                }
+                $query->close();
+            } else {
+                error_log("Prepare failed: " . $con->error);
+            }
+        }
+    } catch (Exception $e) {
+        error_log("Error updating AWB: " . $e->getMessage());
+    }
+    
+    $con->close();
+    return $result;
+}
+
 }
 
 ?>

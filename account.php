@@ -1,28 +1,31 @@
 <?php 
 session_start();
-function getStatusColor($status) {
-    switch(strtolower($status)) {
-        case 'pending':
-            return 'warning';
-        case 'confirmed':
-            return 'info';
-        case 'processing':
-            return 'primary';
-        case 'shipped':
-            return 'info';
-        case 'delivered':
-            return 'success';
-        case 'cancelled':
-            return 'danger';
-        default:
-            return 'secondary';
-    }
+error_reporting(0);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+function getFormattedStatus($status) {
+    // Format status for display
+    $status = strtolower($status);
+    $status = str_replace('_', ' ', $status);
+    return ucwords($status);
 }
 
 if(!empty($_SESSION['username'])){
-require_once('./header.php');
+    require_once('./header.php');
+    $logicsObj = new logics();
+    
+    // Get shipment data for all orders of this user
+    $shipmentData = array();
+    if($getOrders['count'] > 0) {
+        for($i=0; $i<$getOrders['count']; $i++) {
+            if($getOrders['user_id'][$i] == $_SESSION['user_id']) {
+                $shipment = $logicsObj->getShipmentByOrderId($getOrders['id'][$i]);
+                $shipmentData[$getOrders['id'][$i]] = $shipment;
+            }
+        }
+    }
 ?>
-
 
     <!-- Breadcrumb Start -->
     <div class="container-fluid">
@@ -63,8 +66,24 @@ require_once('./header.php');
                         <tbody>
                             <?php 
                             
-                            for($i=0;$i<$getOrders['count'];$i++){ 
+                            for($i=0; $i<$getOrders['count']; $i++){ 
                                 if($getOrders['user_id'][$i]==$_SESSION['user_id']){
+                                    // Get status from either shipment or order
+                                    $orderStatus = 'Order Placed';
+
+                                    // Check if shipment data exists
+                                    if(!empty($shipmentData[$getOrders['id'][$i]]) && 
+                                       !empty($shipmentData[$getOrders['id'][$i]]['status']) && 
+                                       $shipmentData[$getOrders['id'][$i]]['status'] == 1) {
+                                        
+                                        $shipStatus = $shipmentData[$getOrders['id'][$i]]['status_value'][0];
+                                        if(!empty($shipStatus)) {
+                                            $orderStatus = getFormattedStatus($shipStatus);
+                                        }
+                                    } else if(!empty($getOrders['order_status'][$i])) {
+                                        // If no shipment but order has status
+                                        $orderStatus = getFormattedStatus($getOrders['order_status'][$i]);
+                                    }
                                 ?>
                                 <tr>
                                     <td><?php echo $i+1; ?></td>
@@ -80,12 +99,13 @@ require_once('./header.php');
                                         </a>
                                     </td>
                                     <td class="price-column">
-                                        ₹<?php echo number_format($getOrders['grandtotal'][$i], 2); ?>
+                             
+₹<?php echo number_format(floatval(str_replace(',', '', $getOrders['grandtotal'][$i])), 2); ?>
                                     </td>
                                     <td>
-                                        <span class="status-badge bg-primary " style="color: #fff;">
+                                        <span class="status-badge" style="background-color: #c4996c; color: #fff;">
                                             <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>
-                                            <?php echo ucfirst($getOrders['order_status'][$i]); ?>
+                                            <?php echo $orderStatus; // Use $orderStatus instead of $getOrders['order_status'][$i] ?>
                                         </span>
                                     </td>
                                     <td class="action-buttons">
@@ -101,6 +121,21 @@ require_once('./header.php');
                                                title="Track Order">
                                                 <i class="bi bi-truck me-1"></i> Track Order
                                             </a>
+                                            
+                                            <?php 
+                                            // Show cancel button only for orders that aren't already cancelled or delivered
+                                            // Use $orderStatus (the displayed status) instead of checking the database field directly
+                                            if (strtolower($orderStatus) != 'cancelled' && 
+                                                strtolower($orderStatus) != 'delivered') { 
+                                            ?>
+                                                &nbsp; &nbsp; &nbsp;
+                                                <a href="javascript:void(0);" 
+                                                   onclick="cancelOrder(<?php echo $getOrders['id'][$i]; ?>)" 
+                                                   class="btn btn-cancel" 
+                                                   title="Cancel Order">
+                                                    <i class="bi bi-x-circle me-1"></i> Cancel
+                                                </a>
+                                            <?php } ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -187,6 +222,59 @@ function fetchOrderProducts(orderId) {
         error: function(xhr, status, error) {
             console.error('Ajax error:', error);
             $('#OrderProductsModal tbody').html('<tr><td colspan="8" class="text-center text-danger">Failed to load products. Please try again.</td></tr>');
+        }
+    });
+}
+
+function cancelOrder(orderId) {
+    if (!confirm("Are you sure you want to cancel this order?")) {
+        return;
+    }
+    
+    const cancelBtn = event.currentTarget;
+    const originalText = cancelBtn.innerHTML;
+    cancelBtn.disabled = true;
+    cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+    
+    $.ajax({
+        url: 'cancel_order.php',
+        type: 'POST',
+        data: { order_id: orderId },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                // Update the status badge immediately
+                const statusBadge = cancelBtn.closest('tr').querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.innerHTML = '<i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i> Cancelled';
+                }
+                
+                // Hide the cancel button
+                cancelBtn.style.display = 'none';
+                
+                // Optional: Show a success message
+                const successDiv = document.createElement('div');
+                successDiv.className = 'alert alert-success p-2 mt-2';
+                successDiv.style.fontSize = '12px';
+                successDiv.textContent = 'Order cancelled successfully';
+                cancelBtn.parentElement.appendChild(successDiv);
+                
+                // Remove the success message after 3 seconds
+                setTimeout(() => {
+                    successDiv.remove();
+                    location.reload(); // Reload to update all statuses
+                }, 2000);
+            } else {
+                alert(response.message || 'Failed to cancel order');
+                cancelBtn.disabled = false;
+                cancelBtn.innerHTML = originalText;
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Ajax error:', error);
+            alert('Failed to process your request. Please try again.');
+            cancelBtn.disabled = false;
+            cancelBtn.innerHTML = originalText;
         }
     });
 }
@@ -280,6 +368,8 @@ $(document).ready(function() {
         font-size: 12px;
         font-weight: 500;
         text-transform: capitalize;
+        background-color: #c4996c !important; /* Force the same color for all status badges */
+        color: #fff !important;
     }
     .action-buttons .btn {
         padding: 6px 14px;
@@ -305,6 +395,15 @@ $(document).ready(function() {
         color: #3498db;
     }
     .btn-track:hover {
+        background: #fff;
+        color: #c4996c;
+    }
+    .btn-cancel {
+        background: #fff;
+        border: 1px solid #c4996c;
+        color: #e74c3c;
+    }
+    .btn-cancel:hover {
         background: #fff;
         color: #c4996c;
     }

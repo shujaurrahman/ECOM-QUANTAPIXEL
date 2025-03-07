@@ -132,10 +132,12 @@ $shiprocket_payment_method = ($payment_mode === 'razorpay') ? "Prepaid" : "COD";
             'shipping_is_billing' => $shipping_is_billing,
             'payment_method' => $shiprocket_payment_method, // Should be 'COD' or 'Prepaid'
             'sub_total' => (float)$orderDetails['order']['grandtotal'],
-            'length' => 10, // Default dimensions - adjust as needed
-            'breadth' => 10,
-            'height' => 10,
-            'weight' => 1, // Default weight in kg
+            'length' => floatval($_POST['package_length']),
+            'breadth' => floatval($_POST['package_breadth']),
+            'height' => floatval($_POST['package_height']),
+            'weight' => floatval($_POST['package_weight']),
+            'order_value' => floatval($_POST['package_value']),
+            'package_description' => $_POST['package_description'],
             'order_items' => $order_items,
         ];
         
@@ -207,7 +209,7 @@ $shiprocket_payment_method = ($payment_mode === 'razorpay') ? "Prepaid" : "COD";
                     'shipping_pincode' => !$shipping_is_billing ? 
                         $orderDetails['order']['shipping_pincode'] : $orderDetails['order']['billing_pincode'],
                     'created_at' => date('Y-m-d H:i:s'),
-                    'status' => 'created',
+                    'status' => 'Shipment created',
                     'response_data' => json_encode($result)
                 ];
                 
@@ -249,17 +251,109 @@ $shiprocket_payment_method = ($payment_mode === 'razorpay') ? "Prepaid" : "COD";
     }
 }
 
+// Add this function after your existing functions
+function generateAWB($shipment_id, $config) {
+    try {
+        // Get authentication token
+        $token = getShipRocketToken($config);
+        
+        // Create AWB via API
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://apiv2.shiprocket.in/v1/external/courier/assign/awb",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode([
+                "shipment_id" => $shipment_id
+            ]),
+            CURLOPT_HTTPHEADER => [
+                "Content-Type: application/json",
+                "Authorization: Bearer " . $token
+            ],
+        ]);
+        
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+        
+        if ($err) {
+            throw new Exception('cURL Error: ' . $err);
+        }
+        
+        $result = json_decode($response, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Invalid JSON response: ' . $response);
+        }
+        
+        if (isset($result['awb_assign_status']) && $result['awb_assign_status'] == 1) {
+            $db_conn = new logics();
+            
+            $awb_data = [
+                'awb_code' => $result['response']['data']['awb_code'],
+                'courier_company' => $result['response']['data']['courier_name'],
+                'shipping_cost' => floatval($result['response']['data']['applied_weight']),
+                'response_data' => $response // Store the complete response
+            ];
+            
+            $updated = $db_conn->updateShipmentAWB($shipment_id, $awb_data);
+            
+            if (!$updated) {
+                error_log("Failed to update shipment in database for shipment_id: " . $shipment_id);
+            }
+            
+            return [
+                'success' => true,
+                'awb_code' => $result['response']['data']['awb_code'],
+                'courier_name' => $result['response']['data']['courier_name'],
+                'shipping_cost' => $result['response']['data']['applied_weight'],
+                'db_updated' => $updated,
+                'shipment_id' => $shipment_id
+            ];
+        } else {
+            throw new Exception(isset($result['message']) ? $result['message'] : 'Failed to generate AWB');
+        }
+        
+    } catch (Exception $e) {
+        error_log("AWB Generation Error: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'shipment_id' => $shipment_id
+        ];
+    }
+}
+
 // Process request
 $response = ['success' => false];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'])) {
-    $order_id = $_POST['order_id'];
-    $response = createShipment($order_id, $shiprocket_config);
-    
-    // Output JSON response
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
-    echo json_encode($response);
-    exit;
+    
+    if (isset($_POST['generate_awb']) && isset($_POST['shipment_id'])) {
+        try {
+            $response = generateAWB($_POST['shipment_id'], $shiprocket_config);
+            echo json_encode($response);
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+    if (isset($_POST['order_id'])) {
+        $order_id = $_POST['order_id'];
+        $response = createShipment($order_id, $shiprocket_config);
+        
+        // Output JSON response
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit;
+    }
 }
 
 // If called directly, show form
@@ -271,7 +365,7 @@ require_once('header.php');
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Create ShipRocket Shipment</h5>
-            <a href="order-list.php" class="btn btn-sm btn-outline-secondary">
+            <a href="getOrders.php" class="btn btn-sm btn-outline-secondary">
                 <i class="bx bx-arrow-back"></i> Back to Orders
             </a>
         </div>
@@ -371,6 +465,47 @@ require_once('header.php');
                         </div>
                     </div>
                     
+                    <!-- Package Details Form -->
+                    <div class="card border shadow-sm mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0">Package Specifications</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Length (cm)</label>
+                                    <input type="number" class="form-control" id="package_length" 
+                                           value="10" min="1" step="0.1" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Breadth (cm)</label>
+                                    <input type="number" class="form-control" id="package_breadth" 
+                                           value="10" min="1" step="0.1" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Height (cm)</label>
+                                    <input type="number" class="form-control" id="package_height" 
+                                           value="10" min="1" step="0.1" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Weight (kg)</label>
+                                    <input type="number" class="form-control" id="package_weight" 
+                                           value="1" min="0.1" step="0.1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Package Value (₹)</label>
+                                    <input type="number" class="form-control" id="package_value" 
+                                           value="<?php echo $orderDetails['order']['grandtotal']; ?>" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Package Description</label>
+                                    <input type="text" class="form-control" id="package_description" 
+                                           value="Order #<?php echo $orderDetails['order']['id']; ?>" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="d-flex justify-content-center">
                         <button type="button" class="btn btn-primary px-4" id="createShipment" 
                             data-order-id="<?php echo $_GET['id']; ?>">
@@ -419,14 +554,34 @@ document.addEventListener('DOMContentLoaded', function() {
             const orderId = this.getAttribute('data-order-id');
             const resultDiv = document.getElementById('shipmentResult');
             
+            // Validate package details
+            const packageLength = document.getElementById('package_length').value;
+            const packageBreadth = document.getElementById('package_breadth').value;
+            const packageHeight = document.getElementById('package_height').value;
+            const packageWeight = document.getElementById('package_weight').value;
+            const packageValue = document.getElementById('package_value').value;
+            const packageDescription = document.getElementById('package_description').value;
+
+            // Basic validation
+            if (!packageLength || !packageBreadth || !packageHeight || !packageWeight) {
+                alert('Please fill in all package dimensions and weight');
+                return;
+            }
+
             createShipmentBtn.disabled = true;
             createShipmentBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
             resultDiv.style.display = 'none';
             
-            // Create form data
+            // Create form data with package details
             const formData = new FormData();
             formData.append('order_id', orderId);
-            
+            formData.append('package_length', packageLength);
+            formData.append('package_breadth', packageBreadth);
+            formData.append('package_height', packageHeight);
+            formData.append('package_weight', packageWeight);
+            formData.append('package_value', packageValue);
+            formData.append('package_description', packageDescription);
+
             fetch('create_shipment.php', {
                 method: 'POST',
                 body: formData
@@ -450,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <div class="col-md-6">
                                             <div class="card bg-light border-0">
                                                 <div class="card-body p-3">
-                                                    <small class="text-muted d-block mb-1">ShipRocket Order ID</small>
+                                                    <small class="text-muted d-block mb-1">Order ID</small>
                                                     <h6>${data.shiprocket_order_id}</h6>
                                                 </div>
                                             </div>
@@ -466,6 +621,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </div>
                                         ` : ''}
                                     </div>
+                                    ${data.shipment_id ? `
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-primary" onclick="generateAWB('${data.shipment_id}')">
+                                            <i class="bx bx-barcode me-2"></i> Generate AWB Number
+                                        </button>
+                                    </div>
+                                    <div id="awbResult" class="mt-3"></div>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -508,7 +671,97 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function generateAWB(shipmentId) {
+    const awbBtn = event.currentTarget;
+    const awbResult = document.getElementById('awbResult');
+    
+    awbBtn.disabled = true;
+    awbBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+    
+    const formData = new FormData();
+    formData.append('generate_awb', '1');
+    formData.append('shipment_id', shipmentId);
+    
+    fetch('create_shipment.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            awbResult.innerHTML = `
+                <div class="alert alert-success mt-3">
+                    <h6 class="mb-2">AWB Generated Successfully</h6>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="bg-light p-2 rounded">
+                                <small class="text-muted d-block">AWB Number</small>
+                                <strong>${data.awb_code}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="bg-light p-2 rounded">
+                                <small class="text-muted d-block">Courier Partner</small>
+                                <strong>${data.courier_name}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="bg-light p-2 rounded">
+                                <small class="text-muted d-block">Shipping Cost</small>
+                                <strong>₹${data.shipping_cost}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            awbBtn.style.display = 'none';
+        } else {
+            awbResult.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6>Failed to Generate AWB</h6>
+                    <p>${data.message}</p>
+                </div>
+            `;
+            awbBtn.disabled = false;
+            awbBtn.innerHTML = '<i class="bx bx-barcode me-2"></i> Generate AWB Number';
+        }
+    })
+    .catch(error => {
+        awbResult.innerHTML = `
+            <div class="alert alert-danger">
+                <h6>Error</h6>
+                <p>An unexpected error occurred: ${error.message}</p>
+            </div>
+        `;
+        awbBtn.disabled = false;
+        awbBtn.innerHTML = '<i class="bx bx-barcode me-2"></i> Generate AWB Number';
+    });
+}
 </script>
+
+<style>
+.form-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.form-control:focus {
+    border-color: #c4996c;
+    box-shadow: 0 0 0 0.2rem rgba(196, 153, 108, 0.25);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+input[type="number"] {
+    text-align: right;
+    padding-right: 10px;
+}
+</style>
 
 <?php
 require_once('footer.php');

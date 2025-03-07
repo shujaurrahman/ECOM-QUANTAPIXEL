@@ -64,22 +64,22 @@ if(isset($_POST['submit'])) {
             'status' => 1,
             'payment_id' => $_POST['razorpay_payment_id'],
             'payment_date' => date('Y-m-d H:i:s'),
-            'order_status' => 'confirmed',
+            'order_status' => 'processing',
             'payment_status' => 'paid'
         );
 
-        // Add debugging
-        error_log("Form field names received: " . print_r(array_keys($_POST), true));
-        error_log("Billing details being used: " . print_r([
-            'name' => $_POST['name'],
-            'email' => $_POST['email'],
-            'mobile' => $_POST['mobile']
-        ], true));
+        // // Add debugging
+        // error_log("Form field names received: " . print_r(array_keys($_POST), true));
+        // error_log("Billing details being used: " . print_r([
+        //     'name' => $_POST['name'],
+        //     'email' => $_POST['email'],
+        //     'mobile' => $_POST['mobile']
+        // ], true));
 
-        error_log("Order data prepared: " . print_r($orderData, true));
+        // error_log("Order data prepared: " . print_r($orderData, true));
 
         $result = $adminObj->PlaceOrder($orderData);
-        error_log("PlaceOrder result: " . print_r($result, true));
+        // error_log("PlaceOrder result: " . print_r($result, true));
 
         if($result['status'] == 1) {
             echo json_encode([
