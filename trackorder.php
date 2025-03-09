@@ -12,6 +12,7 @@ $progressPercentage = 0;
 $currentStatus = 'Order Placed';
 $expectedDate = 'Not Available';
 $courierName = 'Not Assigned';
+$awbCode = 'Not Available';
 $steps = [
     [
         'name' => 'Order Placed',
@@ -444,27 +445,18 @@ $statusMapping = [
         <p class="status-label">Expected Delivery</p>
         <p class="status-value">
             <?php 
-            // Debug output as HTML comment
-            echo "<!-- Debug tracking data: " . json_encode($trackingData) . " -->\n";
-            
             if (isset($trackingData['tracking_data']['etd']) && !empty($trackingData['tracking_data']['etd'])) {
-                $etdDate = $trackingData['tracking_data']['etd'];
-                echo "<!-- Using ETD: $etdDate -->\n";
-                echo date('F j, Y', strtotime($etdDate));
+                echo date('F j, Y', strtotime($trackingData['tracking_data']['etd']));
             } 
             else if (isset($trackingData['tracking_data']['shipment_track'][0]['edd']) && 
                      !empty($trackingData['tracking_data']['shipment_track'][0]['edd'])) {
-                $eddDate = $trackingData['tracking_data']['shipment_track'][0]['edd'];
-                echo "<!-- Using EDD: $eddDate -->\n";
-                echo date('F j, Y', strtotime($eddDate));
+                echo date('F j, Y', strtotime($trackingData['tracking_data']['shipment_track'][0]['edd']));
             }
             else if (!empty($expectedDate) && $expectedDate != 'Not Available' && $expectedDate != 'Estimating...') {
-                echo "<!-- Using expectedDate: $expectedDate -->\n";
                 echo htmlspecialchars($expectedDate);
             }
             else {
                 echo "Estimating...";
-                echo "<!-- No date found in tracking data -->\n";
             }
             ?>
         </p>
@@ -472,26 +464,6 @@ $statusMapping = [
 </div>
     </div>
 
-    <!-- Progress Tracking -->
-    <div class="steps">
-        <div class="steps-header">
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" style="width: <?php echo $progressPercentage; ?>%" 
-                     aria-valuenow="<?php echo $progressPercentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-        </div>
-        <div class="steps-body">
-            <?php foreach ($steps as $step): ?>
-            <div class="step step-<?php echo $step['status']; ?>">
-                <span class="step-icon">
-                    <i data-feather="<?php echo $step['icon']; ?>"></i>
-                </span>
-                <span class="step-title"><?php echo $step['name']; ?></span>
-                <span class="step-subtitle"><?php echo $step['description']; ?></span>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
 
     <!-- Detailed Tracking Information -->
     <?php if (!empty($trackingActivities)): ?>
@@ -534,21 +506,28 @@ $statusMapping = [
     </div>
     <?php endif; ?>
     
-    <?php if (!empty($shipment['awb_code'][0])): ?>
+    <?php if (!empty($awbCode) && $awbCode != 'Not Available'): ?>
     <div class="text-center mt-4 mb-4">
         <a href="<?php echo isset($trackingData['tracking_data']['track_url']) ? 
             $trackingData['tracking_data']['track_url'] : 
-            'https://shiprocket.co/tracking/'.$shipment['awb_code'][0]; ?>" 
+            'https://shiprocket.co/tracking/'.$awbCode; ?>" 
            target="_blank" class="btn btn-primary">
             <i data-feather="external-link" style="width: 16px; height: 16px; vertical-align: -3px;"></i> 
             Track on Shiprocket
         </a>
-        <a href="account.php" class="btn btn-outline-secondary ms-2">
+        <a href="account.php" class="btn btn-outline-secondary btn-primary">
             <i data-feather="arrow-left" style="width: 16px; height: 16px; vertical-align: -3px;"></i>
             Return to My Orders
         </a>
     </div>
-    <?php endif; ?>
+<?php else: ?>
+    <div class="text-center mt-4 mb-4">
+        <a href="account.php" class="btn btn-primary">
+            <i data-feather="arrow-left" style="width: 16px; height: 16px; vertical-align: -3px;"></i>
+            Return to My Orders
+        </a>
+    </div>
+<?php endif; ?>
     
     <?php endif; ?>
 </div>
