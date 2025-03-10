@@ -71,16 +71,17 @@ if (!empty($_SESSION['role'])) {
                             </div>
                             
                             <div class="row g-3">
-                                <div class="col-md-6">
+                            <div class="col-md-6">
                                     <div class="mb-3">
-                                        <small class="text-muted d-block">Shipping cost</small>
-                                        <?php if (!empty($shipment['shipping_cost'])): ?>
-                                            <strong class="fs-6"><?php echo $shipment['shipping_cost']; ?></strong>
+                                        <small class="text-muted d-block">AWB Code</small>
+                                        <?php if (!empty($shipment['awb_code'])): ?>
+                                            <strong class="fs-6"><?php echo $shipment['awb_code']; ?></strong>
                                         <?php else: ?>
                                             <span class="text-muted">Not available yet</span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
+     
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <small class="text-muted d-block">Courier Company</small>
@@ -93,9 +94,9 @@ if (!empty($_SESSION['role'])) {
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <small class="text-muted d-block">AWB Code</small>
-                                        <?php if (!empty($shipment['awb_code'])): ?>
-                                            <strong class="fs-6"><?php echo $shipment['awb_code']; ?></strong>
+                                        <small class="text-muted d-block">Created at</small>
+                                        <?php if (!empty($shipment['created_at'])): ?>
+                                            <strong class="fs-6"><?php echo $shipment['created_at']; ?></strong>
                                         <?php else: ?>
                                             <span class="text-muted">Not available yet</span>
                                         <?php endif; ?>

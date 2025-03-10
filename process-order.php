@@ -64,7 +64,7 @@ if(isset($_POST['submit'])) {
             'status' => 1,
             'payment_id' => $_POST['razorpay_payment_id'],
             'payment_date' => date('Y-m-d H:i:s'),
-            'order_status' => 'processing',
+            'order_status' => 'confirmed',
             'payment_status' => 'paid'
         );
 

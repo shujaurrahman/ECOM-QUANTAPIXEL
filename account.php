@@ -116,7 +116,12 @@ if(!empty($_SESSION['username'])){
                                                 <i class="bi bi-file-earmark-text me-1"></i> Invoice
                                             </a>
                                             
-                                            <?php if (strtolower($orderStatus) != 'cancelled'): ?>
+                                            <?php 
+                                            // Add "Processing" to the list of statuses where we don't show the track button
+                                            $noTrackStatuses = ['cancelled', 'order placed', 'processing'];
+
+                                            // Then modify the conditional that displays the track button
+                                            if (!in_array(strtolower($orderStatus), $noTrackStatuses)): ?>
                                             <a href="./trackorder?id=<?php echo $getOrders['id'][$i]; ?>" 
                                                class="btn btn-track me-3" 
                                                title="Track Order">

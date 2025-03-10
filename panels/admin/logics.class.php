@@ -3664,7 +3664,42 @@ function generateAWB($shipment_id, $config) {
         ];
     }
 }
+// Add this property at the top of the logics class
+private $conn = null;
 
+// Add this constructor method
+public function __construct() {
+    try {
+        // Use the parent class (dbcredentials) methods to get connection details
+        $this->conn = new PDO(
+            "mysql:host=" . $this->hostName() . 
+            ";dbname=" . $this->dbName(), 
+            $this->userName(), 
+            $this->password()
+        );
+        $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch(PDOException $e) {
+        error_log("Connection failed: " . $e->getMessage());
+    }
+}
+
+// Then update the updateShipmentWithQuery method
+public function updateShipmentWithQuery($sql, $params) {
+    try {
+        if (!$this->conn) {
+            throw new PDOException("Database connection not established");
+        }
+        
+        $stmt = $this->conn->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        return false;
+    }
+}
  }
 
 ?>

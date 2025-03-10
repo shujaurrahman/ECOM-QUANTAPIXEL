@@ -89,18 +89,64 @@ if (!empty($_SESSION['role'])) {
                                                     }
                                                     ?>
                                                 </td>
-                                                <td>
-                                                    <form action="" method="post">
-                                                        <select name="status" id="" class="form-select">
-                                                            <option value="placed">placed</option>
-                                                            <option value="dispatched">Dispatched</option>
-                                                            <option value="delivered">Delivered</option>
-                                                            <option value="cancelled">Cancelled</option>
-                                                        </select>
-                                                    </form>
-                                                </td>
+
                                                 
+<td>
+    <?php 
+    // Check if shipment exists for this order
+    $shipment = $getUsers->getShipmentByOrderId($verification['id'][$i]);
+    
+    if (!empty($shipment)) {
+        // Get status directly from shipment table status
+        $status = !empty($shipment['status']) ? $shipment['status'] : 'New Order';
+        
+        // Map status to badge color
+        $badgeClass = 'bg-label-info';
+        switch(strtolower($status)) {
+            case 'awb generated':
+                $badgeClass = 'bg-label-primary';
+                break;
+            case 'delivered':
+                $badgeClass = 'bg-label-success';
+                break;
+            case 'out for delivery':
+                $badgeClass = 'bg-label-warning';
+                break;
+            case 'cancelled':
+            case 'returned':
+                $badgeClass = 'bg-label-danger';
+                break;
+        }
+        
+        // Display status badge
+        echo '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($status) . '</span>';
+    } else {
+        // No shipment record exists
+        echo '<span class="badge bg-label-secondary">New Order</span>';
+    }
+    ?>
+</td>
+
                                                 
+<?php
+// Inside your main loop where you display orders
+// After fetching shipment details
+if (!empty($shipment)) {
+    $lastUpdate = strtotime($shipment['last_status_update'] ?? '');
+    $fourHoursAgo = strtotime('-4 hours');
+    
+    if ($lastUpdate < $fourHoursAgo) {
+        echo "<script>
+            shipments.push({
+                order_id: '{$verification['id'][$i]}',
+                awb_code: '{$shipment['awb_code'][0]}',
+                shipment_id: '{$shipment['shipment_id']}'
+            });
+        </script>";
+    }
+}
+?>
+
                                             </tr>
                                             <?php
                                         }
@@ -128,4 +174,31 @@ if (!empty($_SESSION['role'])) {
 ?>
 <script>
     new DataTable('#example');
+</script>
+
+<script>
+function updateShipmentStatuses(shipments) {
+    shipments.forEach(shipment => {
+        if (shipment.awb_code || shipment.shipment_id) {
+            fetch('update_shipment_status.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(shipment)
+            }).catch(error => console.log('Status update error:', error));
+        }
+    });
+}
+
+// Collect all shipments that need updating
+let shipments = [];
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (shipments.length > 0) {
+        updateShipmentStatuses(shipments);
+    }
+});
 </script>
