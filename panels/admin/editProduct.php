@@ -47,6 +47,37 @@ $productVariations = $Obj->getProductVariations($_GET['id']);
         // No new image uploaded, use the existing one from POST data
         $featured_imagePhoto = $_POST['actual_featured_image'];
     }
+    // Add this to your form processing section where other files are handled
+    if (!empty($_FILES['product_video']['name'])) {
+        $videoName = $_FILES['product_video']['name'];
+        $videoTempLocal = $_FILES['product_video']['tmp_name'];
+        $videoSize = $_FILES['product_video']['size'];
+        
+        // Check if video size is within limit (50MB)
+        $maxVideoSize = 50 * 1024 * 1024; // 50MB in bytes
+        if ($videoSize <= $maxVideoSize) {
+            // Append current date and time to the video name to make it unique
+            $timestamp = date("YmdHis");
+            $extension = pathinfo($videoName, PATHINFO_EXTENSION);
+            $videoName = pathinfo($videoName, PATHINFO_FILENAME) . '_' . $timestamp . '.' . $extension;
+    
+            $videoStore = "product/videos/" . $videoName;
+    
+            // Create videos directory if it doesn't exist
+            if (!is_dir("product/videos")) {
+                mkdir("product/videos", 0777, true);
+            }
+    
+            // Move uploaded video to desired directory
+            move_uploaded_file($videoTempLocal, $videoStore);
+    
+            // Store video name
+            $productVideo = $videoName;
+        }
+    } else {
+        // No new video uploaded, use existing one
+        $productVideo = $_POST['actual_product_video'];
+    }
 
     if (!empty($_FILES['size_chart']['name'])) {
       $size_chartName = $_FILES['size_chart']['name'];
@@ -118,6 +149,7 @@ $productVariations = $Obj->getProductVariations($_GET['id']);
       $_POST['id'],
       $_POST['hashtags'],
       $size_chartPhoto,
+      $productVideo
     );
 
     if(!empty($verification['status']) && $verification['status'] == 1) {
@@ -255,13 +287,34 @@ $productVariations = $Obj->getProductVariations($_GET['id']);
               <label for="featured_image">Add Featured Image</label>
               <p class="text-danger small mb-2">
                 <i class="bx bx-error-circle"></i>
-                Maximum image size allowed is 2MB. Image dimensions must be 100px × 400px.
+                Maximum image size allowed is 2MB. Image dimensions must be 800px × 800px.
               </p>
               <input type="file" name="featured_image" placeholder="Enter Stock Quantity"  class="form-control mb-3"   id="stock">
               <input type="hidden" name="actual_featured_image" value="<?php echo $products['featured_image'][$j] ?>" id="">
 
               <img src="./product/<?php echo $products['featured_image'][$j] ?>" width="100px" alt="">
               <br>
+      
+<br>
+                <label for="product_video">Product Video</label>
+                <p class="text-danger small mb-2">
+                  <i class="bx bx-error-circle"></i>
+                  Maximum video size allowed is 2MB. Supported formats: MP4, WebM, MOV.
+                </p>
+                <input type="file" name="product_video" accept="video/mp4,video/webm,video/quicktime" class="form-control mb-3" id="product_video">
+                <input type="hidden" name="actual_product_video" value="<?php echo $products['product_video'][$j] ?>" id="">
+
+                <?php if (!empty($products['product_video'][$j])): ?>
+                  <div class="mb-3">
+                    <p class="mb-2">Current Video:</p>
+                    <video width="320" height="240" controls class="mb-2">
+                      <source src="./product/videos/<?php echo $products['product_video'][$j] ?>" type="video/mp4">
+                      Your browser does not support the video tag.
+                    </video>
+                    <br>
+                    <small class="text-muted">Current video: <?php echo $products['product_video'][$j]; ?></small>
+                  </div>
+                <?php endif; ?>
 
 
               <label for="category">Add Additional Images</label>
@@ -281,7 +334,7 @@ $productVariations = $Obj->getProductVariations($_GET['id']);
               }
               ?>
               <br>
-
+<br>
 
 
               <div class="row">
@@ -507,8 +560,8 @@ function validateImageDimensions(file, errorCallback) {
         const width = this.width;
         const height = this.height;
         
-        if (width !== 100 || height !== 400) {
-          errorCallback(`Image dimensions must be 100px × 400px. Current dimensions: ${width}px × ${height}px.`);
+        if (width !== 800 || height !== 800) {
+          errorCallback(`Image dimensions must be 800px × 800px. Current dimensions: ${width}px × ${height}px.`);
           resolve(false);
         } else {
           resolve(true);
@@ -996,7 +1049,62 @@ function toggleOptions(optionClass, checkbox) {
       }
     });
   });
-
+// Add this to your existing JavaScript section
+document.querySelector('input[name="product_video"]').addEventListener('change', function() {
+    const fileInput = this;
+    const maxSize = 2 * 1024 * 1024; // 50MB in bytes
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    const alertDiv = document.createElement('div');
+    alertDiv.id = 'videoAlert';
+    
+    const existingAlert = document.getElementById('videoAlert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+    
+    if (fileInput.files && fileInput.files[0]) {
+        // Size and type validation
+        if (fileInput.files[0].size > maxSize) {
+            // Create error alert for size
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <strong>Error:</strong>&nbsp;Video size exceeds 50MB. Please choose a smaller file.
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Clear the file input
+            fileInput.value = '';
+        } else if (!allowedTypes.includes(fileInput.files[0].type)) {
+            // Create error alert for type
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <strong>Error:</strong>&nbsp;Invalid video format. Please use MP4, WebM, or MOV formats.
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Clear the file input
+            fileInput.value = '';
+        }
+        
+        if (fileInput.value === '') {
+            // Insert alert if validation failed
+            fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+            
+            // Auto-dismiss alert after 5 seconds
+            setTimeout(() => {
+                if (document.getElementById('videoAlert')) {
+                    document.getElementById('videoAlert').remove();
+                }
+            }, 5000);
+        }
+    }
+});
 </script>
 <style>
 .hashtag-container {

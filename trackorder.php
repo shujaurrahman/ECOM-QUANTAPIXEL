@@ -102,6 +102,8 @@ if ($orderId > 0) {
                 if (!$err) {
                     $trackingData = json_decode($response, true);
                     
+
+                    
                     if (isset($trackingData['tracking_data']) && isset($trackingData['tracking_data']['track_status']) && $trackingData['tracking_data']['track_status'] == 1) {
                         // Map ShipRocket status codes to our step system
                         $shipmentStatus = $trackingData['tracking_data']['shipment_status'];
@@ -182,8 +184,19 @@ if ($orderId > 0) {
                         }
                         
                         // Get detailed tracking activities
-                        if (isset($trackingData['tracking_data']['shipment_track_activities'])) {
+                        if (isset($trackingData['tracking_data']['shipment_track_activities']) && 
+                            is_array($trackingData['tracking_data']['shipment_track_activities']) &&
+                            !empty($trackingData['tracking_data']['shipment_track_activities'])) {
                             $trackingActivities = $trackingData['tracking_data']['shipment_track_activities'];
+                        } else {
+                            // Try alternate data path that some carriers might use
+                            if (isset($trackingData['tracking_data']['shipment_track'][0]['track_activities']) && 
+                                is_array($trackingData['tracking_data']['shipment_track'][0]['track_activities']) &&
+                                !empty($trackingData['tracking_data']['shipment_track'][0]['track_activities'])) {
+                                $trackingActivities = $trackingData['tracking_data']['shipment_track'][0]['track_activities'];
+                            } else {
+                                $trackingActivities = [];
+                            }
                         }
                         
                         // Calculate progress step
@@ -465,31 +478,318 @@ $statusMapping = [
     </div>
 
 
-    <!-- Detailed Tracking Information -->
-    <?php if (!empty($trackingActivities)): ?>
-    <div class="order-info">
-        <h3 class="order-info-title">
-            <i data-feather="clock"></i> Tracking Activity
-        </h3>
-        <div class="activity-timeline">
-            <?php foreach ($trackingActivities as $activity): ?>
-            <div class="timeline-item">
-                <div class="timeline-point"></div>
-                <div class="timeline-date">
-                    <?php echo date('M d, Y - h:i A', strtotime($activity['date'])); ?>
+    <!-- Detailed Tracking Information with Enhanced UI -->
+<div class="order-info tracking-timeline-container">
+    <h3 class="order-info-title">
+        <i data-feather="clock"></i> Tracking Activity
+    </h3>
+    
+    <?php if (!empty($trackingActivities) && is_array($trackingActivities)): ?>
+    <div class="activity-timeline">
+        <?php foreach ($trackingActivities as $key => $activity): ?>
+            <?php if (is_array($activity) && isset($activity['date']) && isset($activity['activity'])): 
+                $isFirst = ($key === 0);
+                $isLast = ($key === count($trackingActivities) - 1);
+                $statusClass = $isFirst ? 'current' : '';
+            ?>
+            <div class="timeline-item <?php echo $statusClass; ?>">
+                <div class="timeline-point <?php echo $isFirst ? 'active' : ($isLast ? 'start' : ''); ?>"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">
+                        <?php 
+                        try {
+                            $date = new DateTime($activity['date']);
+                            echo '<span class="date">' . $date->format('M d, Y') . '</span>';
+                            echo '<span class="time">' . $date->format('h:i A') . '</span>';
+                        } catch (Exception $e) {
+                            echo '<span class="date">' . htmlspecialchars($activity['date']) . '</span>';
+                        }
+                        ?>
+                    </div>
+                    <div class="timeline-details">
+                        <div class="timeline-title"><?php echo htmlspecialchars($activity['activity']); ?></div>
+                        <?php if (isset($activity['location']) && !empty($activity['location'])): ?>
+                        <div class="timeline-location">
+                            <i data-feather="map-pin"></i> 
+                            <?php echo htmlspecialchars($activity['location']); ?>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (isset($activity['status']) && !empty($activity['status'])): ?>
+                        <div class="timeline-status">
+                            <span class="status-code"><?php echo htmlspecialchars($activity['status']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <div class="timeline-title"><?php echo htmlspecialchars($activity['activity']); ?></div>
-                <?php if (!empty($activity['location'])): ?>
-                <div class="timeline-location">
-                    <i data-feather="map-pin"></i> 
-                    <?php echo htmlspecialchars($activity['location']); ?>
-                </div>
-                <?php endif; ?>
             </div>
-            <?php endforeach; ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <div class="empty-tracking-state">
+        <div class="empty-state-icon">
+            <i data-feather="truck"></i>
+        </div>
+        <h4>Shipment In Progress</h4>
+        <p>Your order is being processed. Detailed tracking information will appear here once your package starts its journey.</p>
+        <div class="order-status-badge">
+            <span class="badge-pulse"></span>
+            Current Status: <?php echo htmlspecialchars($currentStatus); ?>
         </div>
     </div>
     <?php endif; ?>
+</div>
+
+<!-- Add styles for the enhanced tracking UI -->
+<style>
+/* Timeline Container */
+.tracking-timeline-container {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.order-info-title {
+    padding: 20px;
+    margin: 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+}
+
+.order-info-title i {
+    margin-right: 8px;
+    vertical-align: -2px;
+    color: #4361ee;
+}
+
+/* Timeline Activity */
+.activity-timeline {
+    padding: 20px 0;
+    position: relative;
+}
+
+.activity-timeline:before {
+    content: '';
+    position: absolute;
+    left: 35px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+    z-index: 1;
+}
+
+.timeline-item {
+    position: relative;
+    padding: 15px 20px 15px 70px;
+    margin-bottom: 0;
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover {
+    background-color: #f9fbff;
+}
+
+.timeline-item.current {
+    background-color: #f5f8ff;
+}
+
+.timeline-point {
+    position: absolute;
+    left: 31px;
+    top: 28px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    border: 2px solid #fff;
+    z-index: 2;
+}
+
+.timeline-point.active {
+    background: #4361ee;
+    border-color: #eef2ff;
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2);
+    animation: pulse 2s infinite;
+}
+
+.timeline-point.start {
+    background: #22c55e;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(67, 97, 238, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+    }
+}
+
+.timeline-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.timeline-date {
+    min-width: 110px;
+    margin-right: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-date .date {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.timeline-date .time {
+    color: #666;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.timeline-details {
+    flex: 1;
+}
+
+.timeline-title {
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.timeline-location {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.timeline-location i {
+    width: 14px;
+    height: 14px;
+    margin-right: 5px;
+    color: #666;
+}
+
+.timeline-status {
+    margin-top: 8px;
+}
+
+.status-code {
+    display: inline-block;
+    padding: 3px 10px;
+    background-color: #f0f4ff;
+    border-radius: 12px;
+    color: #4361ee;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Empty state */
+.empty-tracking-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f0f4ff;
+    margin-bottom: 20px;
+}
+
+.empty-state-icon i {
+    color: #4361ee;
+    width: 40px;
+    height: 40px;
+}
+
+.empty-tracking-state h4 {
+    margin: 0 0 10px;
+    font-weight: 600;
+    color: #333;
+}
+
+.empty-tracking-state p {
+    color: #666;
+    max-width: 400px;
+    margin: 0 0 20px;
+}
+
+.order-status-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f9ff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #0369a1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.badge-pulse {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #0ea5e9;
+    border-radius: 50%;
+    margin-right: 8px;
+    position: relative;
+}
+
+.badge-pulse:before {
+    content: '';
+    position: absolute;
+    border: 1px solid #0ea5e9;
+    left: -3px;
+    top: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50%;
+    animation: pulse 2s linear infinite;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+    .timeline-content {
+        flex-direction: column;
+    }
+    
+    .timeline-date {
+        margin-right: 0;
+        margin-bottom: 8px;
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .timeline-date .time {
+        margin-top: 0;
+        margin-left: 8px;
+    }
+}
+</style>
 
     <!-- Add this after the tracking timeline section -->
     <?php if (!empty($deliveryDetails['pod_url']) && $shipmentStatus == 7): ?>
@@ -549,5 +849,13 @@ $statusMapping = [
     }, 300);
   });
 </script>
+<style>
+.activity-message {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    color: #666;
+}
+</style>
 </body>
 </html>

@@ -663,12 +663,77 @@ public function AddNews($username, $newsheading, $newsdesc, $newslink, $meta_tit
     //     return $res;
     // }
 
+// public function AddProduct(
+//     $category_id, $subcategory_id, $product_name, $featured_image, $additional_images, 
+//     $stock, $discount_percentage, $short_description, 
+//     $features, $is_popular_collection, $is_recommended, 
+//     $description, $attribute_ids, $variation_names, 
+//     $variation_same_prices, $variation_ornament_weights, $variation_discounted_percentages, $product_price, $hashtags, $size_chartPhoto
+// ) {
+//     $res = array();
+//     $res['status'] = 0;
+
+//     $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+//     if ($con->connect_error) {
+//         die("Connection failed: " . $con->connect_error);
+//     }
+//     $con->begin_transaction();
+
+//     try {
+     
+//         $slug = $this->generateUniqueSlug($product_name, $con);
+
+
+//         $discounted_price = $product_price - ($product_price * $discount_percentage / 100);
+
+
+//         $product_code = 'LSJ-' . rand(9999, 99999);
+//         $query = $con->prepare('INSERT INTO products (category_id, subcategory_id, product_code, product_name, featured_image, additional_images, stock, discount_percentage, short_description, features, is_popular_collection, is_recommended, description, slug, product_price, discounted_price, hashtags, size_chart) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+//         $query->bind_param('ssssssssssssssssss', $category_id, $subcategory_id, $product_code, $product_name, $featured_image, $additional_images, $stock, $discount_percentage, $short_description, $features, $is_popular_collection, $is_recommended, $description, $slug, $product_price, $discounted_price, $hashtags, $size_chartPhoto);
+
+//         if ($query->execute()) {
+//             $product_id = $con->insert_id;
+
+
+//             $variationQuery = $con->prepare('INSERT INTO product_variations (product_id, attribute_id, variation_name, is_same_price, ornament_weight, discount_percentage) VALUES (?, ?, ?, ?, ?, ?)');
+
+//             foreach ($attribute_ids as $key => $attribute_id) {
+//                 if (isset($variation_names[$key]) && is_array($variation_names[$key])) {
+//                     foreach ($variation_names[$key] as $i => $variation_name) {
+//                         $is_same_price = isset($variation_same_prices[$key][$i]) ? 1 : 0;
+//                         $variation_weight = $variation_ornament_weights[$key][$i] ?? null;
+//                         $variation_discounted_percentage = $variation_discounted_percentages[$key][$i] ?? null;
+
+//                         $variationQuery->bind_param('iissss', $product_id, $attribute_id, $variation_name, $is_same_price, $variation_weight, $variation_discounted_percentage);
+//                         if (!$variationQuery->execute()) {
+//                             throw new Exception('Variation insert failed: ' . $variationQuery->error);
+//                         }
+//                     }
+//                 }
+//             }
+
+//             $con->commit();
+//             $res['status'] = 1;
+//         } else {
+//             $con->rollback();
+//             $res['error'] = 'Product insert failed: ' . $query->error;
+//         }
+//     } catch (Exception $e) {
+//         $con->rollback();
+//         $res['error'] = $e->getMessage();
+//     }
+
+//     $con->close();
+//     return $res;
+// }
+
 public function AddProduct(
     $category_id, $subcategory_id, $product_name, $featured_image, $additional_images, 
     $stock, $discount_percentage, $short_description, 
     $features, $is_popular_collection, $is_recommended, 
     $description, $attribute_ids, $variation_names, 
-    $variation_same_prices, $variation_ornament_weights, $variation_discounted_percentages, $product_price, $hashtags, $size_chartPhoto
+    $variation_same_prices, $variation_ornament_weights, $variation_discounted_percentages, 
+    $product_price, $hashtags, $size_chartPhoto, $product_video
 ) {
     $res = array();
     $res['status'] = 0;
@@ -680,22 +745,36 @@ public function AddProduct(
     $con->begin_transaction();
 
     try {
-     
         $slug = $this->generateUniqueSlug($product_name, $con);
-
-
         $discounted_price = $product_price - ($product_price * $discount_percentage / 100);
-
-
         $product_code = 'LSJ-' . rand(9999, 99999);
-        $query = $con->prepare('INSERT INTO products (category_id, subcategory_id, product_code, product_name, featured_image, additional_images, stock, discount_percentage, short_description, features, is_popular_collection, is_recommended, description, slug, product_price, discounted_price, hashtags, size_chart) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-        $query->bind_param('ssssssssssssssssss', $category_id, $subcategory_id, $product_code, $product_name, $featured_image, $additional_images, $stock, $discount_percentage, $short_description, $features, $is_popular_collection, $is_recommended, $description, $slug, $product_price, $discounted_price, $hashtags, $size_chartPhoto);
+
+        // Updated SQL query to include product_video column
+        $query = $con->prepare('INSERT INTO products (
+            category_id, subcategory_id, product_code, product_name, 
+            featured_image, additional_images, stock, discount_percentage, 
+            short_description, features, is_popular_collection, is_recommended, 
+            description, slug, product_price, discounted_price, hashtags, 
+            size_chart, product_video
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+
+        $query->bind_param(
+            'sssssssssssssssssss', 
+            $category_id, $subcategory_id, $product_code, $product_name, 
+            $featured_image, $additional_images, $stock, $discount_percentage, 
+            $short_description, $features, $is_popular_collection, $is_recommended, 
+            $description, $slug, $product_price, $discounted_price, $hashtags, 
+            $size_chartPhoto, $product_video
+        );
 
         if ($query->execute()) {
             $product_id = $con->insert_id;
 
-
-            $variationQuery = $con->prepare('INSERT INTO product_variations (product_id, attribute_id, variation_name, is_same_price, ornament_weight, discount_percentage) VALUES (?, ?, ?, ?, ?, ?)');
+            // Process variations
+            $variationQuery = $con->prepare('INSERT INTO product_variations (
+                product_id, attribute_id, variation_name, 
+                is_same_price, ornament_weight, discount_percentage
+            ) VALUES (?, ?, ?, ?, ?, ?)');
 
             foreach ($attribute_ids as $key => $attribute_id) {
                 if (isset($variation_names[$key]) && is_array($variation_names[$key])) {
@@ -704,7 +783,11 @@ public function AddProduct(
                         $variation_weight = $variation_ornament_weights[$key][$i] ?? null;
                         $variation_discounted_percentage = $variation_discounted_percentages[$key][$i] ?? null;
 
-                        $variationQuery->bind_param('iissss', $product_id, $attribute_id, $variation_name, $is_same_price, $variation_weight, $variation_discounted_percentage);
+                        $variationQuery->bind_param('iissss', 
+                            $product_id, $attribute_id, $variation_name, 
+                            $is_same_price, $variation_weight, $variation_discounted_percentage
+                        );
+
                         if (!$variationQuery->execute()) {
                             throw new Exception('Variation insert failed: ' . $variationQuery->error);
                         }
@@ -848,11 +931,102 @@ public function AddProduct(
 
 
 
+    // public function getProducts() {
+    //     $res = array();
+    //     $res['status'] = 0;
+    //     $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+
+    //     $query = $con->prepare("SELECT 
+    //                 products.id, 
+    //                 categories.id AS category_id, 
+    //                 categories.name AS category_name, 
+    //                 sub_categories.id AS subcategory_id, 
+    //                 sub_categories.name AS subcategory_name, 
+    //                 products.product_code, 
+    //                 products.product_name, 
+    //                 products.featured_image, 
+    //                 products.additional_images, 
+    //                 products.stock, 
+    //                 ornaments.id AS ornament_id, 
+    //                 ornaments.name AS ornament_name,
+    //                 ornaments.price AS price_per_gram,  -- Price per gram from ornaments table
+    //                 products.ornament_weight, 
+    //                 products.discount_percentage, 
+    //                 products.short_description, 
+    //                 products.features, 
+    //                 GROUP_CONCAT(DISTINCT features.name SEPARATOR ', ') AS features, 
+    //                 products.is_lakshmi_kubera, 
+    //                 products.is_popular_collection, 
+    //                 products.is_recommended, 
+    //                 products.general_info, 
+    //                 products.description, 
+    //                 products.slug, 
+    //                 products.status, 
+    //                 products.created_at,
+    //                 products.product_price,  -- product_price
+    //                 products.hashtags,      -- hashtags
+    //                 products.size_chart,     -- size_chart
+    //                 products.discounted_price -- discounted_price
+    //             FROM 
+    //                 products
+    //             LEFT JOIN categories ON products.category_id = categories.id
+    //             LEFT JOIN sub_categories ON products.subcategory_id = sub_categories.id
+    //             LEFT JOIN ornaments ON products.ornament_type = ornaments.id
+    //             LEFT JOIN features ON FIND_IN_SET(features.id, products.features) > 0
+    //             GROUP BY products.id  
+    //             ORDER BY products.id DESC;");
+
+    //     if ($query->execute()) {
+    //         $query->bind_result($id, $category_id, $category_name, $subcategory_id, $subcategory_name, $product_code, $product_name, $featured_image, $additional_images, $stock, $ornament_id, $ornament_type, $price_per_gram, $ornament_weight, $discount_percentage, $short_description, $features_id, $features, $is_lakshmi_kubera, $is_popular_collection, $is_recommended, $general_info, $description, $slug, $status, $created_at, $product_price, $hashtags, $size_chart, $discounted_price);
+
+    //         $i = 0;
+    //         while ($query->fetch()) {
+    //             $res['status'] = 1;
+    //             $res['id'][$i] = $id;
+    //             $res['category_id'][$i] = $category_id;
+    //             $res['category_name'][$i] = $category_name;
+    //             $res['subcategory_id'][$i] = $subcategory_id;
+    //             $res['subcategory_name'][$i] = $subcategory_name;
+    //             $res['product_code'][$i] = $product_code;
+    //             $res['product_name'][$i] = $product_name;
+    //             $res['featured_image'][$i] = $featured_image;
+    //             $res['additional_images'][$i] = $additional_images;
+    //             $res['stock'][$i] = $stock;
+    //             $res['ornament_id'][$i] = $ornament_id;
+    //             $res['ornament_type'][$i] = $ornament_type;
+    //             $res['price_per_gram'][$i] = $price_per_gram;
+    //             $res['ornament_weight'][$i] = $ornament_weight;
+    //             $res['discount_percentage'][$i] = $discount_percentage;
+    //             $res['short_description'][$i] = $short_description;
+    //             $res['features_id'][$i] = $features_id;
+    //             $res['features'][$i] = $features;
+    //             $res['is_lakshmi_kubera'][$i] = $is_lakshmi_kubera;
+    //             $res['is_popular_collection'][$i] = $is_popular_collection;
+    //             $res['is_recommended'][$i] = $is_recommended;
+    //             $res['general_info'][$i] = $general_info;
+    //             $res['description'][$i] = $description;
+    //             $res['slug'][$i] = $slug;
+    //             $res['statusval'][$i] = $status;
+    //             $res['created_at'][$i] = $created_at;
+    //             $res['product_price'][$i] = $product_price;  // product_price to result
+    //             $res['hashtags'][$i] = $hashtags;            // hashtags to result
+    //             $res['size_chart'][$i] = $size_chart;        // size_chart to result
+    //             $res['discounted_price'][$i] = $discounted_price; // discounted_price to result
+
+    //             $i++;
+    //         }
+    //         $res['count'] = $i;
+    //     } else {
+    //         $err = 'Statement not Executed';
+    //     }
+
+    //     return $res;
+    // }
     public function getProducts() {
         $res = array();
         $res['status'] = 0;
         $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-
+    
         $query = $con->prepare("SELECT 
                     products.id, 
                     categories.id AS category_id, 
@@ -866,7 +1040,7 @@ public function AddProduct(
                     products.stock, 
                     ornaments.id AS ornament_id, 
                     ornaments.name AS ornament_name,
-                    ornaments.price AS price_per_gram,  -- Price per gram from ornaments table
+                    ornaments.price AS price_per_gram,
                     products.ornament_weight, 
                     products.discount_percentage, 
                     products.short_description, 
@@ -880,10 +1054,11 @@ public function AddProduct(
                     products.slug, 
                     products.status, 
                     products.created_at,
-                    products.product_price,  -- product_price
-                    products.hashtags,      -- hashtags
-                    products.size_chart,     -- size_chart
-                    products.discounted_price -- discounted_price
+                    products.product_price,
+                    products.hashtags,
+                    products.size_chart,
+                    products.discounted_price,
+                    products.product_video
                 FROM 
                     products
                 LEFT JOIN categories ON products.category_id = categories.id
@@ -892,10 +1067,18 @@ public function AddProduct(
                 LEFT JOIN features ON FIND_IN_SET(features.id, products.features) > 0
                 GROUP BY products.id  
                 ORDER BY products.id DESC;");
-
+    
         if ($query->execute()) {
-            $query->bind_result($id, $category_id, $category_name, $subcategory_id, $subcategory_name, $product_code, $product_name, $featured_image, $additional_images, $stock, $ornament_id, $ornament_type, $price_per_gram, $ornament_weight, $discount_percentage, $short_description, $features_id, $features, $is_lakshmi_kubera, $is_popular_collection, $is_recommended, $general_info, $description, $slug, $status, $created_at, $product_price, $hashtags, $size_chart, $discounted_price);
-
+            $query->bind_result(
+                $id, $category_id, $category_name, $subcategory_id, $subcategory_name, 
+                $product_code, $product_name, $featured_image, $additional_images, $stock, 
+                $ornament_id, $ornament_type, $price_per_gram, $ornament_weight, 
+                $discount_percentage, $short_description, $features_id, $features, 
+                $is_lakshmi_kubera, $is_popular_collection, $is_recommended, $general_info, 
+                $description, $slug, $status, $created_at, $product_price, $hashtags, 
+                $size_chart, $discounted_price, $product_video
+            );
+    
             $i = 0;
             while ($query->fetch()) {
                 $res['status'] = 1;
@@ -925,21 +1108,21 @@ public function AddProduct(
                 $res['slug'][$i] = $slug;
                 $res['statusval'][$i] = $status;
                 $res['created_at'][$i] = $created_at;
-                $res['product_price'][$i] = $product_price;  // product_price to result
-                $res['hashtags'][$i] = $hashtags;            // hashtags to result
-                $res['size_chart'][$i] = $size_chart;        // size_chart to result
-                $res['discounted_price'][$i] = $discounted_price; // discounted_price to result
-
+                $res['product_price'][$i] = $product_price;
+                $res['hashtags'][$i] = $hashtags;
+                $res['size_chart'][$i] = $size_chart;
+                $res['discounted_price'][$i] = $discounted_price;
+                $res['product_video'][$i] = $product_video;  // Added product video
+    
                 $i++;
             }
             $res['count'] = $i;
         } else {
             $err = 'Statement not Executed';
         }
-
+    
         return $res;
     }
-
 
 
 
@@ -988,9 +1171,86 @@ public function AddProduct(
     //     return $res;
     // }
 
-    public function UpdateProduct($category_id, $subcategory_id, $product_name, $featured_image, 
+//     public function UpdateProduct($category_id, $subcategory_id, $product_name, $featured_image, 
+//     $additional_images, $stock, $product_price, $discount_percentage, $short_description, 
+//     $features, $is_popular_collection, $is_recommended, $description, $id, $hashtags, $size_chart) {
+    
+//     $res = array();
+//     $res['status'] = 0;
+
+//     $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+    
+//     if ($con->connect_error) {
+//         die("Connection failed: " . $con->connect_error);
+//     }
+    
+//     $con->begin_transaction();
+
+//     try {
+//         $slug = $this->generateUniqueSlug($product_name, $con);
+//         $discounted_price = $product_price - ($product_price * $discount_percentage / 100);
+//         $product_code = $id; // Using existing ID as product code for update
+
+//         $query = $con->prepare('UPDATE products SET 
+//             category_id=?, 
+//             subcategory_id=?, 
+//             product_name=?, 
+//             featured_image=?, 
+//             additional_images=?, 
+//             stock=?, 
+//             product_price=?,
+//             discounted_price=?,
+//             discount_percentage=?, 
+//             short_description=?, 
+//             features=?, 
+//             is_popular_collection=?, 
+//             is_recommended=?, 
+//             description=?, 
+//             slug=?, 
+//             hashtags=?, 
+//             size_chart=? 
+//             WHERE id=?');
+
+//         $query->bind_param('iisssiiddssiissssi', 
+//             $category_id, 
+//             $subcategory_id, 
+//             $product_name, 
+//             $featured_image, 
+//             $additional_images, 
+//             $stock, 
+//             $product_price,
+//             $discounted_price,
+//             $discount_percentage, 
+//             $short_description, 
+//             $features, 
+//             $is_popular_collection, 
+//             $is_recommended, 
+//             $description, 
+//             $slug, 
+//             $hashtags, 
+//             $size_chart,
+//             $id
+//         );
+
+//         if ($query->execute()) {
+//             $con->commit();
+//             $res['status'] = 1;
+//         } else {
+//             throw new Exception('Statement not executed: ' . $query->error);
+//         }
+//     } catch (Exception $e) {
+//         $con->rollback();
+//         $res['error'] = $e->getMessage();
+//     }
+
+//     $con->close();
+//     return $res;
+// }
+
+public function UpdateProduct($category_id, $subcategory_id, $product_name, $featured_image, 
     $additional_images, $stock, $product_price, $discount_percentage, $short_description, 
-    $features, $is_popular_collection, $is_recommended, $description, $id, $hashtags, $size_chart) {
+    $features, $is_popular_collection, $is_recommended, $description, $id, $hashtags, 
+    $size_chart, $product_video) {
     
     $res = array();
     $res['status'] = 0;
@@ -1004,9 +1264,27 @@ public function AddProduct(
     $con->begin_transaction();
 
     try {
+        // If a new video is being uploaded, delete the old video file
+        if (!empty($product_video)) {
+            $oldVideoQuery = $con->prepare("SELECT product_video FROM products WHERE id = ?");
+            $oldVideoQuery->bind_param('i', $id);
+            $oldVideoQuery->execute();
+            $oldVideoResult = $oldVideoQuery->get_result();
+            
+            if ($oldVideo = $oldVideoResult->fetch_assoc()) {
+                if (!empty($oldVideo['product_video'])) {
+                    $oldVideoPath = "product/videos/" . $oldVideo['product_video'];
+                    if (file_exists($oldVideoPath)) {
+                        unlink($oldVideoPath);
+                    }
+                }
+            }
+            $oldVideoQuery->close();
+        }
+
         $slug = $this->generateUniqueSlug($product_name, $con);
         $discounted_price = $product_price - ($product_price * $discount_percentage / 100);
-        $product_code = $id; // Using existing ID as product code for update
+        $product_code = $id;
 
         $query = $con->prepare('UPDATE products SET 
             category_id=?, 
@@ -1025,10 +1303,11 @@ public function AddProduct(
             description=?, 
             slug=?, 
             hashtags=?, 
-            size_chart=? 
+            size_chart=?,
+            product_video=? 
             WHERE id=?');
 
-        $query->bind_param('iisssiiddssiissssi', 
+        $query->bind_param('iisssiiddssiisssssi', 
             $category_id, 
             $subcategory_id, 
             $product_name, 
@@ -1046,6 +1325,7 @@ public function AddProduct(
             $slug, 
             $hashtags, 
             $size_chart,
+            $product_video,
             $id
         );
 

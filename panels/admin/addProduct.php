@@ -59,7 +59,40 @@ if(isset($_POST['submit'])  ){
     $size_chartPhoto = $size_chartName;
   }
 
+  // Process video if available
+  if (!empty($_FILES['product_video']['name'])) {
+    $videoName = $_FILES['product_video']['name'];
+    $videoTempLocal = $_FILES['product_video']['tmp_name'];
+    $videoSize = $_FILES['product_video']['size'];
+    
+    // Check if video size is within limit (50MB)
+    $maxVideoSize = 50 * 1024 * 1024; // 50MB in bytes
+    if ($videoSize <= $maxVideoSize) {
+      // Append current date and time to the video name to make it unique
+      $timestamp = date("YmdHis");
+      $extension = pathinfo($videoName, PATHINFO_EXTENSION);
+      $videoName = pathinfo($videoName, PATHINFO_FILENAME) . '_' . $timestamp . '.' . $extension;
 
+      $videoStore = "product/videos/" . $videoName;
+
+      // Create videos directory if it doesn't exist
+      if (!is_dir("product/videos")) {
+          mkdir("product/videos", 0777, true);
+      }
+
+      // Move uploaded video to desired directory
+      move_uploaded_file($videoTempLocal, $videoStore);
+
+      // Store video name
+      $productVideo = $videoName;
+    } else {
+      // Handle error - video too large
+      $productVideo = "";
+      $videoError = "Video size exceeds the 50MB limit";
+    }
+  } else {
+    $productVideo = "";
+  }
 
   // Process multiple images if available
   $additional_images = [];
@@ -97,19 +130,12 @@ if(isset($_POST['submit'])  ){
   $variation_ornament_weights = $_POST['variation_ornament_weight'] ?? []; // Default to an empty array if not set
   $variation_discounted_percentages = $_POST['variation_discounted_percentage'] ?? []; // Default to an empty array if not set
 
-  
-
-
-
-
-
-
     require_once('./logics.class.php');
     $adminObj = new logics();
 
     // $verification = $adminObj->AddProduct($_POST['category_id'],$_POST['subcategory_id'],$_POST['product_name'],$featured_imagePhoto,$additional_imagesCSV,$_POST['stock'],$_POST['ornament_type'],$_POST['ornament_weight'],$_POST['discount_percentage'],$_POST['short_description'],$selected_features,$_POST['is_lakshmi_kubera'],$_POST['is_popular_collection'],$_POST['is_recommended'],$_POST['general_info'],$_POST['description'],$attribute_ids, $variation_names, 
     $verification = $adminObj->AddProduct($_POST['category_id'],$_POST['subcategory_id'],$_POST['product_name'],$featured_imagePhoto,$additional_imagesCSV,$_POST['stock'],$_POST['discount_percentage'],$_POST['short_description'],$selected_features,$_POST['is_popular_collection'],$_POST['is_recommended'],$_POST['description'],$attribute_ids, $variation_names, 
-    $variation_same_prices, $variation_ornament_weights, $variation_discounted_percentages,$_POST['product_price'],$_POST['hashtags'],$size_chartPhoto);
+    $variation_same_prices, $variation_ornament_weights, $variation_discounted_percentages,$_POST['product_price'],$_POST['hashtags'],$size_chartPhoto,$productVideo);
     if(!empty($verification['status']) && $verification['status']==1){
         echo '<script src="../js/sweetalert.js"></script>';
         echo '<script>';
@@ -237,9 +263,16 @@ if(isset($_POST['submit'])  ){
               <label for="featured_image">Add Featured Image</label>
               <p class="text-danger small mb-2">
                 <i class="bx bx-error-circle"></i>
-                Maximum image size allowed is 2MB. Image dimensions must be 100px × 400px.
+                Maximum image size allowed is 2MB. Image dimensions must be 800px × 800px.
               </p>
               <input type="file" name="featured_image" placeholder="Enter Stock Quantity"  class="form-control mb-3"   id="stock">
+            
+              <label for="product_video" style="padding-bottom:0.5rem">Product Video</label>
+            <p class="text-danger small mb-2">
+              <i class="bx bx-error-circle"></i>
+              Maximum video size allowed is 2MB. Supported formats: MP4, WebM, MOV.
+            </p>
+            <input type="file" name="product_video" accept="video/mp4,video/webm,video/quicktime" class="form-control mb-3" id="product_video">
 
 
               <label for="category">Add Additional Images</label>
@@ -422,7 +455,7 @@ if(isset($_POST['submit'])  ){
               <label for="size_chart">Add Size Chart</label>
               <p class="text-danger small mb-2">
                 <i class="bx bx-error-circle"></i>
-                Maximum image size allowed is 2MB. Image dimensions must be 100px × 400px.
+                Maximum image size allowed is 2MB. Image dimensions must be 800px × 800px.
               </p>
               <input type="file" name="size_chart" placeholder=""  class="form-control mb-3"   id="stock">
               <label for="hashtagInput">Product Hashtags</label>
@@ -947,8 +980,8 @@ function validateImageDimensions(file, errorCallback) {
         const width = this.width;
         const height = this.height;
         
-        if (width !== 100 || height !== 500) {
-          errorCallback(`Image dimensions must be 100px × 400px. Current dimensions: ${width}px × ${height}px.`);
+        if (width !== 800 || height !== 800) {
+          errorCallback(`Image dimensions must be 800px × 800px. Current dimensions: ${width}px × ${height}px.`);
           resolve(false);
         } else {
           resolve(true);
@@ -1099,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const featuredLabel = document.querySelector('label[for="featured_image"]').nextElementSibling;
     featuredLabel.innerHTML = `
       <i class="bx bx-error-circle"></i>
-      Maximum image size allowed is 2MB. Image dimensions must be 100px × 500px.
+      Maximum image size allowed is 2MB. Image dimensions must be 800px × 800px.
     `;
     
     // // Add dimension info to additional images label
@@ -1108,9 +1141,65 @@ document.addEventListener('DOMContentLoaded', function() {
     // additionalImagesNote.className = 'text-danger small mb-2';
     // additionalImagesNote.innerHTML = `
     //   <i class="bx bx-error-circle"></i>
-    //   Maximum image size allowed is 2MB. Image dimensions must be 100px × 500px.
+    //   Maximum image size allowed is 2MB. Image dimensions must be 800px × 800px.
     // `;
     additionalImagesLabel.insertAdjacentElement('afterend', additionalImagesNote);
+});
+// Add this to your existing JavaScript
+document.querySelector('input[name="product_video"]').addEventListener('change', function() {
+    const fileInput = this;
+    const maxSize = 2 * 1024 * 1024; // 50MB in bytes
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    const alertDiv = document.createElement('div');
+    alertDiv.id = 'videoSizeAlert';
+    
+    const existingAlert = document.getElementById('videoSizeAlert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+    
+    if (fileInput.files && fileInput.files[0]) {
+        // Size and type validation
+        if (fileInput.files[0].size > maxSize) {
+            // Create error alert for size
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <strong>Error:</strong>&nbsp;Video size exceeds 50MB. Please choose a smaller file.
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Clear the file input
+            fileInput.value = '';
+        } else if (!allowedTypes.includes(fileInput.files[0].type)) {
+            // Create error alert for type
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-2';
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bx bx-error-circle me-2"></i>
+                    <strong>Error:</strong>&nbsp;Invalid video format. Please use MP4, WebM, or MOV formats.
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Clear the file input
+            fileInput.value = '';
+        }
+        
+        // Insert alert if validation failed
+        if (fileInput.value === '') {
+            fileInput.parentNode.insertBefore(alertDiv, fileInput.nextSibling);
+            
+            // Auto-dismiss alert after 5 seconds
+            setTimeout(() => {
+                if (document.getElementById('videoSizeAlert')) {
+                    document.getElementById('videoSizeAlert').remove();
+                }
+            }, 5000);
+        }
+    }
 });
 </script>
 

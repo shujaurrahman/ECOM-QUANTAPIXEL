@@ -8,8 +8,60 @@ $slug = ucwords($slug);
 ?>
 <style>
 
+.video-thumbnail-overlay {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
 
+.video-thumbnail-overlay i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 24px;
+    z-index: 2;
+    text-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
 
+.video-thumbnail-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+}
+
+.video-thumbnail-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Video slide styling */
+.video-slide {
+    background: #000;
+}
+
+.video-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.video-container video {
+    background: #fff;
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+    .video-container {
+        padding-bottom: 75%; /* Adjusted ratio for mobile */
+    }
+}
 
 .product-item {
   height: 450px;  
@@ -366,6 +418,71 @@ $slug = ucwords($slug);
     transform: translateX(0) !important;
 }
 
+/* Center video styling */
+.video-slide .video-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.video-slide video {
+    max-width: 100%;
+    max-height: 450px;
+    margin: auto;
+}
+
+/* Video thumbnail styling */
+.video-thumb {
+    margin-top: auto;  /* Push video thumbnail to bottom */
+    border: 2px solid #e1e1e1;
+    position: relative;
+}
+
+.video-thumbnail-overlay {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-thumbnail-overlay i {
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    z-index: 2;
+}
+
+.video-thumbnail-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+/* Responsive video container */
+@media (max-width: 768px) {
+    .video-slide .video-container {
+        max-width: 100%;
+        padding-bottom: 56.25%;  /* 16:9 aspect ratio */
+    }
+    
+    .video-slide video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
 </style>
 <?php
     for ($i = 0; $i < $products['count']; $i++) {
@@ -399,63 +516,101 @@ $slug = ucwords($slug);
             <div class="product-gallery">
                 <!-- Vertical thumbnails on the left (desktop) -->
                 <div class="product-thumbnails vertical">
-                    <div class="thumbnails-container">
-                        <!-- Featured image thumbnail -->
-                        <div class="thumbnail-item active" data-slide-index="0">
-                            <img src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Thumbnail">
-                        </div>
-                        
-                        <!-- Additional images thumbnails -->
-                        <?php 
-                        $imageList = explode(',', $products['additional_images'][$i]);
-                        foreach ($imageList as $key => $image): 
-                            $slideIndex = $key + 1;
-                            if(trim($image) != ""):
-                        ?>
-                            <div class="thumbnail-item" data-slide-index="<?php echo $slideIndex; ?>">
-                                <img src="./panels/admin/product/<?php echo trim($image); ?>" alt="Thumbnail">
-                            </div>
-                        <?php 
-                            endif;
-                        endforeach; 
-                        ?>
-                    </div>
-                </div>
+    <div class="thumbnails-container">
+        <!-- Featured image thumbnail -->
+        <div class="thumbnail-item active" data-slide-index="0">
+            <img src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Thumbnail">
+        </div>
+        
+        <!-- Additional images thumbnails -->
+        <?php 
+        $imageList = explode(',', $products['additional_images'][$i]);
+        $totalImages = count(array_filter($imageList));
+        foreach ($imageList as $key => $image): 
+            $slideIndex = $key + 1;
+            if(trim($image) != ""):
+        ?>
+            <div class="thumbnail-item" data-slide-index="<?php echo $slideIndex; ?>">
+                <img src="./panels/admin/product/<?php echo trim($image); ?>" alt="Thumbnail">
+            </div>
+        <?php 
+            endif;
+        endforeach; 
+        ?>
+
+        <!-- Video thumbnail at the end if video exists -->
+        <?php if (!empty($products['product_video'][$i])): ?>
+        <div class="thumbnail-item video-thumb" data-type="video" data-slide-index="<?php echo $totalImages + 1; ?>">
+            <div class="video-thumbnail-overlay">
+                <i class="fas fa-play-circle"></i>
+                <img src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Video Thumbnail">
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+
                 
                 <!-- Main carousel -->
                 <div id="product-carousel" class="carousel slide" data-ride="carousel" data-interval="5000">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <div class="zoom-container">
-                                <img class="w-100 zoom-image" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
-                                <div class="zoom-lens"></div>
-                                <div class="zoom-result"></div>
-                            </div>
-                        </div>
-                        <?php foreach ($imageList as $image): 
-                            if(trim($image) != ""):
-                        ?>
-                            <div class="carousel-item">
-                                <div class="zoom-container">
-                                    <img class="w-100 zoom-image" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
-                                    <div class="zoom-lens"></div>
-                                    <div class="zoom-result"></div>
-                                </div>
-                            </div>
-                        <?php 
-                            endif;
-                        endforeach; ?>
-                    </div>
-                    <!-- Carousel controls -->
-                    <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" href="#product-carousel" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
+    <div class="carousel-inner">
+        <!-- Main image slide -->
+        <div class="carousel-item active">
+            <div class="zoom-container">
+                <img class="w-100 zoom-image" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
+                <div class="zoom-lens"></div>
+                <div class="zoom-result"></div>
+            </div>
+        </div>
+
+        <!-- Video slide (hidden by default) -->
+        <?php if (!empty($products['product_video'][$i])): ?>
+        <div class="carousel-item video-slide" style="display: none;">
+            <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+                <video 
+                    controls 
+                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;"
+                    poster="./panels/admin/product/<?php echo $products['featured_image'][$i]; ?>"
+                >
+                    <source src="./panels/admin/product/videos/<?php echo $products['product_video'][$i]; ?>" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Video slide -->
+        <?php if (!empty($products['product_video'][$i])): ?>
+        <div class="carousel-item video-slide">
+            <div class="video-container">
+                <video 
+                    controls 
+                    controlsList="nodownload"
+                    poster="./panels/admin/product/<?php echo $products['featured_image'][$i]; ?>"
+                >
+                    <source src="./panels/admin/product/videos/<?php echo $products['product_video'][$i]; ?>" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Additional image slides -->
+        <?php foreach ($imageList as $image): 
+            if(trim($image) != ""):
+        ?>
+            <div class="carousel-item">
+                <div class="zoom-container">
+                    <img class="w-100 zoom-image" src="./panels/admin/product/<?php echo trim($image); ?>" alt="Image">
+                    <div class="zoom-lens"></div>
+                    <div class="zoom-result"></div>
                 </div>
+            </div>
+        <?php 
+            endif;
+        endforeach; ?>
+    </div>
+</div>
                 
                 <!-- Horizontal thumbnails below (mobile) -->
                 <div class="product-thumbnails horizontal">
@@ -1350,9 +1505,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Set result background to the same image
-        if (img.complete) {
+        if (img && img.complete) {
             result.style.backgroundImage = `url('${img.src}')`;
-        } else {
+        } else if (img) {
             img.addEventListener('load', function() {
                 result.style.backgroundImage = `url('${img.src}')`;
             });
@@ -1518,4 +1673,65 @@ function initZoom() {
         return {x: x, y: y};
     }
 }
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle video thumbnail click
+    const videoThumb = document.querySelector('.video-thumb');
+    const carousel = document.getElementById('product-carousel');
+    const videoSlide = document.querySelector('.video-slide');
+    const allSlides = document.querySelectorAll('.carousel-item');
+    
+    if (videoThumb) {
+        videoThumb.addEventListener('click', function() {
+            // Hide all slides
+            allSlides.forEach(slide => {
+                slide.classList.remove('active');
+                if (!slide.classList.contains('video-slide')) {
+                    slide.style.display = 'none';
+                }
+            });
+
+            // Show and activate video slide
+            videoSlide.style.display = 'block';
+            videoSlide.classList.add('active');
+            
+            // Update thumbnail active state
+            document.querySelectorAll('.thumbnail-item').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            videoThumb.classList.add('active');
+
+            // Play video if present
+            const video = videoSlide.querySelector('video');
+            if (video) {
+                video.play();
+            }
+        });
+    }
+
+    // Handle regular thumbnail clicks
+    document.querySelectorAll('.thumbnail-item:not(.video-thumb)').forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            // Stop video if playing
+            const video = document.querySelector('.video-slide video');
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+
+            // Show all image slides again
+            allSlides.forEach(slide => {
+                if (!slide.classList.contains('video-slide')) {
+                    slide.style.display = '';
+                }
+            });
+
+            // Hide video slide
+            if (videoSlide) {
+                videoSlide.style.display = 'none';
+                videoSlide.classList.remove('active');
+            }
+        });
+    });
+});
+
 </script>

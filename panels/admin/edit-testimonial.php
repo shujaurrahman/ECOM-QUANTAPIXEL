@@ -132,7 +132,7 @@ if(!empty($_GET['id'])){
                   <input type="file" name="image" class="form-control" id="image" accept="image/*">
                   <div class="text-danger small mt-1">
                     <i class="bx bx-error-circle"></i>
-                    Maximum image size allowed is 2MB. Image dimensions must be 100px × 400px.
+                    Maximum image size allowed is 2MB. Image dimensions must be 800px × 800px.
                   </div>
                   
                   <?php if (!empty($testimonial['image'])): ?>
