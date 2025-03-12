@@ -6,484 +6,7 @@ $slug = $_GET['slug'];
 $slug = str_replace('-', ' ', $slug);
 $slug = ucwords($slug);
 ?>
-<style>
-
-.video-thumbnail-overlay {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.video-thumbnail-overlay i {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #fff;
-    font-size: 24px;
-    z-index: 2;
-    text-shadow: 0 0 8px rgba(0,0,0,0.5);
-}
-
-.video-thumbnail-overlay::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.3);
-}
-
-.video-thumbnail-overlay img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Video slide styling */
-.video-slide {
-    background: #000;
-}
-
-.video-container {
-    background: #f8f9fa;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.video-container video {
-    background: #fff;
-}
-
-/* For mobile devices */
-@media (max-width: 768px) {
-    .video-container {
-        padding-bottom: 75%; /* Adjusted ratio for mobile */
-    }
-}
-
-.product-item {
-  height: 450px;  
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-radius: 10px;
-}
-
-.product-img {
-  height: 350px;
-  overflow: hidden;
-  border-radius: 10px;
-}
-
-.mobile-small-image {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-.h6.text-decoration-none, .mobile-small-font {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-.product-name {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* For small screens */
-@media (max-width: 576px) {
-  .product-item {
-    height: 290px;
-  }
-  
-  .product-img {
-    height: 180px;
-  }
-}
-
-/* Product gallery styling */
-.product-gallery {
-    display: flex;
-    flex-direction: row;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    position: relative;
-}
-
-@media (min-width: 992px) {
-    .product-details-column, .product-gallery-column {
-        min-height: 470px !important;
-        display: flex
-;
-        flex-direction: column;
-    }
-}
-
-/* Main product carousel */
-#product-carousel {
-    flex: 1;
-    width: calc(100% - 90px);
-    overflow: hidden !important;
-    position: relative;
-}
-
-.carousel-inner {
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.carousel-inner img {
-    width: 100%;
-    height: 390px;
-    object-fit: contain;
-    background: #fff;
-    padding-top: 20px;
-}
-
-.thumbnails-container {
-    max-height: 500px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-}
-
-/* Custom scrollbar styling */
-.thumbnails-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.thumbnails-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.thumbnails-container::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-/* Vertical thumbnails for desktop */
-.product-thumbnails.vertical {
-    width: 80px;
-    margin-right: 8px;
-    height: 450px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-    padding: 0 5px;
-    scrollbar-width: thin;
-    flex-shrink: 0;
-    background-color: #fff;
-    position: relative;
-    z-index: 1010; /* Higher than zoom-result to stay on top */
-}
-
-.product-thumbnails.vertical .thumbnails-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Horizontal thumbnails for mobile */
-.product-thumbnails.horizontal {
-    width: 100%;
-    margin-top: 15px;
-    overflow-x: auto;
-    display: none;
-    flex-direction: row;
-    padding: 10px 0;
-    scrollbar-width: thin;
-}
-
-.product-thumbnails.horizontal .thumbnails-container {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    padding-left: 5px;
-}
-
-/* Thumbnail styling */
-.thumbnail-item {
-    width: 70px;
-    height: 70px;
-    flex-shrink: 0;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-.thumbnail-item:hover {
-    opacity: 0.9;
-}
-
-.thumbnail-item.active {
-    opacity: 1;
-    border-color: #696cff;
-}
-
-.thumbnail-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Custom scrollbar for thumbnails */
-.product-thumbnails::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-}
-
-.product-thumbnails::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.product-thumbnails::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-}
-
-/* Carousel Controls Styling */
-.carousel-control-prev,
-.carousel-control-next {
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0.8;
-    z-index: 10;
-}
-
-.carousel-control-prev {
-    left: 15px;
-}
-
-.carousel-control-next {
-    right: 15px;
-}
-
-.carousel-control-prev:hover,
-.carousel-control-next:hover {
-    background: rgba(0, 0, 0, 0.7);
-    opacity: 1;
-}
-
-/* Ensure consistent heights for product content columns */
-@media (min-width: 992px) {
-    .product-details-column,
-    .product-gallery-column {
-        min-height: 550px;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .product-gallery {
-        height: 100%;
-    }
-    
-    .h-100.bg-light.p-30 {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-}
-
-/* Mobile responsive adjustments */
-@media (max-width: 991px) {
-    .product-gallery {
-        flex-direction: column;
-    }
-    
-    #product-carousel {
-        width: 100%;
-        margin-bottom: 15px;
-    }
-    
-    .carousel-inner img {
-        height: 350px;
-    }
-    
-    .product-thumbnails.vertical {
-        display: none;
-    }
-    
-    .product-thumbnails.horizontal {
-        display: flex;
-    }
-    
-    .thumbnail-item {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 0;
-    }
-}
-
-/* Update the zoom styling */
-.zoom-container {
-    position: relative;
-    overflow: visible; /* Changed from hidden to visible */
-    width: 100%;
-    height: auto;
-    z-index: 1001; /* Higher than thumbnails when active */
-}
-
-.zoom-image {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.zoom-lens {
-    position: absolute;
-    border: 2px solid #d4d4d4;
-    width: 100px;
-    height: 100px;
-    background-repeat: no-repeat;
-    cursor: zoom-in;
-    display: none;
-}
-
-.zoom-result {
-    position: absolute;
-    top: 0;
-    left: 105%;
-    width: 300px;
-    height: 300px;
-    border: 2px solid #d4d4d4;
-    background-repeat: no-repeat;
-    background-color: #fff;
-    display: none;
-    z-index: 1005;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    pointer-events: none; /* Prevent interference with mouse events */
-}
-
-/* Make sure carousel items don't hide zoom result */
-.carousel-item {
-    overflow: visible !important;
-}
-
-/* Make sure parent containers don't clip the zoom result */
-#product-carousel, .carousel-inner {
-    overflow: visible !important;
-}
-
-/* Improve carousel slide transitions */
-#product-carousel .carousel-item {
-    transition: transform 0.6s ease-in-out;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    opacity: 0;
-    display: block !important;
-}
-
-#product-carousel .carousel-item.active {
-    opacity: 1;
-    position: relative;
-}
-
-/* Use a fade transition instead of slide */
-.carousel-inner .carousel-item {
-    transition: opacity 0.6s ease !important;
-    display: block;
-    position: absolute;
-    top: 0;
-}
-
-/* Override Bootstrap's default slide behavior */
-.carousel-item-next.carousel-item-left,
-.carousel-item-prev.carousel-item-right {
-    transform: translateX(0) !important;
-}
-
-.carousel-item-left.active,
-.carousel-item-right.active {
-    transform: translateX(0) !important;
-}
-
-/* Center video styling */
-.video-slide .video-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.video-slide video {
-    max-width: 100%;
-    max-height: 450px;
-    margin: auto;
-}
-
-/* Video thumbnail styling */
-.video-thumb {
-    margin-top: auto;  /* Push video thumbnail to bottom */
-    border: 2px solid #e1e1e1;
-    position: relative;
-}
-
-.video-thumbnail-overlay {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.video-thumbnail-overlay i {
-    font-size: 24px;
-    color: #fff;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
-    z-index: 2;
-}
-
-.video-thumbnail-overlay::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.3);
-    pointer-events: none;
-}
-
-/* Responsive video container */
-@media (max-width: 768px) {
-    .video-slide .video-container {
-        max-width: 100%;
-        padding-bottom: 56.25%;  /* 16:9 aspect ratio */
-    }
-    
-    .video-slide video {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-}
-</style>
+<link rel="stylesheet" href="css/product.css">
 <?php
     for ($i = 0; $i < $products['count']; $i++) {
         if ($products['statusval'][$i] == 1 && $products['slug'][$i] == $_GET['slug']) {
@@ -551,10 +74,10 @@ $slug = ucwords($slug);
 </div>
 
                 
-                <!-- Main carousel -->
-                <div id="product-carousel" class="carousel slide" data-ride="carousel" data-interval="5000">
+                <!-- Main carousel (remove video from carousel) -->
+<div id="product-carousel" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
-        <!-- Main image slide -->
+        <!-- Featured image slide -->
         <div class="carousel-item active">
             <div class="zoom-container">
                 <img class="w-100 zoom-image" src="./panels/admin/product/<?php echo $products['featured_image'][$i] ?>" alt="Image">
@@ -563,40 +86,10 @@ $slug = ucwords($slug);
             </div>
         </div>
 
-        <!-- Video slide (hidden by default) -->
-        <?php if (!empty($products['product_video'][$i])): ?>
-        <div class="carousel-item video-slide" style="display: none;">
-            <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-                <video 
-                    controls 
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;"
-                    poster="./panels/admin/product/<?php echo $products['featured_image'][$i]; ?>"
-                >
-                    <source src="./panels/admin/product/videos/<?php echo $products['product_video'][$i]; ?>" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Video slide -->
-        <?php if (!empty($products['product_video'][$i])): ?>
-        <div class="carousel-item video-slide">
-            <div class="video-container">
-                <video 
-                    controls 
-                    controlsList="nodownload"
-                    poster="./panels/admin/product/<?php echo $products['featured_image'][$i]; ?>"
-                >
-                    <source src="./panels/admin/product/videos/<?php echo $products['product_video'][$i]; ?>" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </div>
-        <?php endif; ?>
-
         <!-- Additional image slides -->
-        <?php foreach ($imageList as $image): 
+        <?php 
+        $imageList = explode(',', $products['additional_images'][$i]);
+        foreach ($imageList as $image): 
             if(trim($image) != ""):
         ?>
             <div class="carousel-item">
@@ -608,9 +101,27 @@ $slug = ucwords($slug);
             </div>
         <?php 
             endif;
-        endforeach; ?>
+        endforeach; 
+        ?>
     </div>
 </div>
+
+<!-- Separate video section (after carousel) -->
+<?php if (!empty($products['product_video'][$i])): ?>
+<div class="product-video-wrapper" style="display: none;">
+    <div class="product-video-container">
+        <video 
+            id="product-video"
+            controls 
+            controlsList="nodownload"
+            poster="./panels/admin/product/<?php echo $products['featured_image'][$i]; ?>"
+        >
+            <source src="./panels/admin/product/videos/<?php echo $products['product_video'][$i]; ?>" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</div>
+<?php endif; ?>
                 
                 <!-- Horizontal thumbnails below (mobile) -->
                 <div class="product-thumbnails horizontal">
@@ -751,14 +262,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
         href="./open-logics?type=addToCart&product_id=<?php echo $products['id'][$i]; ?>&quantity=1">
         <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
     </a>
-    <!-- <a 
-        id="add-to-cart-link" 
-        data-toggle="modal" data-target="#PartialPurchaseModal"
-        class="btn btn-primary px-3 mx-3" 
-        href="contact">
-        <i class="fa fa-lock mr-1"></i> Partial Purchase
-    </a> -->
-    
+
 </div>
 
 <script>
@@ -791,24 +295,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
 </script>
 
 
-    
-                    <!-- <h4>For Customization, Upload Pic to get estimated price:</h4>
-                    <form action="./open-logics.php" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="user_id" value="<?php echo !empty($_SESSION['user_id']) ? $_SESSION['user_id'] : '' ?>" >
-                        <input type="hidden" name="slug" value="<?php echo $_GET['slug'] ?>" >
-                        <input type="file" name="customization_image" required >
-                        <?php
-                        if(!empty($_SESSION['user_id'])){
-                            ?>
-                            <input type="submit" name="Upload" class="btn btn-primary" value="Upload" id="">
-                            <?php
-                        }else{
-                            ?>
-                            <a href="" onclick="alert('Please Login to Upload')" class="btn btn-primary">Upload</a>
-                            <?php
-                        }
-                        ?>
-                    </form> -->
+
 
 
                     <div class="d-flex pt-2">
@@ -835,21 +322,7 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
                         }
                     </script>
 
-                        
-                        <!-- <div class="d-inline-flex">
-                            <a class="text-dark px-2" href="">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a class="text-dark px-2" href="">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a class="text-dark px-2" href="">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                            <a class="text-dark px-2" href="">
-                                <i class="fab fa-pinterest"></i>
-                            </a>
-                        </div> -->
+                    
                     </div>
                 </div>
             </div>
@@ -997,169 +470,6 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
     }
     ?>
 
-
-    <!-- Products Start -->
-    <!-- <div class="container-fluid py-5 d-none">
-        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">You May Also Like</span></h2>
-        <div class="row px-xl-5">
-            <div class="col">
-                <div class="owl-carousel related-carousel">
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="images/Screenshot 2024-09-25 152514.png" style="height: 300px;" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">Product Name Goes Here</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$123.00</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="images/Screenshot 2024-09-25 152525.png" style="height: 300px;" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">Product Name Goes Here</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$123.00</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="images/Screenshot 2024-09-25 152605.png" style="height: 300px;" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">Product Name Goes Here</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$123.00</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="images/Screenshot 2024-09-25 152514.png" style="height: 300px;" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">Product Name Goes Here</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$123.00</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="images/Screenshot 2024-09-25 152525.png" style="height: 300px;" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">Product Name Goes Here</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$123.00</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="product-item bg-light">
-                        <div class="product-img position-relative overflow-hidden">
-                            <img class="img-fluid w-100" src="images/Screenshot 2024-09-25 152605.png" style="height: 300px;" alt="">
-                            <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
-                                <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
-                            </div>
-                        </div>
-                        <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" href="">Product Name Goes Here</a>
-                            <div class="d-flex align-items-center justify-content-center mt-2">
-                                <h5>$123.00</h5><h6 class="text-muted ml-2"><del>$123.00</del></h6>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center mb-1">
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small class="fa fa-star text-primary mr-1"></small>
-                                <small>(99)</small>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div> -->
-    <!-- Products End -->
 
     
      <!-- Featured Start -->
@@ -1734,4 +1044,56 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const videoThumb = document.querySelector('.video-thumb');
+    const videoWrapper = document.querySelector('.product-video-wrapper');
+    const carousel = document.getElementById('product-carousel');
+    const video = document.getElementById('product-video');
+    
+    if (videoThumb && videoWrapper) {
+        videoThumb.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Stop carousel autoplay
+            $(carousel).carousel('pause');
+            
+            // Hide carousel
+            carousel.style.display = 'none';
+            
+            // Show video wrapper
+            videoWrapper.style.display = 'block';
+            
+            // Update thumbnail active state
+            document.querySelectorAll('.thumbnail-item').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            videoThumb.classList.add('active');
+        });
+    }
+
+    // Handle regular thumbnail clicks
+    document.querySelectorAll('.thumbnail-item:not(.video-thumb)').forEach(thumb => {
+        thumb.addEventListener('click', function() {
+            // Stop and reset video if playing
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+
+            // Hide video wrapper
+            if (videoWrapper) {
+                videoWrapper.style.display = 'none';
+            }
+
+            // Show carousel
+            carousel.style.display = 'block';
+            
+            // Resume carousel functionality
+            $(carousel).carousel('cycle');
+        });
+    });
+});
 </script>
