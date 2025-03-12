@@ -1,0 +1,8 @@
+.small.text-primary {
+    font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.small.text-primary:hover {
+    text-decoration: underline;
+}

@@ -1,4 +1,17 @@
+<style>
+    .small.text-primary {
+    font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.small.text-primary:hover {
+    text-decoration: underline;
+}
+</style>
+
 <?php
+
+
 session_start();
 if (!empty($_SESSION['role'])) {
     $title = "orders";
@@ -120,6 +133,14 @@ if (!empty($_SESSION['role'])) {
         
         // Display status badge
         echo '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($status) . '</span>';
+        
+        // Add tracking link if status is AWB Generated
+        if (strtolower($status) === 'awb generated') {
+            echo '<br><a href="../../trackorder.php?id=' . $verification['id'][$i] . '" 
+                      class="small text-primary mt-1 d-inline-block">
+                      <i class="bx bx-map-pin"></i> Track Order
+                  </a>';
+        }
     } else {
         // No shipment record exists
         echo '<span class="badge bg-label-secondary">New Order</span>';
