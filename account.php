@@ -105,8 +105,19 @@ if(!empty($_SESSION['username'])){
                                     <td>
                                         <span class="status-badge" style="background-color: #c4996c; color: #fff;">
                                             <i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>
-                                            <?php echo $orderStatus; // Use $orderStatus instead of $getOrders['order_status'][$i] ?>
+                                            <?php echo $orderStatus; ?>
                                         </span>
+                                        <?php
+                                        
+                                        $awbGenerated = !empty($shipmentData[$getOrders['id'][$i]]['awb_code'][0]);
+                                        
+                                        if ($awbGenerated && strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered'): ?>
+                                            <span class="ms-3">
+                                                <?php if (strtolower($orderStatus) == 'awb generated'): ?>
+                                                    <small class="text-muted d-inline-block my-2" style="white-space: nowrap;"><i class="bi bi-info-circle text-primary"></i> Click on "Track Order" to track shipment.</small>
+                                                <?php endif; ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="action-buttons">
                                         <div class="d-flex"> <!-- Removed gap class to use manual margins -->
@@ -117,10 +128,9 @@ if(!empty($_SESSION['username'])){
                                             </a>
                                             
                                             <?php 
-                                            // Add "Processing" to the list of statuses where we don't show the track button
                                             $noTrackStatuses = ['cancelled', 'order placed', 'processing'];
+                                            $awbGenerated = !empty($shipmentData[$getOrders['id'][$i]]['awb_code'][0]);
 
-                                            // Then modify the conditional that displays the track button
                                             if (!in_array(strtolower($orderStatus), $noTrackStatuses)): ?>
                                             <a href="./trackorder?id=<?php echo $getOrders['id'][$i]; ?>" 
                                                class="btn btn-track me-3" 
@@ -129,42 +139,29 @@ if(!empty($_SESSION['username'])){
                                             </a>
                                             <?php endif; ?>
                                             
-                                            <?php 
-                                            // Show cancel button only for orders that aren't already cancelled or delivered
-                                            // Define variable here to avoid undefined variable error
-                                            $awbGenerated = false;
-                                            
-                                            if (strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered') { 
-                                                // Check if AWB number is generated
-                                                $awbGenerated = !empty($shipmentData[$getOrders['id'][$i]]['awb_code'][0]);
-                                                
-                                                if (!$awbGenerated) {
-                                                ?>
+                                            <?php if (strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered') { 
+                                                if (!$awbGenerated) { ?>
                                                     <a href="javascript:void(0);" 
                                                        onclick="cancelOrder(<?php echo $getOrders['id'][$i]; ?>)" 
                                                        class="btn btn-cancel" 
                                                        title="Cancel Order">
                                                         <i class="bi bi-x-circle me-1"></i> Cancel
                                                     </a>
-                                                <?php 
-                                                } else {
-                                                ?>
+                                                <?php } else { ?>
                                                     <span class="btn btn-secondary disabled">
                                                         <i class="bi bi-box-seam me-1"></i> Shipped
                                                     </span>
-                                                <?php
-                                                }
-                                            } 
-                                            ?>
+                                                <?php }
+                                            } ?>
                                         </div>
-                                            
-                                            <?php 
-                                            // Display message only if AWB is generated
-                                            if (isset($awbGenerated) && $awbGenerated && strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered') {
-                                                echo '<small class="text-muted mt-2" >To cancel this order, please <a href="contact.php" class="text-primary">Contact Us</a>.</small>';
-                                            }
-                                            ?>
-                                        </div>
+                                        
+                                        <?php if ($awbGenerated && strtolower($orderStatus) != 'cancelled' && strtolower($orderStatus) != 'delivered'): ?>
+                                            <div class="mt-2">
+                                                <small class="text-muted d-block">
+                                                    To cancel this order, please <a href="contact.php" class="text-primary">Contact Us</a>
+                                                </small>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
 
@@ -446,4 +443,17 @@ $(document).ready(function() {
         background: #fff;
         color: #c4996c;
     }
+.text-muted small {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.text-muted .bi-info-circle {
+    font-size: 12px;
+    margin-right: 3px;
+}
+
+.text-muted a:hover {
+    text-decoration: underline;
+}
 </style>
