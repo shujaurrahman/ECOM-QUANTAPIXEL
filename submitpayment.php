@@ -14,8 +14,8 @@ if(isset($_POST['action']) && $_POST['action'] == 'payOrder') {
         
         $razorpay_mode='test';
 
-        $razorpay_test_key='rzp_test_ODXVu0gkH5chwU'; //Your Test Key
-        $razorpay_test_secret_key='lM5wBJR65xcfaxnsLEs2zq0M'; //Your Test Secret Key
+        $razorpay_test_key='rzp_test_MaQgXZ6lfzDN9d'; //Your Test Key
+        $razorpay_test_secret_key='FhlGUBUcCD26uIJEJZUvawNO'; //Your Test Secret Key
 
         $razorpay_live_key= 'Your_Live_Key';
         $razorpay_live_secret_key='Your_Live_Secret_Key';

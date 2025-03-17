@@ -513,6 +513,14 @@ require_once('footer.php');
 <!-- <script src="../js/ckeditor.js"></script> -->
 <script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
 <script>
+
+// Add this code at the end of your script section or within your document ready function
+document.addEventListener('DOMContentLoaded', function() {
+  // Connect the plus button to add more image inputs
+  document.getElementById('addImage').addEventListener('click', function() {
+    addImageInput();
+  });
+});
 // Add this script to your existing JavaScript code in addProduct.php
 document.addEventListener('DOMContentLoaded', function() {
     const productPriceInput = document.getElementById('product_Price');
@@ -553,14 +561,18 @@ function addImageInput() {
     trashIcon.style.height = '100%';
     
     trashIcon.addEventListener('click', function () {
-        container.remove();
+      container.remove();
+    });
+
+    inputField.addEventListener('change', function() {
+      validateImageSize(this);
     });
 
     container.appendChild(inputField);
     container.appendChild(trashIcon);
     
     document.getElementById('imageInputs').appendChild(container);
-}
+  }
 
 
 // CK Editor Scripts
@@ -709,7 +721,7 @@ function toggleOptions(optionClass, checkbox) {
     });
   });
 
-  document.querySelector('input[name="aaditional_images[]"]').addEventListener('change', function() {
+ document.querySelector('input[name="aaditional_images[]"]').addEventListener('change', function() {
     validateImageSize(this);
   });
 
@@ -778,34 +790,7 @@ function toggleOptions(optionClass, checkbox) {
     }
   }
 
-  function addImageInput() {
-    const container = document.createElement('div');
-    container.className = 'd-flex mb-3';
-    
-    const inputField = document.createElement('input');
-    inputField.type = 'file';
-    inputField.name = 'aaditional_images[]';
-    inputField.className = 'form-control';
-    
-    const trashIcon = document.createElement('i');
-    trashIcon.className = 'menu-icon tf-icons bx bx-trash bg-warning text-white rounded p-2';
-    trashIcon.style.cursor = 'pointer';
-    trashIcon.style.marginLeft = '10px';
-    trashIcon.style.height = '100%';
-    
-    trashIcon.addEventListener('click', function () {
-      container.remove();
-    });
 
-    inputField.addEventListener('change', function() {
-      validateImageSize(this);
-    });
-
-    container.appendChild(inputField);
-    container.appendChild(trashIcon);
-    
-    document.getElementById('imageInputs').appendChild(container);
-  }
 
 document.querySelector('input[name="featured_image"]').addEventListener('change', function() {
     const fileInput = this;

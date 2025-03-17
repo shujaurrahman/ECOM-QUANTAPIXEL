@@ -38,7 +38,6 @@ if (!empty($_SESSION['role'])) {
                                                 <th>Meta Keywords</th>
                                                 <th>Meta Description</th>
                                                 <th>Created At</th>
-                                                <th>Status</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -57,15 +56,14 @@ if (!empty($_SESSION['role'])) {
                                                 <td><?php echo substr($verification['meta_description'][$i], 0, 50) . '...'; ?></td>
                                                 <td><?php echo $verification['created_at'][$i]; ?></td>
                                                 <td>
-                                                    <?php if($verification['status_value'][$i] == 1): ?>
-                                                        <span class="badge bg-success">Active</span>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-danger">Inactive</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <a href="edit_blog.php?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-primary">Edit</a>
-                                                    <a href="delete_blog.php?id=<?php echo $verification['id'][$i]; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this blog?')">Delete</a>
+                                                    <div class="btn-group" role="group" aria-label="Blog Actions">
+                                                        <a href="edit_blog.php?id=<?php echo $verification['id'][$i]; ?>" 
+                                                           class="btn btn-sm btn-primary me-2" 
+                                                           style="margin-right: 8px;">Edit</a>
+                                                        <a href="manage-status?delete_record_id=<?php echo $verification['id'][$i]; ?>&delete_table_name=blogs&url=blogs" 
+                                                           class="btn btn-sm btn-danger" 
+                                                           onclick="return confirm('Are you sure you want to delete this blog?')">Delete</a>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <?php
@@ -99,3 +97,13 @@ if (!empty($_SESSION['role'])) {
 <script>
     new DataTable('#example');
 </script>
+
+<style>
+/* Add additional styling for proper button spacing */
+.btn-group .btn {
+    margin-right: 5px;
+}
+.btn-group .btn:last-child {
+    margin-right: 0;
+}
+</style>

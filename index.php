@@ -22,6 +22,75 @@ endif;
 ?>
 
 <style>
+    /* Improved advertisement button styling */
+.offer-text .btn-primary,
+.offer-text .btn-outline-light,
+.carousel-caption .btn-outline-light {
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 8px 20px;
+}
+
+/* Primary button hover improvements */
+.offer-text .btn-primary:hover {
+    background-color: #fff;
+    color: #D19C97 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Light outline button hover improvements */
+.offer-text .btn-outline-light:hover,
+.carousel-caption .btn-outline-light:hover {
+    background-color: #fff;
+    color: #D19C97 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-color: #fff;
+}
+
+/* Prevent button text wrapping */
+.offer-text .btn,
+.carousel-caption .btn {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+}
+
+/* Make advertisement text more visible */
+.offer-text h3, 
+.offer-text h6 {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure smooth transitions for all advertisement elements */
+.product-offer .offer-text * {
+    transition: all 0.3s ease;
+}
+    /* Add this CSS to your existing <style> section or to your CSS file */
+.product-offer {
+    overflow: hidden;
+    position: relative;
+}
+
+/* Remove or override any existing hover zoom effects */
+.product-offer img {
+    transition: none !important;
+    transform: none !important;
+}
+
+.product-offer:hover img {
+    transform: none !important;
+    scale: 1 !important;
+}
+
+/* Ensure the container doesn't have any transform effects on hover */
+.product-offer:hover {
+    transform: none !important;
+}
 .partner-carousel .img-fluid {
     max-width: 100%;
     height: 150px;
