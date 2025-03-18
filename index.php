@@ -302,10 +302,59 @@ endif;
 
     <!-- Feature -->
 
-        <!--all  Categories Start -->
-        <div class="container-fluid pt-5">
+    <!--all  Categories Start -->
+    <div class="container-fluid pt-5 mb-3">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">All Categories</span></h2>
         <div class="row px-xl-5 pb-3">
+            <style>
+                .cat-item {
+                    height: 100px;
+                    overflow: hidden;
+                    position: relative;
+                }
+                
+                .cat-item .overflow-hidden {
+                    width: 100px;
+                    height: 100px;
+                    min-width: 100px; /* Prevents compression */
+                    flex-shrink: 0; /* Prevents compression */
+                }
+                
+                .cat-item .flex-fill {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center; /* Vertically centers the content */
+                    height: 100%;
+                }
+                
+                .cat-item img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+                
+                @media (max-width: 767px) {
+                    .cat-item {
+                        height: 80px;
+                    }
+                    
+                    .cat-item .overflow-hidden {
+                        width: 80px;
+                        height: 80px;
+                        min-width: 80px;
+                    }
+                    
+                    .cat-item .text-body {
+                        display: none; /* Hides product count on small screens */
+                    }
+                    
+                    .cat-item h6 {
+                        margin-bottom: 0; /* Removes bottom margin when product count is hidden */
+                        font-size: 14px;
+                    }
+                }
+            </style>
+            
             <?php
             for($i=0;$i<$categories['count'];$i++){
                 if($categories['statusval'][$i]==1){
@@ -315,14 +364,13 @@ endif;
                     $slug = str_replace(' ', '-', $slug);
                     $slug = preg_replace('/[^a-z0-9-]/', '', $slug);
                     $slug = trim($slug, '-');
-
                     
                     ?>
                     <div class="col-lg-3 col-md-4 col-6 pb-1">
                         <a class="text-decoration-none" href="./sub-categories?id=<?php echo $categories['id'][$i]; ?>&name=<?php echo $slug; ?>">
                             <div class="cat-item d-flex align-items-center mb-4">
-                                <div class="overflow-hidden categories-image-mobile-small" >
-                                    <img class="img-fluid" src="./panels/admin/category/<?php echo $categories['image'][$i]; ?>" alt="" style="width: 100%;height:100%">
+                                <div class="overflow-hidden">
+                                    <img class="img-fluid" src="./panels/admin/category/<?php echo $categories['image'][$i]; ?>" alt="">
                                 </div>
                                 <div class="flex-fill pl-3">
                                     <h6><?php echo $categories['name'][$i]; ?></h6>
@@ -334,10 +382,8 @@ endif;
                     <?php
                 }
             }
-
             ?>
         </div>
-        
     </div>
     <!-- Categories End -->
 
@@ -345,7 +391,7 @@ endif;
 
 
      <!-- Featured Start -->
-     <div class="container-fluid pt-5">
+     <div class="container-fluid pt-5 mb-3">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Best Selling Products</span></h2>
         <div class="row px-xl-5 pb-3">
          <div class="owl-carousel owl-theme">
@@ -412,7 +458,7 @@ endif;
 
 
 <!-- Products Faeautred Start -->
-<div class="container-fluid pt-5 pb-3">
+<div class="container-fluid pt-5 mb-3">
     <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Featured Products</span></h2>
     <div class="row px-xl-5">
     <?php

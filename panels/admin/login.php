@@ -8,7 +8,9 @@ if(!empty($_POST['username']) && !empty($_POST['password'])){
       // echo $verification['username'];
       $_SESSION['email'] = $verification['email'];
       $_SESSION['role'] = $verification['role'];
-      header('location: index');
+      $_SESSION['id'] = $verification['id'];
+      header('location: index.php');
+      exit;
   }else{
       $err = "Invalid Credentials";
   }

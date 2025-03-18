@@ -31,7 +31,7 @@ if (!empty($_SESSION['role'])) {
                                             <tr>
                                                 <th>ID</th>
                                                 <th>Image</th>
-                                                <th>Username</th>
+                  
                                                 <th>News Heading</th>
                                                 <th>News Description</th>
                                                 <th>News Link</th>
@@ -48,15 +48,18 @@ if (!empty($_SESSION['role'])) {
                                             <tr>
                                                 <td><?php echo $verification['id'][$i]; ?></td>
                                                 <td><img src="./newsimages/<?php echo $verification['featured_image'][$i]; ?>" width="100px" height="100px" alt="News Image"></td>
-                                                <td><?php echo $verification['username'][$i]; ?></td>
-                                                <td><?php echo $verification['newsheading'][$i]; ?></td>
+                    
+                                                <td><a href='<?php echo $verification['newslink'][$i]; ?>'target='_blank' ><?php echo $verification['newsheading'][$i]; ?></a></td>
                                                 <td><?php echo substr($verification['newsdesc'][$i], 0, 50) . '...'; ?></td>
-                                                <td><a href="<?php echo $verification['newslink'][$i]; ?>" target="_blank">View Link</a></td>
+                                                <td><?php echo $verification['newslink'][$i]; ?></td>
                                                 <td><?php echo $verification['meta_title'][$i]; ?></td>
                                                 <td><?php echo $verification['meta_keywords'][$i]; ?></td>
                                                 <td><?php echo $verification['created_at'][$i]; ?></td>
                                                 <td>
                                                     <div class="btn-group" role="group" aria-label="News Actions">
+                                                        <a href="edit_news.php?id=<?php echo $verification['id'][$i]; ?>" 
+                                                           class="btn btn-sm btn-primary me-2" 
+                                                           style="margin-right: 8px;">Edit</a>
                                                         <a href="manage-status?delete_record_id=<?php echo $verification['id'][$i]; ?>&delete_table_name=news&url=news" 
                                                            class="btn btn-sm btn-danger" 
                                                            onclick="return confirm('Are you sure you want to delete this news item?')">Delete</a>

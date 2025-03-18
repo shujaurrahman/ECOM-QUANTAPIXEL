@@ -308,7 +308,7 @@ checkAdminSession();
             <li class="menu-item <?php if(!empty($title) && $title=='reviews'){ echo 'active'; } ?> ">
               <a href="./addreviews.php" class="menu-link">
               <i class="menu-icon tf-icons bx bx-plus-circle"></i>
-                <div data-i18n="Analytics">Add Reviews</div>
+                <div data-i18n="Analytics">Reviews</div>
               </a>
             </li>
             <li class="menu-item <?php if(!empty($title) && $title=='product-reviews'){ echo 'active'; } ?> ">
@@ -439,12 +439,12 @@ checkAdminSession();
                     <li>
                       <div class="dropdown-divider"></div>
                     </li>
-                    <!-- <li>
-                      <a class="dropdown-item" href="./profile.php">
+                    <li>
+                      <a class="dropdown-item" href="./changePwd.php">
                         <i class="bx bx-user me-2"></i>
-                        <span class="align-middle">My Profile</span>
+                        <span class="align-middle">Change Password</span>
                       </a>
-                    </li> -->
+                    </li>
                     <li>
                       <a class="dropdown-item" href="./logout.php">
                         <i class="bx bx-power-off me-2"></i>

@@ -2555,27 +2555,125 @@ public function UpdateProduct($category_id, $subcategory_id, $product_name, $fea
 
 
 
+    public function getNewsById($id) {
+        $res = array();
+        $res['status'] = 0;
+        
+        try {
+            $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+            if ($con->connect_error) {
+                throw new Exception("Connection failed: " . $con->connect_error);
+            }
+            
+            $query = $con->prepare("SELECT * FROM news WHERE id = ?");
+            $query->bind_param('i', $id);
+            
+            if ($query->execute()) {
+                $result = $query->get_result();
+                if ($result->num_rows > 0) {
+                    $res['status'] = 1;
+                    $res['count'] = 1;
+                    
+                    $row = $result->fetch_assoc();
+                    foreach ($row as $key => $value) {
+                        // Create normal fields (not arrays) for each value
+                        $res[$key] = $value;
+                        
+                        // Special handling for status field
+                        if ($key == 'status') {
+                            $res['status_value'] = $value;
+                        }
+                    }
+                }
+            }
+            
+            $query->close();
+            $con->close();
+        } catch (Exception $e) {
+            error_log("getNewsById error: " . $e->getMessage());
+        }
+        
+        return $res;
+    }
+    
+    public function updateNews($id, $username, $newsheading, $newsdesc, $meta_title, $meta_keywords, $meta_description, $newslink, $featured_image, $slug_url, $status) {
+        $res = array();
+        $res['status'] = 0;
+        
+        try {
+            $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+            if ($con->connect_error) {
+                throw new Exception("Connection failed: " . $con->connect_error);
+            }
+            
+            // Debug information
+            $res['debug'] = array(
+                'id' => $id,
+                'username' => $username,
+                'newsheading' => $newsheading,
+                'newsdesc' => substr($newsdesc, 0, 50) . '...',
+                'meta_title' => $meta_title,
+                'meta_keywords' => $meta_keywords,
+                'meta_description' => substr($meta_description, 0, 50) . '...',
+                'newslink' => $newslink,
+                'featured_image' => $featured_image,
+                'slug_url' => $slug_url,
+                'status' => $status
+            );
+            
+            // Get current date and time
+            $updated_at = date("Y-m-d H:i:s");
+            
+            // Check if the slug column is actually 'slug' or 'slug_url'
+            // You can check your table structure and adjust this query as needed
+            $query = $con->prepare('UPDATE news SET username=?, newsheading=?, newsdesc=?, meta_title=?, meta_keywords=?, meta_description=?, newslink=?, featured_image=?, status=?, updated_at=? WHERE id=?');
+            $query->bind_param('ssssssssisi', $username, $newsheading, $newsdesc, $meta_title, $meta_keywords, $meta_description, $newslink, $featured_image, $status, $updated_at, $id);
+            
+            if ($query->execute()) {
+                // Even if no rows were changed (because data remained the same), 
+                // we still consider it a success
+                $res['status'] = 1;
+                $res['affected_rows'] = $query->affected_rows;
+            } else {
+                $res['error'] = $query->error;
+            }
+            
+            $query->close();
+            $con->close();
+        } catch (Exception $e) {
+            $res['error'] = $e->getMessage();
+            error_log("updateNews error: " . $e->getMessage());
+        }
+        
+        return $res;
+    }
 
     // Admin Login 
-    public function AdminLogin($username,$password){
+    public function AdminLogin($username, $password) {
         $res = array();
-        $res['status']=0;
+        $res['status'] = 0;
         $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-        $query = $con->prepare('SELECT email,role FROM admin WHERE email=? AND password=?');
-        $query ->bind_param('ss',$username,$password);
-        if($query ->execute()){
-            $query ->bind_result($email,$role);
-            while($query ->fetch()){
-                $res['status']=1;
-                $res['email']=$email;
-                $res['role']=$role;
+        
+        // Updated query to also select the id field
+        $query = $con->prepare('SELECT id, email, role FROM admin WHERE email=? AND password=?');
+        $query->bind_param('ss', $username, $password);
+        
+        if($query->execute()) {
+            // Bind the id field as well
+            $query->bind_result($id, $email, $role);
+            
+            while($query->fetch()) {
+                $res['status'] = 1;
+                $res['id'] = $id;  // Store the user ID in the result
+                $res['email'] = $email;
+                $res['role'] = $role;
             }
-        }else{
+        } else {
             $err = "Statement not Executed";
         }
-
-        $query -> close();
-        $con -> close();
+    
+        $query->close();
+        $con->close();
         return $res;
     }
 
@@ -2662,21 +2760,64 @@ public function UpdateProduct($category_id, $subcategory_id, $product_name, $fea
 
     }
 
-    //Change Password
-    public function changepwd($id,$password){
-        $res = array();
-        $res['status']=0;
-        $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
-        $query = $con->prepare('UPDATE register set password=? where id=?');
-        $query ->bind_param('ss',$password,$id);
-        if($query ->execute()){
-                $res['status']=1;
-        }else{
-            $err = "Statement not Executed";
+    // Use mysqli consistently for getUserById method
+    public function getUserById($id) {
+        $res = false;
+        try {
+            $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+            if ($con->connect_error) {
+                throw new Exception("Connection failed: " . $con->connect_error);
+            }
+            
+            $query = $con->prepare("SELECT * FROM admin WHERE id = ?");
+            $query->bind_param('i', $id);
+            
+            if ($query->execute()) {
+                $result = $query->get_result();
+                if ($result->num_rows > 0) {
+                    $res = $result->fetch_assoc();
+                }
+            }
+            
+            $query->close();
+            $con->close();
+        } catch (Exception $e) {
+            error_log("getUserById error: " . $e->getMessage());
         }
-
-        $query -> close();
-        $con -> close();
+        return $res;
+    }
+    
+    // Change password function with improved validation and feedback
+    public function changepwd($id, $password) {
+        $res = array();
+        $res['status'] = 0;
+        
+        try {
+            $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+            if ($con->connect_error) {
+                throw new Exception("Connection failed: " . $con->connect_error);
+            }
+            
+            $query = $con->prepare('UPDATE `admin` SET password=? WHERE id=?');
+            $query->bind_param('si', $password, $id);
+            
+            if ($query->execute()) {
+                if ($query->affected_rows > 0) {
+                    $res['status'] = 1;
+                    $res['message'] = "Password updated successfully";
+                } else {
+                    $res['message'] = "No changes were made";
+                }
+            } else {
+                $res['message'] = "Statement not executed: " . $query->error;
+            }
+            
+            $query->close();
+            $con->close();
+        } catch (Exception $e) {
+            $res['message'] = "Error: " . $e->getMessage();
+        }
+        
         return $res;
     }
 

@@ -22,7 +22,7 @@ if(!empty($_SESSION['user_id'])){
 
 <head>
     <meta charset="utf-8">
-    <title>ZXQS Jewelley</title>
+    <title>Shop ZXQS </title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="ZXQS Jewelley" name="keywords">
     <meta content="ZXQS Jewelley" name="description">

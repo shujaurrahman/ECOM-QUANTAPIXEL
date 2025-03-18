@@ -49,7 +49,14 @@ if (!empty($_SESSION['role'])) {
                                                 <td><?php echo $verification['id'][$i]; ?></td>
                                                 <td><img src="./Blogimages/<?php echo $verification['featured_image'][$i]; ?>" width="100px" height="100px" alt="Blog Image"></td>
                                                 <td><?php echo $verification['username'][$i]; ?></td>
-                                                <td><?php echo $verification['blog_heading'][$i]; ?></td>
+                                                <td>
+                                                    <a href="../../blog-detail.php?slug=<?php echo $verification['slug_url'][$i]; ?>" 
+                                                       target="_blank" 
+                                                       class="text-primary text-decoration-underline"
+                                                       title="View Blog">
+                                                        <?php echo $verification['blog_heading'][$i]; ?>
+                                                    </a>
+                                                </td>
                                                 <td><?php echo substr($verification['blog_desc'][$i], 0, 50) . '...'; ?></td>
                                                 <td><?php echo $verification['meta_title'][$i]; ?></td>
                                                 <td><?php echo $verification['meta_keywords'][$i]; ?></td>
@@ -105,5 +112,15 @@ if (!empty($_SESSION['role'])) {
 }
 .btn-group .btn:last-child {
     margin-right: 0;
+}
+
+/* Add styling for blog heading links */
+.text-decoration-underline {
+    text-decoration: underline !important;
+}
+
+.text-decoration-underline:hover {
+    text-decoration: none !important;
+    font-weight: bold;
 }
 </style>
