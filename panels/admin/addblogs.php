@@ -26,7 +26,18 @@ if(!empty($_POST['username']) && !empty($_POST['blog_heading']) && !empty($_POST
         $featured_imagePhoto = $featured_imageName;
       }
 
+    // Create a slug from the blog heading
     $slug = strtolower($_POST['blog_heading']);
+    // Remove any special characters except alphanumeric and hyphens
+    $slug = preg_replace('/[^a-z0-9-]/', '-', $slug);
+    // Replace multiple hyphens with a single hyphen
+    $slug = preg_replace('/-+/', '-', $slug);
+    // Trim hyphens from the beginning and end
+    $slug = trim($slug, '-');
+    // Add a unique identifier (timestamp and random string)
+    $randomString = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz'), 0, 5);
+    $timestamp = date('YmdHis');
+    $slug = $slug . '-' . $timestamp . '-' . $randomString;
     $slug_url = str_replace(' ','-',$slug);
     $verification = $adminObj->AddBlogs($_POST['username'], $_POST['blog_heading'], $_POST['blog_desc'], $_POST['meta_title'], $_POST['meta_keywords'], $_POST['meta_description'], $_POST['description'], $featured_imagePhoto, $slug_url);
     if(!empty($verification['status']) && $verification['status']==1){

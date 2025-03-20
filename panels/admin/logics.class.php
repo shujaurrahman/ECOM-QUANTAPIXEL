@@ -2291,7 +2291,49 @@ public function UpdateProduct($category_id, $subcategory_id, $product_name, $fea
         return $res;
     }
 
-    public function AddAdvertisement($category_name, $image, $description,$url, $location) {
+    // public function AddAdvertisement($category_name, $image, $description,$url, $location) {
+    //     $res = array();
+    //     $res['status'] = 0;
+    
+    //     // Establish database connection
+    //     $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+        
+    //     // Check connection
+    //     if ($con->connect_error) {
+    //         die("Connection failed: " . $con->connect_error);
+    //     }
+        
+    //     // Begin transaction
+    //     $con->begin_transaction();
+    
+    //     try {
+    //         // Insert into users table
+    //         $query = $con->prepare('INSERT INTO advertisements ( name, image, description, url, location) VALUES (?, ?, ?, ?, ?)');
+    //         $query->bind_param('sssss', $category_name, $image, $description,$url, $location);
+            
+    //         if ($query->execute()) {
+                
+    //                 // Commit transaction
+    //                 $con->commit();
+    //                 $res['status'] = 1;
+    //         } else {
+    //             // Rollback transaction if users insertion fails
+    //             $con->rollback();
+    //             $err = 'advertisements statement not executed';
+    //             $res['error'] = $err;
+    //         }
+    //     } catch (Exception $e) {
+    //         // Rollback transaction in case of error
+    //         $con->rollback();
+    //         $res['error'] = $e->getMessage();
+    //     }
+    
+    //     // Close the connection
+    //     $con->close();
+    
+    //     return $res;
+    // }
+    public function AddAdvertisement($category_name, $image, $description, $url, $location) {
         $res = array();
         $res['status'] = 0;
     
@@ -2307,21 +2349,31 @@ public function UpdateProduct($category_id, $subcategory_id, $product_name, $fea
         $con->begin_transaction();
     
         try {
-            // Insert into users table
-            $query = $con->prepare('INSERT INTO advertisements ( name, image, description, url, location) VALUES (?, ?, ?, ?, ?)');
-            $query->bind_param('sssss', $category_name, $image, $description,$url, $location);
+            // For locations 1-4 (fixed positions), check if an ad already exists
+            if ($location != "0") {
+                // First deactivate any existing ad in this location
+                $updateQuery = $con->prepare('UPDATE advertisements SET status = 2 WHERE location = ? AND status = 1');
+                $updateQuery->bind_param('s', $location);
+                $updateQuery->execute();
+                $updateQuery->close();
+            }
+    
+            // Insert new advertisement
+            $query = $con->prepare('INSERT INTO advertisements (name, image, description, url, location) VALUES (?, ?, ?, ?, ?)');
+            $query->bind_param('sssss', $category_name, $image, $description, $url, $location);
             
             if ($query->execute()) {
-                
-                    // Commit transaction
-                    $con->commit();
-                    $res['status'] = 1;
+                // Commit transaction
+                $con->commit();
+                $res['status'] = 1;
             } else {
-                // Rollback transaction if users insertion fails
+                // Rollback transaction if insertion fails
                 $con->rollback();
-                $err = 'advertisements statement not executed';
-                $res['error'] = $err;
+                $res['error'] = 'Advertisement insertion failed';
             }
+            
+            $query->close();
+            
         } catch (Exception $e) {
             // Rollback transaction in case of error
             $con->rollback();
@@ -2331,6 +2383,33 @@ public function UpdateProduct($category_id, $subcategory_id, $product_name, $fea
         // Close the connection
         $con->close();
     
+        return $res;
+    }
+
+    public function getActiveAdByLocation($location) {
+        $res = array();
+        $res['status'] = 0;
+        
+        $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+        
+        if ($con->connect_error) {
+            die("Connection failed: " . $con->connect_error);
+        }
+        
+        $query = $con->prepare("SELECT * FROM advertisements WHERE location = ? AND status = 1");
+        $query->bind_param('s', $location);
+        
+        if ($query->execute()) {
+            $result = $query->get_result();
+            if ($result->num_rows > 0) {
+                $res['status'] = 1;
+                $res['data'] = $result->fetch_assoc();
+            }
+        }
+        
+        $query->close();
+        $con->close();
+        
         return $res;
     }
 

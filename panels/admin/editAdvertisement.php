@@ -117,7 +117,7 @@ if(!empty($_GET['id'])){
 
                   <label for="url">Advertisement URL<sup class="text-danger">*</sup></label>
                   <input type="text" name="url" placeholder="url"  class="form-control mb-3"  id="image" value="<?php echo $editCategory['url'][$i] ?>">
-
+<!-- 
                   <label for="url">Select Advertisement Location<sup class="text-danger">*</sup></label>
                   <select name="location" id="location" class="form-control" required>
                     <option value="">-Select Location-</option>
@@ -125,7 +125,7 @@ if(!empty($_GET['id'])){
                     <option value="2" <?php echo $editCategory['location'][$i] ==2 ? "selected" : "" ?>>Top2</option>
                     <option value="3" <?php echo $editCategory['location'][$i] ==3 ? "selected" : "" ?>>Middle1</option>
                     <option value="4" <?php echo $editCategory['location'][$i] ==4 ? "selected" : "" ?>>Middle2</option>
-                  </select>
+                  </select> -->
 
 
                   <?php

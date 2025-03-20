@@ -70,7 +70,8 @@ if (!empty($_SESSION['role'])) {
                                                 
                                                 <td><?php echo $verification['category_name'][$i]; ?></td>
                                                 <td><?php echo $verification['subcategory_name'][$i]; ?></td>
-                                                <td><?php echo $verification['product_name'][$i]; ?>(<?php echo $verification['ornament_type'][$i]; ?>)</td>
+                
+                                                <td><a target="_" href="../../product-view?slug=<?php echo $verification['slug'][$i]; ?>"><?php echo $verification['product_name'][$i]; ?>(<?php echo $verification['ornament_type'][$i]; ?>)</a></td>
                                                 
                                                 <td><?php echo $verification['product_price'][$i]; ?></td>
                                                 <td><?php echo $verification['discounted_price'][$i]; ?>(<?php echo $verification['discount_percentage'][$i]; ?>%OFF)</td>

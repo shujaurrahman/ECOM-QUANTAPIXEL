@@ -91,15 +91,16 @@ if(!empty($_POST['category_name']) && !empty($_FILES['featured_image']) &&  !emp
               <label for="url">Select Advertisement Location<sup class="text-danger">*</sup></label>
               <select name="location" id="location" class="form-control" required>
                 <option value="">-Select Location-</option>
-                <option value="1">Top1</option>
-                <option value="2">Top2</option>
-                <option value="3">Middle1</option>
-                <option value="4">Middle2</option>
+                <option value="0">Hero Caraosul</option>
+                <option value="1">Hero Top 1 </option>
+                <option value="2">Hero Top 2</option>
+                <option value="3">Bottom 1</option>
+                <option value="4">Bottom 2</option>
               </select>
 
               <br>
               <input type="submit" name="submit" value="Add Advertisement" class="btn btn-primary" id="">
-              
+                        <a href="getAdvertisements" class="btn btn-danger">Cancel</a>
 
           </div>
         </div>
