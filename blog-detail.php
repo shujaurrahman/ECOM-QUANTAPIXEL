@@ -29,7 +29,7 @@ if(empty($blog) || empty($blog['status']) || $blog['status'] != 1) {
             <div class="mb-4">
                 <h1 class="mb-4"><?php echo htmlspecialchars($blog['blog_heading'][0]); ?></h1>
                 <div class="mb-3">
-                    <span class="mr-3"><i class="far fa-user text-primary"></i> <?php echo htmlspecialchars($blog['username'][0]); ?></span>
+                    <!-- <span class="mr-3"><i class="far fa-user text-primary"></i> <?php echo htmlspecialchars($blog['username'][0]); ?></span> -->
                     <span><i class="far fa-calendar-alt text-primary"></i> <?php echo date('d M Y', strtotime($blog['created_at'][0])); ?></span>
                 </div>
                 <img class="img-fluid w-100 rounded mb-4" src="./panels/admin/Blogimages/<?php echo $blog['featured_image'][0]; ?>" alt="<?php echo htmlspecialchars($blog['blog_heading'][0]); ?>">

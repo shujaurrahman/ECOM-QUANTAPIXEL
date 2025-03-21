@@ -193,80 +193,108 @@ endif;
     </div>
 
 
-    <!-- Carousel Start ads 1  -->
-    <div class="container-fluid mb-3">
-        <div class="row px-xl-5">
-            <div class="col-lg-8">
-                <div id="header-carousel" class="carousel slide carousel-fade mb-30 mb-lg-0" data-ride="carousel">
+<!-- Carousel Start -->
+<div class="container-fluid mb-3">
+    <div class="row px-xl-5">
+        <!-- Carousel Column -->
+        <div class="col-lg-8">
+            <?php
+            // Count carousel ads (location=0) correctly
+            $carouselCount = 0;
+            for ($i = 0; $i < $advertisements['count']; $i++) {
+                if ($advertisements['location'][$i] == '0' && $advertisements['statusval'][$i] == 1) {
+                    $carouselCount++;
+                }
+            }
+            
+            if ($carouselCount > 0): // Only show carousel if we have ads
+            ?>
+            <div id="header-carousel" class="carousel slide carousel-fade mb-30 mb-lg-0" data-ride="carousel">
+                <!-- Carousel Indicators -->
+                <ol class="carousel-indicators">
+                    <?php 
+                    $indicatorIndex = 0;
+                    for ($i = 0; $i < $advertisements['count']; $i++):
+                        if ($advertisements['location'][$i] == '0' && $advertisements['statusval'][$i] == 1):
+                    ?>
+                        <li data-target="#header-carousel" 
+                            data-slide-to="<?php echo $indicatorIndex; ?>" 
+                            <?php echo $indicatorIndex === 0 ? 'class="active"' : ''; ?>></li>
+                    <?php
+                            $indicatorIndex++;
+                        endif;
+                    endfor; 
+                    ?>
+                </ol>
 
-                    <ol class="carousel-indicators">
-                        <?php for ($i = 0; $i < $advertisements['count']; $i++):
-                            if($advertisements['statusval'][$i]==1 && $advertisements['location'][$i]==0){
-                            ?>
-                            <li data-target="#header-carousel" data-slide-to="<?php echo $i; ?>" <?php echo $i === 0 ? 'class="active"' : ''; ?>></li>
-
-                            <?php 
-                            }
-                        endfor; ?>
-                    </ol>
-
-                    <div class="carousel-inner">
-                        <?php for ($i = 0; $i < $advertisements['count']; $i++): 
-                            if($advertisements['statusval'][$i]==1 && $advertisements['location'][$i]==0){
-                            
-                            // Get advertisement details
-                            $adName = htmlspecialchars($advertisements['name'][$i]);
-                            $adImage = htmlspecialchars($advertisements['image'][$i]); // Assuming image URLs are in the 'image' field
-                            $adDescription = htmlspecialchars($advertisements['description'][$i]);
-                            $adUrl = htmlspecialchars($advertisements['url'][$i]);
-                            
-                            ?>
-
-                            <div class="carousel-item position-relative <?php echo $i === 0 ? 'active' : ''; ?>" style="height: 430px;">
-                                <img class="position-absolute w-100 h-100" src="./panels/admin/advertisements/<?php echo $adImage; ?>" style="width:100%">
-                                <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                                    <div class="p-3" style="max-width: 700px;">
-                                        <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown"><?php echo $adName; ?></h1>
-                                        <p class="mx-md-5 px-5 animate__animated animate__bounceIn"><?php echo $adDescription; ?></p>
-                                        <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="<?php echo $adUrl; ?>">Shop Now</a>
-                                    </div>
+                <!-- Carousel Items -->
+                <div class="carousel-inner">
+                    <?php 
+                    $itemIndex = 0;
+                    for ($i = 0; $i < $advertisements['count']; $i++): 
+                        if ($advertisements['location'][$i] == '0' && $advertisements['statusval'][$i] == 1):
+                    ?>
+                        <div class="carousel-item <?php echo $itemIndex === 0 ? 'active' : ''; ?>" 
+                             style="height: 430px;">
+                            <img class="position-absolute w-100 h-100" 
+                                 src="./panels/admin/advertisements/<?php echo htmlspecialchars($advertisements['image'][$i]); ?>" 
+                                 style="object-fit: cover;"
+                                 alt="<?php echo htmlspecialchars($advertisements['name'][$i]); ?>">
+                            <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                                <div class="p-3" style="max-width: 700px;">
+                                    <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown">
+                                        <?php echo htmlspecialchars($advertisements['name'][$i]); ?>
+                                    </h1>
+                                    <p class="mx-md-5 px-5 animate__animated animate__bounceIn">
+                                        <?php echo htmlspecialchars($advertisements['description'][$i]); ?>
+                                    </p>
+                                    <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" 
+                                       href="<?php echo htmlspecialchars($advertisements['url'][$i]); ?>">
+                                       Shop Now
+                                    </a>
                                 </div>
                             </div>
-                            <?php 
-                            }
-                            endfor; ?>
-                    </div>
-
+                        </div>
+                    <?php
+                            $itemIndex++;
+                        endif;
+                    endfor; 
+                    ?>
                 </div>
             </div>
+            <?php endif; ?>
+        </div>
 
-            <div class="col-lg-4">
-
-                    <?php 
-                        for ($i = 0; $i < $advertisements['count']; $i++){
-                            if($advertisements['statusval'][$i]==1){
-                                if($advertisements['location'][$i]==1 || $advertisements['location'][$i]==2){
-                                    ?>
-                                    <div class="product-offer mb-30" style="height: 200px;">
-                                        <img class="img-fluid" src="./panels/admin/advertisements/<?php echo $advertisements['image'][$i] ?>" alt="">
-                                        <div class="offer-text">
-                                            <h6 class="text-white text-uppercase"><?php echo $advertisements['description'][$i] ?></h6>
-                                            <h3 class="text-white mb-3 text-center"><?php echo $advertisements['name'][$i] ?></h3>
-                                            <a href="<?php echo $advertisements['url'][$i] ?>" class="btn btn-primary text-light">Shop Now</a>
-                                        </div>
-                                    </div>
-
-                                    <?php
-
-                                }
-                            }
-                        }
-                            
-                            ?>
-            </div>
+        <!-- Right Side Ads -->
+        <div class="col-lg-4">
+            <?php 
+            for ($i = 0; $i < $advertisements['count']; $i++):
+                if ($advertisements['statusval'][$i] == 1 && 
+                    ($advertisements['location'][$i] == 1 || $advertisements['location'][$i] == 2)):
+            ?>
+                <div class="product-offer mb-30" style="height: 200px;">
+                    <img class="img-fluid" 
+                         src="./panels/admin/advertisements/<?php echo htmlspecialchars($advertisements['image'][$i]); ?>" 
+                         alt="<?php echo htmlspecialchars($advertisements['name'][$i]); ?>">
+                    <div class="offer-text">
+                        <h6 class="text-white text-uppercase">
+                            <?php echo htmlspecialchars($advertisements['description'][$i]); ?>
+                        </h6>
+                        <h3 class="text-white mb-3">
+                            <?php echo htmlspecialchars($advertisements['name'][$i]); ?>
+                        </h3>
+                        <a href="<?php echo htmlspecialchars($advertisements['url'][$i]); ?>" 
+                           class="btn btn-primary">Shop Now</a>
+                    </div>
+                </div>
+            <?php
+                endif;
+            endfor;
+            ?>
         </div>
     </div>
-    <!-- Carousel End -->
+</div>
+<!-- Carousel End -->
 
 
     <!--static list  Feature -->
@@ -287,7 +315,7 @@ endif;
             <div class="col-lg-3 col-md-6 col-6 pb-1">
                 <div class="d-flex align-items-center bg-light mb-4" style="padding: 30px;">
                     <h1 class="fas fa-exchange-alt text-primary m-0 mr-3"></h1>
-                    <h5 class="font-weight-semi-bold m-0">Easy Returns</h5>
+                    <h5 class="font-weight-semi-bold m-0">Easy Replacements</h5>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 col-6 pb-1">
@@ -370,11 +398,11 @@ endif;
                         <a class="text-decoration-none" href="./sub-categories?id=<?php echo $categories['id'][$i]; ?>&name=<?php echo $slug; ?>">
                             <div class="cat-item d-flex align-items-center mb-4">
                                 <div class="overflow-hidden">
-                                    <img class="img-fluid" src="./panels/admin/category/<?php echo $categories['image'][$i]; ?>" alt="">
+                                    <img class="img-fluid" src="./panels/admin/category/<?php echo $categories['image'][$i]; ?>" alt="" style="transition: none; transform: none;">
                                 </div>
                                 <div class="flex-fill pl-3">
                                     <h6><?php echo $categories['name'][$i]; ?></h6>
-                                    <small class="text-body"><?php echo $categories['product_count'][$i]; ?> Products</small>
+                                    <!-- <small class="text-body"><?php echo $categories['product_count'][$i]; ?> Products</small> -->
                                 </div>
                             </div>
                         </a>
