@@ -25,7 +25,7 @@ session_start();
                 });';
             echo '</script>';
         }elseif($verification['status']==3){
-            echo "Failed";
+          echo "Failed";
           echo '<script src="panels/js/sweetalert.js"></script>';
           echo '<script>';
           echo 'Swal.fire({
@@ -87,7 +87,7 @@ session_start();
       if(!empty($verification['status']) && $verification['status']==1){
         $_SESSION['user_id']= $verification['user_id'];
         $_SESSION['username']= $verification['name'];
-        // echo "Success";
+        echo "Success";
           echo '<script src="panels/js/sweetalert.js"></script>';
           echo '<script>';
           echo 'Swal.fire({
@@ -265,7 +265,7 @@ session_start();
       
       if(!empty($verification['status']) && $verification['status']==1){
             
-        // echo "Success";
+        echo "Success";
 
       }else{
         echo "failed";
@@ -282,7 +282,7 @@ session_start();
       
       if(!empty($verification['status']) && $verification['status']==1){
             
-        // echo "Success";
+        echo "Success";
 
       }else{
         echo "failed";
@@ -299,7 +299,7 @@ session_start();
       
       if(!empty($verification['status']) && $verification['status']==1){
             
-        // echo "Success";
+        echo "Success";
 
       }else{
         echo "failed";
@@ -402,7 +402,7 @@ if(!empty($_POST['user_id']) &&  !empty($_FILES['customization_image']) && !empt
     if(!empty($verification['status'])){
       if($verification['status']==1){
           
-        // echo "Success";
+        echo "Success";
         echo '<script src="panels/js/sweetalert.js"></script>';
         echo '<script>';
         echo 'Swal.fire({
@@ -418,7 +418,7 @@ if(!empty($_POST['user_id']) &&  !empty($_FILES['customization_image']) && !empt
         echo '</script>';
 
       }elseif($verification['status']==2){
-          // echo "Success";
+          echo "Success";
           echo '<script src="panels/js/sweetalert.js"></script>';
           echo '<script>';
           echo 'Swal.fire({
@@ -471,7 +471,7 @@ if(!empty($_POST['product_id']) && !empty($_POST['rating']) &&  !empty($_POST['r
     if(!empty($verification['status'])){
       if($verification['status']==1){
           
-        // echo "Success";
+        echo "Success";
         echo '<script src="panels/js/sweetalert.js"></script>';
         echo '<script>';
         echo 'Swal.fire({
@@ -487,7 +487,7 @@ if(!empty($_POST['product_id']) && !empty($_POST['rating']) &&  !empty($_POST['r
         echo '</script>';
 
       }elseif($verification['status']==2){
-          // echo "Success";
+          echo "Success";
           echo '<script src="panels/js/sweetalert.js"></script>';
           echo '<script>';
           echo 'Swal.fire({

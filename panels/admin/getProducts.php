@@ -74,7 +74,7 @@ if (!empty($_SESSION['role'])) {
                                                 <td><a target="_" href="../../product-view?slug=<?php echo $verification['slug'][$i]; ?>"><?php echo $verification['product_name'][$i]; ?>(<?php echo $verification['ornament_type'][$i]; ?>)</a></td>
                                                 
                                                 <td><?php echo $verification['product_price'][$i]; ?></td>
-                                                <td><?php echo $verification['discounted_price'][$i]; ?>(<?php echo $verification['discount_percentage'][$i]; ?>%OFF)</td>
+                                                <td><?php echo round($verification['discounted_price'][$i]); ?>(<?php echo round($verification['discount_percentage'][$i]); ?>%OFF)</td>
                                                 <td><?php echo $verification['created_at'][$i]; ?></td>
                                                 <td>
                                                     <a href="manage-status?update_record_id=<?php echo $verification['id'][$i]; ?>&update_table_name=products&statusval=<?php if($verification['statusval'][$i]==1){ echo "2"; }else{ echo "1"; } ?>&url=getProducts" onclick="return confirm('Are you sure to Update?')" class="btn btn-sm btn-outline-<?php if($verification['statusval'][$i]==1){ echo "success"; }else{ echo "danger"; } ?> rounded-pill"> <?php if($verification['statusval'][$i]==1){ echo "Active"; }else{ echo "InActive"; } ?></a>

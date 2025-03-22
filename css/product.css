@@ -338,21 +338,38 @@
     cursor: zoom-in;
     display: none;
 }
-
+/* Increase the size of the zoom result modal */
 .zoom-result {
     position: absolute;
+    right: -800px;  /* Increased offset to accommodate larger width */
     top: 0;
-    left: 105%;
-    width: 300px;
-    height: 300px;
-    border: 2px solid #d4d4d4;
+    width: 800px;   /* Increased width */
+    height: 500px;  /* Increased height */
+    border: 1px solid #d4d4d4;
     background-repeat: no-repeat;
-    background-color: #fff;
     display: none;
-    z-index: 1005;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    pointer-events: none; /* Prevent interference with mouse events */
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1600px) {
+    .zoom-result {
+        width: 800px;
+        height: 480px;
+        right: -820px;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .zoom-result {
+        width: 500px;
+        height: 480px;
+        right: -500px;
+        border-radius: 10px;
+    }
 }
 
 /* Make sure carousel items don't hide zoom result */
@@ -497,5 +514,57 @@
 @media (max-width: 768px) {
     .product-video-wrapper {
         padding: 10px;
+    }
+}
+
+/* Base zoom result styling */
+.zoom-result {
+    position: absolute;
+    right: -800px;
+    top: 0;
+    width: 800px;
+    height: 800px;
+    border: 1px solid #d4d4d4;
+    background-repeat: no-repeat;
+    display: none;
+    z-index: 1000;
+    background-color: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    border-radius: 10px;
+}
+
+/* Large screens (laptops/desktops) */
+@media (min-width: 1601px) {
+    .zoom-result {
+        width: 800px;
+        height: 500px;
+        right: -820px;
+    }
+}
+
+/* Medium-large screens */
+@media (max-width: 1600px) and (min-width: 1201px) {
+    .zoom-result {
+        width: 800px;
+        height: 500px;
+        right: -820px;
+    }
+}
+
+/* Hide zoom functionality on smaller screens */
+@media (max-width: 1200px) {
+    .zoom-result,
+    .zoom-lens {
+        display: none !important;
+    }
+    
+    .zoom-container {
+        cursor: default !important;
+    }
+    
+    /* Prevent hover effects on mobile */
+    .zoom-container:hover .zoom-result,
+    .zoom-container:hover .zoom-lens {
+        display: none !important;
     }
 }

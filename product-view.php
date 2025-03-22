@@ -7,6 +7,10 @@ $slug = str_replace('-', ' ', $slug);
 $slug = ucwords($slug);
 ?>
 <link rel="stylesheet" href="css/product.css">
+<!-- Add this in the header or before closing body tag -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <?php
     for ($i = 0; $i < $products['count']; $i++) {
         if ($products['statusval'][$i] == 1 && $products['slug'][$i] == $_GET['slug']) {
@@ -151,7 +155,158 @@ $slug = ucwords($slug);
 
         <div class="col-lg-7 h-auto mb-30 product-details-column">
             <div class="h-100 bg-light p-30">
-                <h3><?php echo $products['product_name'][$i] ?></h3>
+                <div class="d-flex align-items-center mb-3">
+                    <h3 class="mr-3 mb-0"><?php echo $products['product_name'][$i] ?></h3>
+                    <?php if (!empty($products['size_chart'][$i])): ?>
+                        <button type="button" 
+                                class="btn btn-sm btn-primary size-chart-btn" 
+                                onclick="openSizeChart('<?php echo $i; ?>')">
+                            Size
+                        </button>
+                    <?php endif; ?>
+                </div>
+
+
+<?php if (!empty($products['size_chart'][$i])): ?>
+<div class="modal fade" id="sizeChartModal_<?php echo $i; ?>" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Size Chart</h5>
+                <button type="button" class="close" onclick="closeSizeChart('<?php echo $i; ?>')" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="./panels/admin/product/<?php echo $products['size_chart'][$i] ?>" 
+                     class="img-fluid" 
+                     alt="Size Chart">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this JavaScript right after the modal -->
+<script>
+function openSizeChart(id) {
+    $('#sizeChartModal_' + id).modal('show');
+}
+
+function closeSizeChart(id) {
+    $('#sizeChartModal_' + id).modal('hide');
+}
+
+// Ensure modal is properly initialized
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap modal
+    $('.modal').each(function() {
+        new bootstrap.Modal(this);
+    });
+    
+    // Additional initialization for older Bootstrap versions
+    if (typeof $().modal == 'function') {
+        $('.modal').modal({
+            show: false
+        });
+    }
+});
+</script>
+
+<!-- Update CSS -->
+<style>
+.size-chart-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    margin-left: 10px;
+}
+
+.size-chart-btn:hover {
+    background-color: #c4996c;
+    border-color: #c4996c;
+    color: white;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 90%;
+}
+
+@media (min-width: 992px) {
+    .modal-dialog {
+        max-width: 800px;
+    }
+}
+
+.modal-content {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    padding: 1rem 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-body img {
+    max-width: 100%;
+    height: auto;
+}
+</style>
+<?php endif; ?>
+
+<!-- Add this CSS -->
+<style>
+.size-chart-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.size-chart-btn:hover {
+    background-color: #c4996c;
+    border-color: #c4996c; 
+    color: white;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 8px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Make modal larger on bigger screens */
+@media (min-width: 992px) {
+    .modal-lg {
+        max-width: 900px;
+    }
+}
+</style>
+
+
+        
                     <div class="d-flex mb-3">
                         <div class="text-primary mr-2">
                             <?php
@@ -176,67 +331,153 @@ $slug = ucwords($slug);
     
                     <p class="mb-4"><?php echo $products['short_description'][$i] ?></p>
 
-<?php
-$productVariations = $Obj->getProductVariations($products['id'][$i]);
-// $productVariations = $Obj->getProductVariations(1);
-
-// Group variations by attribute type (e.g., size, color)
-$groupedVariations = [];
-for ($j = 0; $j < $productVariations['count']; $j++) {
-    $attribute = $productVariations['attribute_name'][$j];
-    $variation = $productVariations['variation_name'][$j];
-    $isSamePrice = $productVariations['is_same_price'][$j];
-    $price = $isSamePrice ? $products['discounted_price'][$i] : $productVariations['ornament_weight'][$j];
-
-    $groupedVariations[$attribute][] = [
-        'name' => $variation,
-        'price' => $price,
-    ];
-}
-?>
-
-<?php foreach ($groupedVariations as $attribute => $variations): ?>
-    <div class="d-flex mb-3">
-        <strong class="text-dark mr-3"><?php echo ucfirst($attribute); ?>:</strong>
-        <form>
-            <?php foreach ($variations as $index => $variation): ?>
-                <div class="custom-control custom-radio custom-control-inline">
-                    <input 
-                        type="radio" 
-                        class="custom-control-input variation-option" 
-                        id="<?php echo strtolower($attribute) . '-' . $index; ?>" 
-                        name="<?php echo strtolower($attribute); ?>" 
-                        data-price="<?php echo $variation['price']; ?>" 
-                        data-attribute="<?php echo strtolower($attribute); ?>" 
-                        data-variation="<?php echo $variation['name']; ?>">
-                    <label class="custom-control-label" for="<?php echo strtolower($attribute) . '-' . $index; ?>">
-                        <?php echo $variation['name']; ?>
-                    </label>
+<div class="variations-wrapper mb-3">
+    <?php
+    $productVariations = $Obj->getProductVariations($products['id'][$i]);
+    if ($productVariations && $productVariations['count'] > 0):
+        $groupedVariations = [];
+        for ($j = 0; $j < $productVariations['count']; $j++) {
+            $attribute = $productVariations['attribute_name'][$j];
+            if (!isset($groupedVariations[$attribute])) {
+                $groupedVariations[$attribute] = [];
+            }
+            $groupedVariations[$attribute][] = [
+                'name' => $productVariations['variation_name'][$j]
+            ];
+        }
+        foreach ($groupedVariations as $attribute => $variations): ?>
+            <div class="variation-group d-flex align-items-center">
+                <span class="variation-label"><?php echo ucfirst($attribute); ?>:</span>
+                <div class="variation-pills">
+                    <?php foreach ($variations as $index => $variation): ?>
+                        <label class="variation-pill">
+                            <input type="radio" 
+                                   name="variation_<?php echo strtolower($attribute); ?>" 
+                                   value="<?php echo $variation['name']; ?>"
+                                   <?php echo $index === 0 ? 'checked' : ''; ?>>
+                            <span class="pill-content"><?php echo $variation['name']; ?></span>
+                        </label>
+                    <?php endforeach; ?>
                 </div>
-            <?php endforeach; ?>
-        </form>
-    </div>
-<?php endforeach; ?>
+            </div>
+        <?php endforeach;
+    endif; ?>
+</div>
 
+<style>
+.variations-wrapper {
+    margin: 0.5rem 0;
+    padding: 0.5rem 0;
+}
+
+.variation-group {
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.variation-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-right: 1rem;
+    white-space: nowrap;
+}
+
+.variation-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.variation-pill {
+    margin: 0;
+    cursor: pointer;
+}
+
+.variation-pill input {
+    display: none;
+}
+
+.pill-content {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    background: white;
+    color: #666;
+}
+
+.variation-pill input:checked + .pill-content {
+    background-color: #c4996c;
+    color: white;
+    border-color: #c4996c;
+    box-shadow: 0 2px 4px rgba(196, 153, 108, 0.2);
+}
+
+.variation-pill:hover .pill-content {
+    border-color: #c4996c;
+    transform: translateY(-1px);
+}
+</style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const priceElement = document.getElementById('product-price1');
-        const variationOptions = document.querySelectorAll('.variation-option');
+document.addEventListener('DOMContentLoaded', function() {
+    const mainPrice = document.getElementById('product-price');
+    const addToCartLink = document.getElementById('add-to-cart-link');
+    const productId = "<?php echo $products['id'][$i]; ?>";
+    const variations = {};
 
-        // Helper function to update the price
-        function updatePrice(event) {
-            const selectedPrice = event.target.getAttribute('data-price');
-            if (selectedPrice) {
-                priceElement.innerHTML = `₹${selectedPrice}`;
-            }
-        }
+    // Update price and cart link when variation is selected
+    document.querySelectorAll('.variation-chip input').forEach(input => {
+        input.addEventListener('change', function() {
+            const attribute = this.name.replace('variation_', '');
+            const value = this.value;
+            const price = this.dataset.price;
+            
+            variations[attribute] = {
+                value: value,
+                price: price
+            };
 
-        // Add event listeners to all variation options
-        variationOptions.forEach(option => {
-            option.addEventListener('change', updatePrice);
+            updatePrice();
+            updateAddToCartLink();
         });
+
+        // Trigger change for pre-selected variations
+        if(input.checked) {
+            input.dispatchEvent(new Event('change'));
+        }
     });
+
+    function updatePrice() {
+        const selectedPrice = Math.max(...Object.values(variations).map(v => parseFloat(v.price)));
+        const formattedPrice = new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            maximumFractionDigits: 0
+        }).format(selectedPrice);
+        
+        mainPrice.innerHTML = `${formattedPrice}`;
+    }
+
+    function updateAddToCartLink() {
+        const quantity = document.getElementById('product-quantity').value || 1;
+        const variationParams = Object.entries(variations)
+            .map(([attr, data]) => `&${attr}=${encodeURIComponent(data.value)}`)
+            .join('');
+            
+        addToCartLink.href = `./open-logics?type=addToCart&product_id=${productId}&quantity=${quantity}${variationParams}`;
+    }
+
+    // Update cart link when quantity changes
+    document.getElementById('product-quantity').addEventListener('change', updateAddToCartLink);
+    document.querySelector('.btn-plus').addEventListener('click', updateAddToCartLink);
+    document.querySelector('.btn-minus').addEventListener('click', updateAddToCartLink);
+});
 </script>
 
 
@@ -263,6 +504,60 @@ for ($j = 0; $j < $productVariations['count']; $j++) {
     </a>
 
 </div>
+
+
+<!-- Add this CSS -->
+<style>
+.variations-section {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+}
+
+.variation-option {
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.variation-option:hover {
+    background-color: #f8f9fa;
+}
+
+.variation-option.active {
+    background-color: #c4996c !important;
+    border-color: #c4996c !important;
+    color: white !important;
+}
+
+.variation-option small {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+</style>
+
+<!-- Add this JavaScript for handling price updates -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mainPrice = document.getElementById('product-price');
+    const variationOptions = document.querySelectorAll('.variation-option input');
+    const initialPrice = mainPrice.innerHTML;
+    
+    variationOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            const selectedPrice = this.dataset.price;
+            if (selectedPrice) {
+                mainPrice.innerHTML = `₹${Number(selectedPrice).toLocaleString('en-IN')} &emsp;<small><del>${initialPrice}</del></small>`;
+            }
+            
+            // Update active state of parent label
+            document.querySelectorAll('.variation-option').forEach(label => {
+                label.classList.remove('active');
+            });
+            this.closest('.variation-option').classList.add('active');
+        });
+    });
+});
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
