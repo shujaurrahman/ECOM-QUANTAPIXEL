@@ -931,6 +931,122 @@ public function getProducts() {
 
 //     return $res;
 // }
+
+// public function getProductBySubCatId($id) {
+//     $res = array();
+//     $res['status'] = 0;
+//     $con = new mysqli($this->hostName(), $this->userName(), $this->password(), $this->dbName());
+
+//     $query = $con->prepare("
+//         SELECT 
+//             products.id, 
+//             categories.id AS category_id, 
+//             categories.name AS category_name, 
+//             sub_categories.id AS subcategory_id, 
+//             sub_categories.name AS subcategory_name, 
+//             products.product_code, 
+//             products.product_name, 
+//             products.featured_image, 
+//             products.additional_images, 
+//             products.stock, 
+//             ornaments.id AS ornament_id, 
+//             ornaments.name AS ornament_name,
+//             products.product_price,
+//             products.discounted_price,
+//             products.discount_percentage, 
+//             GROUP_CONCAT(DISTINCT features.name SEPARATOR ', ') AS features, 
+//             products.is_lakshmi_kubera, 
+//             products.is_popular_collection, 
+//             products.is_recommended, 
+//             products.general_info, 
+//             products.description, 
+//             products.slug, 
+//             products.status, 
+//             products.created_at,
+//             MAX(products.discounted_price) AS highest_product_price
+//         FROM 
+//             products
+//         LEFT JOIN categories ON products.category_id = categories.id
+//         LEFT JOIN sub_categories ON products.subcategory_id = sub_categories.id
+//         LEFT JOIN ornaments ON products.ornament_type = ornaments.id
+//         LEFT JOIN features ON FIND_IN_SET(features.id, products.features) > 0
+//         WHERE 
+//             products.subcategory_id = ?
+//         GROUP BY products.id
+//         ORDER BY products.id DESC"
+//     );
+            
+//     $query->bind_param('s', $id);
+
+//     if ($query->execute()) {
+//         $query->bind_result(
+//             $id, $category_id, $category_name, $subcategory_id, $subcategory_name, 
+//             $product_code, $product_name, $featured_image, $additional_images, $stock, 
+//             $ornament_id, $ornament_type, $product_price, $discounted_price, 
+//             $discount_percentage, $features, $is_lakshmi_kubera, $is_popular_collection, 
+//             $is_recommended, $general_info, $description, $slug, $status, $created_at, 
+//             $highest_product_price
+//         );
+
+//         $i = 0;
+//         $ornament_counts = [];
+//         $lakshmi_kubera_count = 0;
+
+//         while ($query->fetch()) {
+//             if ($is_lakshmi_kubera == 1) {
+//                 $lakshmi_kubera_count++;
+//             }
+            
+//             $res['status'] = 1;
+//             $res['id'][$i] = $id;
+//             $res['category_id'][$i] = $category_id;
+//             $res['category_name'][$i] = $category_name;
+//             $res['subcategory_id'][$i] = $subcategory_id;
+//             $res['subcategory_name'][$i] = $subcategory_name;
+//             $res['product_code'][$i] = $product_code;
+//             $res['product_name'][$i] = $product_name;
+//             $res['featured_image'][$i] = $featured_image;
+//             $res['additional_images'][$i] = $additional_images;
+//             $res['stock'][$i] = $stock;
+//             $res['ornament_id'][$i] = $ornament_id;
+//             $res['ornament_type'][$i] = $ornament_type;
+//             $res['actual_price'][$i] = $product_price;
+//             $res['discounted_price'][$i] = $discounted_price;
+//             $res['discount_percentage'][$i] = $discount_percentage;
+//             $res['features'][$i] = $features;
+//             $res['is_lakshmi_kubera'][$i] = $is_lakshmi_kubera;
+//             $res['is_popular_collection'][$i] = $is_popular_collection;
+//             $res['is_recommended'][$i] = $is_recommended;
+//             $res['general_info'][$i] = $general_info;
+//             $res['description'][$i] = $description;
+//             $res['slug'][$i] = $slug;
+//             $res['statusval'][$i] = $status;
+//             $res['created_at'][$i] = $created_at;
+
+//             if (!isset($ornament_counts[$ornament_type])) {
+//                 $ornament_counts[$ornament_type] = 0;
+//             }
+//             $ornament_counts[$ornament_type]++;
+
+//             $i++;
+//         }
+//         $res['count'] = $i;
+//         $res['lakshmi_kubera_count'] = $lakshmi_kubera_count;
+//         $res['highest_product_price'] = $highest_product_price;
+//         $res['ornament_counts'] = [];
+//         foreach ($ornament_counts as $type => $count) {
+//             $res['ornament_counts'][] = [$type, $count];
+//         }
+//     } else {
+//         $res['error'] = 'Statement not Executed';
+//     }
+
+//     $query->close();
+//     $con->close();
+//     return $res;
+// }
+
+
 public function getProductBySubCatId($id) {
     $res = array();
     $res['status'] = 0;
@@ -961,8 +1077,7 @@ public function getProductBySubCatId($id) {
             products.description, 
             products.slug, 
             products.status, 
-            products.created_at,
-            MAX(products.discounted_price) AS highest_product_price
+            products.created_at
         FROM 
             products
         LEFT JOIN categories ON products.category_id = categories.id
@@ -970,7 +1085,7 @@ public function getProductBySubCatId($id) {
         LEFT JOIN ornaments ON products.ornament_type = ornaments.id
         LEFT JOIN features ON FIND_IN_SET(features.id, products.features) > 0
         WHERE 
-            products.subcategory_id = ?
+            products.subcategory_id = ? AND products.status = 1
         GROUP BY products.id
         ORDER BY products.id DESC"
     );
@@ -983,13 +1098,13 @@ public function getProductBySubCatId($id) {
             $product_code, $product_name, $featured_image, $additional_images, $stock, 
             $ornament_id, $ornament_type, $product_price, $discounted_price, 
             $discount_percentage, $features, $is_lakshmi_kubera, $is_popular_collection, 
-            $is_recommended, $general_info, $description, $slug, $status, $created_at, 
-            $highest_product_price
+            $is_recommended, $general_info, $description, $slug, $status, $created_at
         );
 
         $i = 0;
         $ornament_counts = [];
         $lakshmi_kubera_count = 0;
+        $highest_price = 0; // Initialize highest price tracker
 
         while ($query->fetch()) {
             if ($is_lakshmi_kubera == 1) {
@@ -1022,6 +1137,11 @@ public function getProductBySubCatId($id) {
             $res['statusval'][$i] = $status;
             $res['created_at'][$i] = $created_at;
 
+            // Track highest price
+            if ($discounted_price > $highest_price) {
+                $highest_price = $discounted_price;
+            }
+
             if (!isset($ornament_counts[$ornament_type])) {
                 $ornament_counts[$ornament_type] = 0;
             }
@@ -1029,10 +1149,12 @@ public function getProductBySubCatId($id) {
 
             $i++;
         }
+        
         $res['count'] = $i;
         $res['lakshmi_kubera_count'] = $lakshmi_kubera_count;
-        $res['highest_product_price'] = $highest_product_price;
+        $res['highest_product_price'] = $highest_price; // Set the highest price found
         $res['ornament_counts'] = [];
+        
         foreach ($ornament_counts as $type => $count) {
             $res['ornament_counts'][] = [$type, $count];
         }
@@ -1044,9 +1166,6 @@ public function getProductBySubCatId($id) {
     $con->close();
     return $res;
 }
-
-
-
     public function UpdateProduct($category_id, $subcategory_id, $product_name, $featured_image, $additional_images, $stock, $ornament_type, $ornament_weight, $discount_percentage, $short_description, 
     $features, $is_lakshmi_kubera, $is_popular_collection, $is_recommended, 
     $general_info, $description,$id) {

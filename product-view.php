@@ -171,8 +171,7 @@ $slug = ucwords($slug);
                         </div>
                         <small class="pt-1">(<?php echo $averageRatingValue; ?> Reviews)</small>
                     </div>
-                    <h3 class="font-weight-semi-bold mb-1" id="product-price">₹<?php echo $products['discounted_price'][$i] ?> &emsp;<small><del>₹<?php echo $products['product_price'][$i] ?></del></small></h3>
-                    <!-- <span class="mb-4">Ornament & Weight : <b><?php echo $products['ornament_type'][$i] ?> (<?php echo $products['ornament_weight'][$i] ?> Grams)</b></span> -->
+                    <h3 class="font-weight-semi-bold mb-1" id="product-price">₹<?php echo  number_format(floor($products['discounted_price'][$i])) ?> &emsp;<small><del>₹<?php echo  number_format(floor($products['product_price'][$i])) ?></del></small></h3>
 
     
                     <p class="mb-4"><?php echo $products['short_description'][$i] ?></p>

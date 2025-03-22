@@ -166,8 +166,8 @@ $productsBySubCatId = $Obj->getProductBySubCatId($_GET['id']);
                       <form method="GET" id="sortForm">
                         <select name="sort" class="form-control" id="sortSelect" onchange="updateUrlAndSubmit()">
                           <option value="">Sort By</option>
-                          <option value="newest" <?php if(!empty($_GET['sort']) && $_GET['sort']=='newest'){ echo "selected"; } ?>>newest</option>
-                          <option value="oldest" <?php if(!empty($_GET['sort']) && $_GET['sort']=='oldest'){ echo "selected"; } ?>>oldest</option>
+                          <option value="newest" <?php if(!empty($_GET['sort']) && $_GET['sort']=='newest'){ echo "selected"; } ?>>Newest</option>
+                          <option value="oldest" <?php if(!empty($_GET['sort']) && $_GET['sort']=='oldest'){ echo "selected"; } ?>>Oldest</option>
                           <option value="low-high" <?php if(!empty($_GET['sort']) && $_GET['sort']=='low-high'){ echo "selected"; } ?>>Lowest Price</option>
                           <option value="high-low" <?php if(!empty($_GET['sort']) && $_GET['sort']=='high-low'){ echo "selected"; } ?>>Highest Price</option>
                         </select>
@@ -350,84 +350,6 @@ require_once('./footer.php');
   <!-- Include the noUiSlider library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.css">
-
-<script>
-    // Initialize the price range slider
-    var priceSlider = document.getElementById('priceRangeSlider');
-
-    // Set the highest product price dynamically from the PHP variable `highest_product_price`
-    var highestProductPrice = <?php echo $productsBySubCatId['highest_product_price']; ?>;
-
-    // Get the min and max values from the URL or use default values if not set
-    var urlParams = new URLSearchParams(window.location.search);
-    var minPriceFromUrl = parseInt(urlParams.get('minPrice')) || 0;
-    var maxPriceFromUrl = parseInt(urlParams.get('maxPrice')) || highestProductPrice;
-
-    // Create the price slider with dynamic max value
-    noUiSlider.create(priceSlider, {
-        start: [minPriceFromUrl, maxPriceFromUrl],  // Start positions based on URL or default values
-        connect: true,                            // Connect the two handles with a shaded area
-        range: {
-            'min': 0,                             // Minimum price
-            'max': highestProductPrice           // Maximum price based on the highest product price
-        },
-        step: 10                                  // Increment step
-    });
-
-    // Link the slider to the input fields
-    priceSlider.noUiSlider.on('update', function (values, handle) {
-        if (handle === 0) {
-            document.getElementById('minPrice').value = Math.round(values[0]);
-        } else {
-            document.getElementById('maxPrice').value = Math.round(values[1]);
-        }
-    });
-
-    // Update the slider when the input fields are changed
-    document.getElementById('minPrice').addEventListener('change', function () {
-        var minVal = parseInt(this.value);
-        var currentMax = parseInt(document.getElementById('maxPrice').value);
-
-        // Ensure min value is less than max value
-        if (minVal >= currentMax) {
-            minVal = currentMax - 1;  // Prevent min from being greater than or equal to max
-            document.getElementById('minPrice').value = minVal;
-        }
-
-        priceSlider.noUiSlider.set([minVal, currentMax]);
-    });
-
-    document.getElementById('maxPrice').addEventListener('change', function () {
-        var maxVal = parseInt(this.value);
-        var currentMin = parseInt(document.getElementById('minPrice').value);
-
-        // Ensure max value is greater than min value
-        if (maxVal <= currentMin) {
-            maxVal = currentMin + 1;  // Prevent max from being less than or equal to min
-            document.getElementById('maxPrice').value = maxVal;
-        }
-
-        priceSlider.noUiSlider.set([currentMin, maxVal]);
-    });
-
-    // Add onchange functionality to the slider (on change, update the URL)
-    priceSlider.noUiSlider.on('change', function () {
-        const form = document.querySelector('form');
-        const minPrice = document.getElementById('minPrice').value;
-        const maxPrice = document.getElementById('maxPrice').value;
-
-        // Construct the new URL with the updated query parameters
-        const url = new URL(window.location.href);
-        url.searchParams.set('minPrice', minPrice);
-        url.searchParams.set('maxPrice', maxPrice);
-
-        // Update the browser's URL without reloading the page
-        window.history.pushState({}, '', url);
-
-        // Simulate form submission by programmatically navigating to the new URL
-        window.location.href = url.toString();
-    });
-</script>
 
 
 <script>
@@ -690,4 +612,170 @@ document.querySelectorAll('.custom-control-input').forEach(function(checkbox) {
 // On page load, maintain the checkbox states based on the current URL
 window.onload = maintainCheckboxState;
 
+</script>
+
+<script>
+    // Initialize the price range slider
+    var priceSlider = document.getElementById('priceRangeSlider');
+
+    // Set the highest product price dynamically from the PHP variable `highest_product_price`
+    var highestProductPrice = <?php echo $productsBySubCatId['highest_product_price']; ?>;
+
+    // Get the min and max values from the URL or use default values if not set
+    var urlParams = new URLSearchParams(window.location.search);
+    var minPriceFromUrl = parseInt(urlParams.get('minPrice')) || 0;
+    var maxPriceFromUrl = parseInt(urlParams.get('maxPrice')) || highestProductPrice;
+
+    // Create the price slider with dynamic max value
+    noUiSlider.create(priceSlider, {
+        start: [minPriceFromUrl, maxPriceFromUrl],  // Start positions based on URL or default values
+        connect: true,                            // Connect the two handles with a shaded area
+        range: {
+            'min': 0,                             // Minimum price
+            'max': highestProductPrice           // Maximum price based on the highest product price
+        },
+        step: 10                                  // Increment step
+    });
+
+    // Link the slider to the input fields
+    priceSlider.noUiSlider.on('update', function (values, handle) {
+        if (handle === 0) {
+            document.getElementById('minPrice').value = Math.round(values[0]);
+        } else {
+            document.getElementById('maxPrice').value = Math.round(values[1]);
+        }
+    });
+
+    // Update the slider when the input fields are changed
+    document.getElementById('minPrice').addEventListener('change', function () {
+        var minVal = parseInt(this.value);
+        var currentMax = parseInt(document.getElementById('maxPrice').value);
+
+        // Ensure min value is less than max value
+        if (minVal >= currentMax) {
+            minVal = currentMax - 1;  // Prevent min from being greater than or equal to max
+            document.getElementById('minPrice').value = minVal;
+        }
+
+        priceSlider.noUiSlider.set([minVal, currentMax]);
+    });
+
+    document.getElementById('maxPrice').addEventListener('change', function () {
+        var maxVal = parseInt(this.value);
+        var currentMin = parseInt(document.getElementById('minPrice').value);
+
+        // Ensure max value is greater than min value
+        if (maxVal <= currentMin) {
+            maxVal = currentMin + 1;  // Prevent max from being less than or equal to min
+            document.getElementById('maxPrice').value = maxVal;
+        }
+
+        priceSlider.noUiSlider.set([currentMin, maxVal]);
+    });
+
+    // Add onchange functionality to the slider (on change, update the URL)
+    priceSlider.noUiSlider.on('change', function () {
+        const form = document.querySelector('form');
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+
+        // Construct the new URL with the updated query parameters
+        const url = new URL(window.location.href);
+        url.searchParams.set('minPrice', minPrice);
+        url.searchParams.set('maxPrice', maxPrice);
+
+        // Update the browser's URL without reloading the page
+        window.history.pushState({}, '', url);
+
+        // Simulate form submission by programmatically navigating to the new URL
+        window.location.href = url.toString();
+    });
+</script>
+
+<script>
+    // Initialize the price range slider
+    var priceSlider = document.getElementById('priceRangeSlider');
+
+    // Calculate highest product price directly from the product data
+    var highestProductPrice = 0;
+    
+    <?php
+    // Loop through all products to find the highest price
+    if (isset($productsBySubCatId['discounted_price']) && is_array($productsBySubCatId['discounted_price'])) {
+        foreach ($productsBySubCatId['discounted_price'] as $price) {
+            echo "if ($price > highestProductPrice) highestProductPrice = $price;\n";
+        }
+    }
+    ?>
+    
+    // Ensure we have a valid number, with a minimum fallback of 10000
+    highestProductPrice = Math.max(highestProductPrice, 10000);
+    
+    console.log("Calculated highest product price: " + highestProductPrice);
+
+    // Get the min and max values from the URL or use default values if not set
+    var urlParams = new URLSearchParams(window.location.search);
+    var minPriceFromUrl = parseInt(urlParams.get('minPrice')) || 0;
+    var maxPriceFromUrl = parseInt(urlParams.get('maxPrice')) || highestProductPrice;
+
+    // Create the price slider with dynamic max value
+    noUiSlider.create(priceSlider, {
+        start: [minPriceFromUrl, maxPriceFromUrl],  // Start positions based on URL or default values
+        connect: true,                            // Connect the two handles with a shaded area
+        range: {
+            'min': 0,                             // Minimum price
+            'max': highestProductPrice           // Maximum price calculated from product data
+        },
+        step: 10                                  // Increment step
+    });
+
+    // Link the slider to the input fields
+    priceSlider.noUiSlider.on('update', function (values, handle) {
+        if (handle === 0) {
+            document.getElementById('minPrice').value = Math.round(values[0]);
+        } else {
+            document.getElementById('maxPrice').value = Math.round(values[1]);
+        }
+    });
+
+    // Update the slider when the input fields are changed
+    document.getElementById('minPrice').addEventListener('change', function () {
+        var minVal = parseInt(this.value);
+        var currentMax = parseInt(document.getElementById('maxPrice').value);
+
+        // Ensure min value is less than max value
+        if (minVal >= currentMax) {
+            minVal = currentMax - 1;  // Prevent min from being greater than or equal to max
+            document.getElementById('minPrice').value = minVal;
+        }
+
+        priceSlider.noUiSlider.set([minVal, currentMax]);
+    });
+
+    document.getElementById('maxPrice').addEventListener('change', function () {
+        var maxVal = parseInt(this.value);
+        var currentMin = parseInt(document.getElementById('minPrice').value);
+
+        // Ensure max value is greater than min value
+        if (maxVal <= currentMin) {
+            maxVal = currentMin + 1;  // Prevent max from being less than or equal to min
+            document.getElementById('maxPrice').value = maxVal;
+        }
+
+        priceSlider.noUiSlider.set([currentMin, maxVal]);
+    });
+
+    // Add onchange functionality to the slider (on change, update the URL)
+    priceSlider.noUiSlider.on('change', function () {
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+
+        // Construct the new URL with the updated query parameters
+        const url = new URL(window.location.href);
+        url.searchParams.set('minPrice', minPrice);
+        url.searchParams.set('maxPrice', maxPrice);
+
+        // Redirect to the updated URL
+        window.location.href = url.toString();
+    });
 </script>
