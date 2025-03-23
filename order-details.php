@@ -4,6 +4,9 @@ $title = "Order Details";
 require_once('header.php');
 require_once('./logics.class.php');
 
+
+
+
 $getUsers = new logics();
 $orderDetails = $getUsers->getOrderDetails($_GET['id']);
 
